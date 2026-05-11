@@ -338,13 +338,15 @@ export default function App() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
 
-  // Auth Listener & Redirect Result
+  // Auth Listener & Redirect Handling
   useEffect(() => {
+    // Check if we just returned from a redirect
     const checkRedirect = async () => {
       try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          setShowLogin(true); // Open dashboard automatically after redirect
+        await getRedirectResult(auth);
+        if (sessionStorage.getItem('pendingAdminLogin') === 'true') {
+          setShowLogin(true);
+          sessionStorage.removeItem('pendingAdminLogin');
         }
       } catch (err) {
         console.error("Redirect login error:", err);
@@ -791,6 +793,7 @@ function LoginModal({ onClose }) {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
+      sessionStorage.setItem('pendingAdminLogin', 'true');
       await signInWithRedirect(auth, provider);
     } catch (err) {
       setError("Failed to start Google sign-in.");
