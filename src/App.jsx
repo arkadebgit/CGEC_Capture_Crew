@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
@@ -306,21 +306,31 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [adminSection, setAdminSection] = useState("certificates");
 
-  // Dynamic Featured Content
+  // Live Data State
+  const [gallery, setGallery] = useState(GALLERY);
   const [weekCapture, setWeekCapture] = useState(null);
   const [monthCapture, setMonthCapture] = useState(null);
 
-  // Fetch Featured Content
+  // Fetch All Live Data
   useEffect(() => {
-    const fetchFeatured = async () => {
+    const fetchLiveData = async () => {
       try {
-        const weekSnap = await getDocs(query(collection(db, "config"), where("__name__", "==", "week")));
-        const monthSnap = await getDocs(query(collection(db, "config"), where("__name__", "==", "month")));
-        if (!weekSnap.empty) setWeekCapture(weekSnap.docs[0].data());
-        if (!monthSnap.empty) setMonthCapture(monthSnap.docs[0].data());
-      } catch (err) { console.error("Featured fetch error:", err); }
+        // 1. Fetch Featured Config
+        const weekDoc = await getDoc(doc(db, "config", "week"));
+        const monthDoc = await getDoc(doc(db, "config", "month"));
+        if (weekDoc.exists()) setWeekCapture(weekDoc.data());
+        if (monthDoc.exists()) setMonthCapture(monthDoc.data());
+
+        // 2. Fetch Public Gallery
+        const gallerySnap = await getDocs(collection(db, "gallery"));
+        if (!gallerySnap.empty) {
+          const liveGallery = gallerySnap.docs.map(d => ({ id: d.id, ...d.data() }));
+          // Merge with static data or just use live
+          setGallery(liveGallery);
+        }
+      } catch (err) { console.error("Data fetch error:", err); }
     };
-    fetchFeatured();
+    fetchLiveData();
   }, [showLogin]);
 
   // Random Hero on load
@@ -388,8 +398,8 @@ export default function App() {
   };
 
   const filteredGallery = galleryFilter === "All"
-    ? GALLERY
-    : GALLERY.filter(g => g.category === galleryFilter);
+    ? gallery
+    : gallery.filter(g => g.category === galleryFilter);
 
   return (
     <>
