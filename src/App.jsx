@@ -798,7 +798,7 @@ function LoginModal({ onClose }) {
       setStep(2);
     } catch (err) {
       console.error(err);
-      setError("Failed to send code. Ensure number is in +91XXXXXXXXXX format.");
+      setError(`Error: ${err.message || "Failed to send code. Ensure +91 format."}`);
     }
   };
 
