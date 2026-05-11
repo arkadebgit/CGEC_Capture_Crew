@@ -19,11 +19,12 @@ export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 
-// Initialize App Check
-// Note: You will need a reCAPTCHA v3 site key from the Google Cloud Console
+// Initialize App Check (Commented out for initial setup troubleshooting)
+/*
 if (typeof window !== "undefined") {
   initializeAppCheck(app, {
-    provider: new ReCaptchaV3Provider('6LciXoMqAAAAAKGZ_z-q_Z-Z-Z-Z-Z-Z-Z-Z-Z'), // Placeholder key
+    provider: new ReCaptchaV3Provider('6LciXoMqAAAAAKGZ_z-q_Z-Z-Z-Z-Z-Z-Z-Z-Z'), 
     isTokenAutoRefreshEnabled: true
   });
 }
+*/
