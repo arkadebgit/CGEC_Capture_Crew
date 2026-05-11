@@ -291,6 +291,7 @@ export default function App() {
   const [lightboxItem, setLightboxItem] = useState(null);
   const [monthSlide, setMonthSlide] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Nav scroll
   useEffect(() => {
@@ -319,6 +320,7 @@ export default function App() {
 
   const scrollTo = (id) => {
     if (selectedEvent) setSelectedEvent(null);
+    setMobileMenuOpen(false);
     setTimeout(() => {
       document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
       setActiveSection(id);
@@ -339,7 +341,12 @@ export default function App() {
           </div>
           <div className="nav-name">Capture Crew</div>
         </div>
-        <ul className="nav-links">
+        
+        <button className={`nav-toggle ${mobileMenuOpen ? "active" : ""}`} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          <span></span><span></span><span></span>
+        </button>
+
+        <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
           {[["home","Home"],["week","Week"],["month","Month"],["gallery","Gallery"],["events","Events"],["team","Team"],["feedback","Feedback"]].map(([id, label]) => (
             <li key={id} className={activeSection === id ? "active" : ""} onClick={() => scrollTo(id)}>{label}</li>
           ))}
