@@ -344,9 +344,8 @@ section { padding: 7rem 0; }
   z-index: 10;
 }
 .gallery-thumb {
-  width: 100%; display: block;
-  background-size: cover;
-  background-position: center;
+  width: 100%; height: auto;
+  display: block;
   transition: transform 1s var(--ease);
 }
 .gallery-item:hover .gallery-thumb {

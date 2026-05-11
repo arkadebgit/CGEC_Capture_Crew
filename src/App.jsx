@@ -455,13 +455,11 @@ export default function App() {
                 className="gallery-item"
                 onClick={() => setLightboxItem(item)}
               >
-                <div
-                  className="gallery-thumb"
-                  style={{
-                    height: `${Math.round(item.aspect * 220)}px`,
-                    backgroundImage: `url(${item.url})`,
-                    backgroundColor: `rgba(255,255,255,0.03)`,
-                  }}
+                <img 
+                  src={item.url} 
+                  alt={item.title} 
+                  className="gallery-thumb" 
+                  loading="lazy"
                 />
                 <div className="gallery-overlay">
                   <div>
