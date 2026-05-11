@@ -834,7 +834,7 @@ function LoginModal({ onClose }) {
             <input className="form-input" type="text" placeholder="Enter 6-digit code" value={otp} onChange={e => setOtp(e.target.value)} required />
             {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</p>}
             <button className="form-submit" type="submit">Verify & Login →</button>
-            <button className="event-dive-btn" style={{ marginTop: '1rem', border: 'none', background: 'transparent', color: var(--muted) }} onClick={() => setStep(1)}>← Back</button>
+            <button className="event-dive-btn" style={{ marginTop: '1rem', border: 'none', background: 'transparent', color: 'var(--muted)' }} onClick={() => setStep(1)}>← Back</button>
           </form>
         )}
       </div>
