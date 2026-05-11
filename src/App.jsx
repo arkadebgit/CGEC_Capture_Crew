@@ -302,10 +302,26 @@ export default function App() {
   const [verifyResult, setVerifyResult] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Admin State
   const [user, setUser] = useState(null);
   const [showLogin, setShowLogin] = useState(false);
   const [adminSection, setAdminSection] = useState("certificates");
+
+  // Dynamic Featured Content
+  const [weekCapture, setWeekCapture] = useState(null);
+  const [monthCapture, setMonthCapture] = useState(null);
+
+  // Fetch Featured Content
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const weekSnap = await getDocs(query(collection(db, "config"), where("__name__", "==", "week")));
+        const monthSnap = await getDocs(query(collection(db, "config"), where("__name__", "==", "month")));
+        if (!weekSnap.empty) setWeekCapture(weekSnap.docs[0].data());
+        if (!monthSnap.empty) setMonthCapture(monthSnap.docs[0].data());
+      } catch (err) { console.error("Featured fetch error:", err); }
+    };
+    fetchFeatured();
+  }, [showLogin]);
 
   // Random Hero on load
   useEffect(() => {
@@ -429,18 +445,18 @@ export default function App() {
           </div>
           <div className="week-inner fade-in">
             <div className="week-image-wrap">
-              <img src={WEEK_CAPTURE.url} alt={WEEK_CAPTURE.title} className="week-img" />
+              <img src={weekCapture?.url || "/placeholder.jpg"} alt={weekCapture?.title} className="week-img" />
               <div className="week-badge">This Week's Pick</div>
             </div>
             <div className="week-info">
               <div className="week-date">Featured</div>
-              <h3 className="week-title">{WEEK_CAPTURE.title}</h3>
-              <p className="week-story">{WEEK_CAPTURE.story}</p>
+              <h3 className="week-title">{weekCapture?.title || "Loading..."}</h3>
+              <p className="week-story">{weekCapture?.story || "Fetching the latest capture..."}</p>
               <div className="week-credit">
                 <div className="week-avatar">📷</div>
                 <div>
-                  <div className="week-credit-name">{WEEK_CAPTURE.photographer}</div>
-                  <div className="week-credit-role">{WEEK_CAPTURE.dept} · {WEEK_CAPTURE.year}</div>
+                  <div className="week-credit-name">{weekCapture?.photographer || "Photographer"}</div>
+                  <div className="week-credit-role">{weekCapture?.dept} · {weekCapture?.year}</div>
                 </div>
               </div>
             </div>
@@ -806,15 +822,27 @@ function LoginModal({ onClose }) {
 }
 
 function AdminDashboard({ user, onClose }) {
-  const [tab, setTab] = useState("certs");
+  const [tab, setTab] = useState("week");
   const [certs, setCerts] = useState([]);
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
-  const [gallery, setGallery] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
+  
+  const [featuredData, setFeaturedData] = useState({ 
+    url: "", title: "", photographer: "", story: "", 
+    dept: "Computer Science & Engineering", year: "1st Year" 
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const DEPTS = [
+    "Computer Science & Engineering",
+    "Electronics & Communication Engineering",
+    "Mechanical Engineering",
+    "Electrical Engineering",
+    "Civil Engineering"
+  ];
+  const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 
   useEffect(() => {
     fetchCerts();
-    fetchGallery();
   }, []);
 
   const fetchCerts = async () => {
@@ -824,11 +852,16 @@ function AdminDashboard({ user, onClose }) {
     } catch (e) { console.error(e); }
   };
 
-  const fetchGallery = async () => {
+  const updateFeatured = async (type) => {
+    setIsUpdating(true);
     try {
-      const snap = await getDocs(collection(db, "gallery"));
-      setGallery(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (e) { console.error(e); }
+      await setDoc(doc(db, "config", type), featuredData);
+      alert(`Updated Capture of the ${type === 'week' ? 'Week' : 'Month'} Successfully!`);
+      setFeaturedData({ url: "", title: "", photographer: "", story: "", dept: DEPTS[0], year: YEARS[0] });
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+    setIsUpdating(false);
   };
 
   const addCert = async (e) => {
@@ -837,46 +870,9 @@ function AdminDashboard({ user, onClose }) {
       await addDoc(collection(db, "certificates"), newCert);
       setNewCert({ name: "", serialNo: "", date: "", event: "" });
       fetchCerts();
-      alert("Certificate Issued Successfully!");
+      alert("Certificate Issued!");
     } catch (err) {
-      alert("Error: " + err.message);
-    }
-  };
-
-  const [newImage, setNewImage] = useState({ url: "", title: "", photographer: "", category: "General", dept: "", year: "" });
-
-  const addGalleryItem = async (e) => {
-    e.preventDefault();
-    if (!newImage.url) return;
-    setIsUploading(true);
-    try {
-      await addDoc(collection(db, "gallery"), {
-        ...newImage,
-        createdAt: new Date().toISOString()
-      });
-      setNewImage({ url: "", title: "", photographer: "", category: "General", dept: "", year: "" });
-      fetchGallery();
-      alert("Photo Added to Gallery!");
-    } catch (err) {
-      alert("Error: " + err.message);
-    }
-    setIsUploading(false);
-  };
-
-  const setFeatured = async (id, type) => {
-    try {
-      const item = gallery.find(g => g.id === id);
-      await updateDoc(doc(db, "config", type), {
-        url: item.url,
-        title: item.title,
-        photographer: item.photographer,
-        dept: item.dept,
-        year: item.year,
-        story: "Updated via Admin Dashboard"
-      });
-      alert(`Updated Capture of the ${type === 'week' ? 'Week' : 'Month'}!`);
-    } catch (err) {
-      alert("Error: " + err.message);
+      alert("Failed to Issue: " + err.message);
     }
   };
 
@@ -887,83 +883,51 @@ function AdminDashboard({ user, onClose }) {
           <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
           <div className="section-label">Admin Console</div>
           <h1 className="section-title">Team <em>Dashboard</em></h1>
-          <p className="section-sub">Welcome, {user.email}. Manage your club's data below.</p>
+          <p className="section-sub">Logged in as: {user.email}</p>
           <button className="event-dive-btn" style={{ position: 'absolute', top: '0', right: 0 }} onClick={() => signOut(auth)}>Sign Out</button>
         </header>
 
         <div className="gallery-filter">
+          <button className={`filter-btn ${tab === 'week' ? 'active' : ''}`} onClick={() => setTab('week')}>Cap of the Week</button>
+          <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Cap of the Month</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
-          <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Gallery & Featured</button>
         </div>
+
+        {(tab === 'week' || tab === 'month') && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : 'Monthly'} <em>Featured</em></h3>
+            <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
+              <input className="form-input" placeholder="Image Direct Link (https://...)" value={featuredData.url} onChange={e => setFeaturedData({...featuredData, url: e.target.value})} style={{ gridColumn: '1 / -1' }} />
+              <input className="form-input" placeholder="Caption / Title" value={featuredData.title} onChange={e => setFeaturedData({...featuredData, title: e.target.value})} />
+              <input className="form-input" placeholder="Photographer Name" value={featuredData.photographer} onChange={e => setFeaturedData({...featuredData, photographer: e.target.value})} />
+              
+              <select className="form-input" value={featuredData.dept} onChange={e => setFeaturedData({...featuredData, dept: e.target.value})}>
+                {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              
+              <select className="form-input" value={featuredData.year} onChange={e => setFeaturedData({...featuredData, year: e.target.value})}>
+                {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+
+              <textarea className="form-input" placeholder="The story behind this shot..." rows="3" style={{ gridColumn: '1 / -1' }} value={featuredData.story} onChange={e => setFeaturedData({...featuredData, story: e.target.value})} />
+              
+              <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
+                {isUpdating ? "Updating..." : `Update Capture of the ${tab === 'week' ? 'Week' : 'Month'} →`}
+              </button>
+            </div>
+          </div>
+        )}
 
         {tab === 'certs' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Issue <em>Certificate</em></h3>
-            <form className="feedback-form" style={{ marginBottom: '4rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={addCert}>
+            <form className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={addCert}>
               <input className="form-input" placeholder="Student Name" value={newCert.name} onChange={e => setNewCert({...newCert, name: e.target.value})} required />
               <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
               <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
               <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
               <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate →</button>
             </form>
-
-            <h3 className="subcategory-title">Active <em>Records</em></h3>
-            <div className="events-grid">
-              {certs.map(c => (
-                <div key={c.id} className="event-card" style={{ padding: '1.5rem' }}>
-                  <div className="team-name" style={{ fontSize: '1rem' }}>{c.name}</div>
-                  <div className="event-subtitle" style={{ fontSize: '0.65rem' }}>{c.serialNo}</div>
-                  <div className="event-date">{c.date} · {c.event}</div>
-                  <button onClick={async () => {
-                    await deleteDoc(doc(db, "certificates", c.id));
-                    fetchCerts();
-                  }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Record</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        {tab === 'gallery' && (
-          <div className="fade-in visible">
-            <h3 className="subcategory-title">Add to <em>Gallery</em></h3>
-            <p className="section-sub" style={{ marginBottom: '1.5rem', fontSize: '0.8rem' }}>Upload your photo to <a href="https://postimages.org/" target="_blank" style={{ color: 'var(--gold)' }}>PostImages.org</a> and paste the <strong>Direct Link</strong> below.</p>
-            
-            <form className="feedback-form" style={{ marginBottom: '4rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={addGalleryItem}>
-              <input className="form-input" placeholder="Image Direct URL (https://...)" value={newImage.url} onChange={e => setNewImage({...newImage, url: e.target.value})} required style={{ gridColumn: '1 / -1' }} />
-              <input className="form-input" placeholder="Title" value={newImage.title} onChange={e => setNewImage({...newImage, title: e.target.value})} required />
-              <input className="form-input" placeholder="Photographer Name" value={newImage.photographer} onChange={e => setNewImage({...newImage, photographer: e.target.value})} required />
-              <input className="form-input" placeholder="Category (e.g. Street, Nature)" value={newImage.category} onChange={e => setNewImage({...newImage, category: e.target.value})} required />
-              <input className="form-input" placeholder="Dept & Year" value={newImage.dept} onChange={e => setNewImage({...newImage, dept: e.target.value})} required />
-              <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>{isUploading ? "Adding..." : "Add to Gallery →"}</button>
-            </form>
-
-            <h3 className="subcategory-title">Gallery & <em>Featured Picker</em></h3>
-            <div className="gallery-grid">
-              {gallery.length === 0 ? (
-                <p className="section-sub" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>No photos added yet. Add your first photo above!</p>
-              ) : (
-                gallery.map(g => (
-                  <div key={g.id} className="gallery-item">
-                    <img src={g.url} alt={g.title} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
-                    <div style={{ padding: '0.5rem' }}>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--white)' }}>{g.title}</div>
-                      <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
-                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.8rem' }}>
-                        <button className="filter-btn" style={{ fontSize: '0.55rem', padding: '0.3rem 0.5rem', background: 'rgba(255,215,0,0.1)' }} onClick={() => setFeatured(g.id, 'week')}>Set Week</button>
-                        <button className="filter-btn" style={{ fontSize: '0.55rem', padding: '0.3rem 0.5rem', background: 'rgba(255,215,0,0.1)' }} onClick={() => setFeatured(g.id, 'month')}>Set Month</button>
-                        <button className="filter-btn" style={{ fontSize: '0.55rem', padding: '0.3rem 0.5rem', background: 'rgba(255,0,0,0.1)' }} onClick={async () => {
-                          if (window.confirm("Delete this photo?")) {
-                            await deleteDoc(doc(db, "gallery", g.id));
-                            fetchGallery();
-                          }
-                        }}>🗑</button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
           </div>
         )}
       </div>
