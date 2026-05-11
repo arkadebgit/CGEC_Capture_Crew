@@ -190,8 +190,9 @@ section { padding: 7rem 0; }
 }
 @media(max-width: 900px) { .week-inner { grid-template-columns: 1fr; gap: 3rem; } }
 .week-image-wrap {
-  position: relative; aspect-ratio: 4/5; overflow: hidden;
-  border: 1px solid var(--border);
+  position: relative; height: 600px; width: auto; 
+  margin: 0 auto; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 24px;
 }
 .week-image-wrap::before {
   content: ''; position: absolute; inset: -1px;
@@ -200,9 +201,9 @@ section { padding: 7rem 0; }
 }
 .week-placeholder {
   width: 100%; height: 100%;
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
-  display: flex; align-items: center; justify-content: center;
 }
 .week-badge {
   position: absolute; top: 1.5rem; left: 1.5rem; z-index: 2;
@@ -265,14 +266,15 @@ section { padding: 7rem 0; }
 }
 @media(max-width: 900px) { .month-slide { grid-template-columns: 1fr; gap: 2.5rem; } }
 .month-image-wrap {
-  position: relative; aspect-ratio: 16/10; overflow: hidden;
-  border: 1px solid var(--border);
+  position: relative; height: 500px; width: auto;
+  margin: 0 auto; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 24px;
 }
 .month-placeholder {
   width: 100%; height: 100%;
-  background-size: cover;
+  background-size: contain;
+  background-repeat: no-repeat;
   background-position: center;
-  display: flex; align-items: center; justify-content: center;
 }
 .month-frame {
   position: absolute; inset: 8px;
