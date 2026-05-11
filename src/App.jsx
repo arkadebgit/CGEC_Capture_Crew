@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
 // ─── PLACEHOLDER DATA ───────────────────────────────────────────────────────
@@ -338,8 +338,16 @@ export default function App() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
 
-  // Auth Listener
+  // Auth Listener & Redirect Result
   useEffect(() => {
+    const checkRedirect = async () => {
+      try {
+        await getRedirectResult(auth);
+      } catch (err) {
+        console.error("Redirect login error:", err);
+      }
+    };
+    checkRedirect();
     return onAuthStateChanged(auth, (u) => setUser(u));
   }, []);
 
@@ -780,10 +788,9 @@ function LoginModal({ onClose }) {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
-      onClose();
+      await signInWithRedirect(auth, provider);
     } catch (err) {
-      setError("Failed to sign in with Google.");
+      setError("Failed to start Google sign-in.");
     }
   };
 
