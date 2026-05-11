@@ -342,7 +342,10 @@ export default function App() {
   useEffect(() => {
     const checkRedirect = async () => {
       try {
-        await getRedirectResult(auth);
+        const result = await getRedirectResult(auth);
+        if (result?.user) {
+          setShowLogin(true); // Open dashboard automatically after redirect
+        }
       } catch (err) {
         console.error("Redirect login error:", err);
       }
