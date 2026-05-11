@@ -85,13 +85,16 @@ body {
   .nav { padding: 0 1.5rem; height: 60px; }
   .nav-toggle { display: flex; }
   .nav-links {
-    position: fixed; inset: 0; background: var(--ink);
+    position: fixed; inset: 0; 
+    background: var(--ink); /* Solid black */
+    display: flex; /* Override display:none from earlier queries if any */
     flex-direction: column; align-items: center; justify-content: center;
     gap: 3rem; transform: translateX(100%); transition: transform 0.5s var(--ease);
     z-index: 140;
+    backdrop-filter: blur(10px);
   }
   .nav-links.mobile-open { transform: translateX(0); }
-  .nav-links li { font-size: 1.2rem; }
+  .nav-links li { font-size: 1.5rem; color: var(--white); font-weight: 500; }
 }
 
 /* HERO */
