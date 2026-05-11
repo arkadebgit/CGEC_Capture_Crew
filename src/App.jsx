@@ -645,7 +645,10 @@ export default function App() {
                 <a key={id} onClick={() => scrollTo(id)}>{label}</a>
               ))}
             </div>
-            <div className="footer-copy">© 2026 Capture Crew · All rights reserved</div>
+            <div className="footer-copy">
+              © 2026 Capture Crew · All rights reserved <br />
+              <span className="made-by">Made with <span className="heart">❤️</span> by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a></span>
+            </div>
           </div>
         </div>
       </footer>
