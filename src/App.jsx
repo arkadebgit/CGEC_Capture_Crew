@@ -378,7 +378,7 @@ export default function App() {
           </div>
           <div className="week-inner fade-in">
             <div className="week-image-wrap">
-              <div className="week-placeholder" style={{ backgroundImage: `url(${WEEK_CAPTURE.url})` }} />
+              <img src={WEEK_CAPTURE.url} alt={WEEK_CAPTURE.title} className="week-img" />
               <div className="week-badge">This Week's Pick</div>
             </div>
             <div className="week-info">
@@ -412,7 +412,7 @@ export default function App() {
           </div>
           <div className="month-slide fade-in">
             <div className="month-image-wrap">
-              <div className="month-placeholder" style={{ backgroundImage: `url(${MONTH_CAPTURES[monthSlide].url})` }} />
+              <img src={MONTH_CAPTURES[monthSlide].url} alt={MONTH_CAPTURES[monthSlide].title} className="month-img" />
               <div className="month-frame" />
               <div className="month-award">
                 <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>

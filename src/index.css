@@ -190,21 +190,15 @@ section { padding: 7rem 0; }
 }
 @media(max-width: 900px) { .week-inner { grid-template-columns: 1fr; gap: 3rem; } }
 .week-image-wrap {
-  position: relative; height: 600px; width: auto; 
-  margin: 0 auto; overflow: hidden;
-  border: 1px solid var(--border); border-radius: 24px;
+  position: relative; border-radius: 24px; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
 }
-.week-image-wrap::before {
-  content: ''; position: absolute; inset: -1px;
-  background: linear-gradient(135deg, var(--gold) 0%, transparent 50%);
-  opacity: 0.4; z-index: 1; pointer-events: none;
+.week-img {
+  width: 100%; height: auto; max-height: 650px;
+  object-fit: contain; transition: transform 0.6s var(--ease);
 }
-.week-placeholder {
-  width: 100%; height: 100%;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
+.week-image-wrap:hover .week-img { transform: scale(1.03); }
 .week-badge {
   position: absolute; top: 1.5rem; left: 1.5rem; z-index: 2;
   background: var(--gold); color: var(--ink);
@@ -266,16 +260,15 @@ section { padding: 7rem 0; }
 }
 @media(max-width: 900px) { .month-slide { grid-template-columns: 1fr; gap: 2.5rem; } }
 .month-image-wrap {
-  position: relative; height: 500px; width: auto;
-  margin: 0 auto; overflow: hidden;
-  border: 1px solid var(--border); border-radius: 24px;
+  position: relative; border-radius: 24px; overflow: hidden;
+  background: var(--card); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
 }
-.month-placeholder {
-  width: 100%; height: 100%;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+.month-img {
+  width: 100%; height: auto; max-height: 550px;
+  object-fit: contain; transition: transform 0.6s var(--ease);
 }
+.month-image-wrap:hover .month-img { transform: scale(1.03); }
 .month-frame {
   position: absolute; inset: 8px;
   border: 1px solid rgba(201,169,110,0.2);
