@@ -809,49 +809,109 @@ function AdminDashboard({ user, onClose }) {
   const [tab, setTab] = useState("certs");
   const [certs, setCerts] = useState([]);
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
+  const [gallery, setGallery] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
-    const fetchCerts = async () => {
+    fetchCerts();
+    fetchGallery();
+  }, []);
+
+  const fetchCerts = async () => {
+    try {
       const snap = await getDocs(collection(db, "certificates"));
       setCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    };
-    fetchCerts();
-  }, []);
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchGallery = async () => {
+    try {
+      const snap = await getDocs(collection(db, "gallery"));
+      setGallery(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
 
   const addCert = async (e) => {
     e.preventDefault();
-    await addDoc(collection(db, "certificates"), newCert);
-    setNewCert({ name: "", serialNo: "", date: "", event: "" });
-    // Refresh
-    const snap = await getDocs(collection(db, "certificates"));
-    setCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    try {
+      await addDoc(collection(db, "certificates"), newCert);
+      setNewCert({ name: "", serialNo: "", date: "", event: "" });
+      fetchCerts();
+      alert("Certificate Issued Successfully!");
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
+      const storageRef = ref(storage, `gallery/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      
+      await addDoc(collection(db, "gallery"), {
+        url,
+        title: "New Capture",
+        photographer: user.displayName || "Admin",
+        category: "Others",
+        dept: "Member",
+        year: "2024",
+        createdAt: new Date().toISOString()
+      });
+      fetchGallery();
+      alert("Photo Uploaded!");
+    } catch (err) {
+      alert("Upload Failed: " + err.message);
+    }
+    setIsUploading(false);
+  };
+
+  const setFeatured = async (id, type) => {
+    try {
+      const item = gallery.find(g => g.id === id);
+      await updateDoc(doc(db, "config", type), {
+        url: item.url,
+        title: item.title,
+        photographer: item.photographer,
+        dept: item.dept,
+        year: item.year,
+        story: "Updated via Admin Dashboard"
+      });
+      alert(`Updated Capture of the ${type === 'week' ? 'Week' : 'Month'}!`);
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
   };
 
   return (
     <div className="event-page-overlay">
-      <div className="container">
+      <div className="container" style={{ paddingBottom: '5rem' }}>
         <header className="event-page-header">
           <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
           <div className="section-label">Admin Console</div>
           <h1 className="section-title">Team <em>Dashboard</em></h1>
-          <p className="section-sub">Welcome back. You can manage certificates and site content here.</p>
-          <button className="event-dive-btn" style={{ position: 'absolute', top: '-1rem', right: 0 }} onClick={() => signOut(auth)}>Sign Out</button>
+          <p className="section-sub">Welcome, {user.email}. Manage your club's data below.</p>
+          <button className="event-dive-btn" style={{ position: 'absolute', top: '0', right: 0 }} onClick={() => signOut(auth)}>Sign Out</button>
         </header>
 
         <div className="gallery-filter">
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
-          <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Uploads</button>
+          <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Gallery & Featured</button>
         </div>
 
         {tab === 'certs' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Issue <em>Certificate</em></h3>
-            <form className="feedback-form" style={{ marginBottom: '4rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }} onSubmit={addCert}>
+            <form className="feedback-form" style={{ marginBottom: '4rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={addCert}>
               <input className="form-input" placeholder="Student Name" value={newCert.name} onChange={e => setNewCert({...newCert, name: e.target.value})} required />
               <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
               <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
               <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
-              <button className="form-submit" type="submit" style={{ gridColumn: 'span 2' }}>Issue Certificate →</button>
+              <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate →</button>
             </form>
 
             <h3 className="subcategory-title">Active <em>Records</em></h3>
@@ -861,6 +921,10 @@ function AdminDashboard({ user, onClose }) {
                   <div className="team-name" style={{ fontSize: '1rem' }}>{c.name}</div>
                   <div className="event-subtitle" style={{ fontSize: '0.65rem' }}>{c.serialNo}</div>
                   <div className="event-date">{c.date} · {c.event}</div>
+                  <button onClick={async () => {
+                    await deleteDoc(doc(db, "certificates", c.id));
+                    fetchCerts();
+                  }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Record</button>
                 </div>
               ))}
             </div>
@@ -868,8 +932,31 @@ function AdminDashboard({ user, onClose }) {
         )}
         
         {tab === 'gallery' && (
-          <div className="fade-in visible" style={{ textAlign: 'center', padding: '5rem 0' }}>
-            <p className="section-sub">Gallery upload and Week/Month picker integration coming in next phase.</p>
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Upload to <em>Gallery</em></h3>
+            <div className="feedback-form" style={{ marginBottom: '4rem', textAlign: 'center' }}>
+              <input type="file" id="file-upload" style={{ display: 'none' }} onChange={handleUpload} accept="image/*" />
+              <label htmlFor="file-upload" className="form-submit" style={{ display: 'inline-block', cursor: 'pointer' }}>
+                {isUploading ? "Uploading..." : "Select Photo to Upload →"}
+              </label>
+            </div>
+
+            <h3 className="subcategory-title">Gallery & <em>Featured Picker</em></h3>
+            <div className="gallery-grid">
+              {gallery.map(g => (
+                <div key={g.id} className="gallery-item">
+                  <img src={g.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <button className="filter-btn" style={{ fontSize: '0.6rem', padding: '0.3rem 0.6rem' }} onClick={() => setFeatured(g.id, 'week')}>Set Week</button>
+                    <button className="filter-btn" style={{ fontSize: '0.6rem', padding: '0.3rem 0.6rem' }} onClick={() => setFeatured(g.id, 'month')}>Set Month</button>
+                    <button className="filter-btn" style={{ fontSize: '0.6rem', padding: '0.3rem 0.6rem', background: 'rgba(255,0,0,0.1)' }} onClick={async () => {
+                      await deleteDoc(doc(db, "gallery", g.id));
+                      fetchGallery();
+                    }}>🗑</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
