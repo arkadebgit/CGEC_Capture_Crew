@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
