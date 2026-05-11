@@ -6,12 +6,12 @@ import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Replace these with your actual Firebase config from the Firebase Console
 const firebaseConfig = {
-  apiKey: "AIzaSyDjDDCDXplng41wWEz2ZU8zcJKhr8P0n0k",
-  authDomain: "capture-crew-web.firebaseapp.com",
-  projectId: "capture-crew-web",
-  storageBucket: "capture-crew-web.firebasestorage.app",
-  messagingSenderId: "232199793875",
-  appId: "1:232199793875:web:855a239b75f0146c3c3826"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
