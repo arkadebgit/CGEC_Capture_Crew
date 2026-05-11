@@ -843,29 +843,22 @@ function AdminDashboard({ user, onClose }) {
     }
   };
 
-  const handleUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  const [newImage, setNewImage] = useState({ url: "", title: "", photographer: "", category: "General", dept: "", year: "" });
+
+  const addGalleryItem = async (e) => {
+    e.preventDefault();
+    if (!newImage.url) return;
     setIsUploading(true);
     try {
-      const { ref, uploadBytes, getDownloadURL } = await import("firebase/storage");
-      const storageRef = ref(storage, `gallery/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      
       await addDoc(collection(db, "gallery"), {
-        url,
-        title: "New Capture",
-        photographer: user.displayName || "Admin",
-        category: "Others",
-        dept: "Member",
-        year: "2024",
+        ...newImage,
         createdAt: new Date().toISOString()
       });
+      setNewImage({ url: "", title: "", photographer: "", category: "General", dept: "", year: "" });
       fetchGallery();
-      alert("Photo Uploaded!");
+      alert("Photo Added to Gallery!");
     } catch (err) {
-      alert("Upload Failed: " + err.message);
+      alert("Error: " + err.message);
     }
     setIsUploading(false);
   };
@@ -933,29 +926,43 @@ function AdminDashboard({ user, onClose }) {
         
         {tab === 'gallery' && (
           <div className="fade-in visible">
-            <h3 className="subcategory-title">Upload to <em>Gallery</em></h3>
-            <div className="feedback-form" style={{ marginBottom: '4rem', textAlign: 'center' }}>
-              <input type="file" id="file-upload" style={{ display: 'none' }} onChange={handleUpload} accept="image/*" />
-              <label htmlFor="file-upload" className="form-submit" style={{ display: 'inline-block', cursor: 'pointer' }}>
-                {isUploading ? "Uploading..." : "Select Photo to Upload →"}
-              </label>
-            </div>
+            <h3 className="subcategory-title">Add to <em>Gallery</em></h3>
+            <p className="section-sub" style={{ marginBottom: '1.5rem', fontSize: '0.8rem' }}>Upload your photo to <a href="https://postimages.org/" target="_blank" style={{ color: 'var(--gold)' }}>PostImages.org</a> and paste the <strong>Direct Link</strong> below.</p>
+            
+            <form className="feedback-form" style={{ marginBottom: '4rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={addGalleryItem}>
+              <input className="form-input" placeholder="Image Direct URL (https://...)" value={newImage.url} onChange={e => setNewImage({...newImage, url: e.target.value})} required style={{ gridColumn: '1 / -1' }} />
+              <input className="form-input" placeholder="Title" value={newImage.title} onChange={e => setNewImage({...newImage, title: e.target.value})} required />
+              <input className="form-input" placeholder="Photographer Name" value={newImage.photographer} onChange={e => setNewImage({...newImage, photographer: e.target.value})} required />
+              <input className="form-input" placeholder="Category (e.g. Street, Nature)" value={newImage.category} onChange={e => setNewImage({...newImage, category: e.target.value})} required />
+              <input className="form-input" placeholder="Dept & Year" value={newImage.dept} onChange={e => setNewImage({...newImage, dept: e.target.value})} required />
+              <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>{isUploading ? "Adding..." : "Add to Gallery →"}</button>
+            </form>
 
             <h3 className="subcategory-title">Gallery & <em>Featured Picker</em></h3>
             <div className="gallery-grid">
-              {gallery.map(g => (
-                <div key={g.id} className="gallery-item">
-                  <img src={g.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <button className="filter-btn" style={{ fontSize: '0.6rem', padding: '0.3rem 0.6rem' }} onClick={() => setFeatured(g.id, 'week')}>Set Week</button>
-                    <button className="filter-btn" style={{ fontSize: '0.6rem', padding: '0.3rem 0.6rem' }} onClick={() => setFeatured(g.id, 'month')}>Set Month</button>
-                    <button className="filter-btn" style={{ fontSize: '0.6rem', padding: '0.3rem 0.6rem', background: 'rgba(255,0,0,0.1)' }} onClick={async () => {
-                      await deleteDoc(doc(db, "gallery", g.id));
-                      fetchGallery();
-                    }}>🗑</button>
+              {gallery.length === 0 ? (
+                <p className="section-sub" style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>No photos added yet. Add your first photo above!</p>
+              ) : (
+                gallery.map(g => (
+                  <div key={g.id} className="gallery-item">
+                    <img src={g.url} alt={g.title} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
+                    <div style={{ padding: '0.5rem' }}>
+                      <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--white)' }}>{g.title}</div>
+                      <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.8rem' }}>
+                        <button className="filter-btn" style={{ fontSize: '0.55rem', padding: '0.3rem 0.5rem', background: 'rgba(255,215,0,0.1)' }} onClick={() => setFeatured(g.id, 'week')}>Set Week</button>
+                        <button className="filter-btn" style={{ fontSize: '0.55rem', padding: '0.3rem 0.5rem', background: 'rgba(255,215,0,0.1)' }} onClick={() => setFeatured(g.id, 'month')}>Set Month</button>
+                        <button className="filter-btn" style={{ fontSize: '0.55rem', padding: '0.3rem 0.5rem', background: 'rgba(255,0,0,0.1)' }} onClick={async () => {
+                          if (window.confirm("Delete this photo?")) {
+                            await deleteDoc(doc(db, "gallery", g.id));
+                            fetchGallery();
+                          }
+                        }}>🗑</button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}
