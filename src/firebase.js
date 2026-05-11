@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Replace these with your actual Firebase config from the Firebase Console
 const firebaseConfig = {
@@ -17,3 +18,12 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+
+// Initialize App Check
+// Note: You will need a reCAPTCHA v3 site key from the Google Cloud Console
+if (typeof window !== "undefined") {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaV3Provider('6LciXoMqAAAAAKGZ_z-q_Z-Z-Z-Z-Z-Z-Z-Z-Z'), // Placeholder key
+    isTokenAutoRefreshEnabled: true
+  });
+}

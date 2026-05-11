@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
 // ─── PLACEHOLDER DATA ───────────────────────────────────────────────────────
@@ -774,17 +774,41 @@ export default function App() {
 // ─── ADMIN COMPONENTS ───────────────────────────────────────────────────────
 
 function LoginModal({ onClose }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1); // 1: Phone, 2: OTP
   const [error, setError] = useState("");
+  const [confirmResult, setConfirmResult] = useState(null);
 
-  const handleLogin = async (e) => {
+  const setupRecaptcha = () => {
+    if (window.recaptchaVerifier) return;
+    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'invisible'
+    });
+  };
+
+  const handleSendOtp = async (e) => {
     e.preventDefault();
+    setError("");
+    setupRecaptcha();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const result = await signInWithPhoneNumber(auth, phone, window.recaptchaVerifier);
+      setConfirmResult(result);
+      setStep(2);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to send code. Ensure number is in +91XXXXXXXXXX format.");
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      await confirmResult.confirm(otp);
       onClose();
     } catch (err) {
-      setError("Invalid credentials. Core Team access only.");
+      setError("Invalid verification code.");
     }
   };
 
@@ -793,13 +817,26 @@ function LoginModal({ onClose }) {
       <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()}>
         <button className="lightbox-close" onClick={onClose}>✕</button>
         <div className="section-label">Restricted Access</div>
-        <h2 className="section-title">Core Team <em>Login</em></h2>
-        <form className="feedback-form" style={{ marginTop: '2rem' }} onSubmit={handleLogin}>
-          <input className="form-input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input className="form-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-          {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</p>}
-          <button className="form-submit" type="submit">Access Dashboard →</button>
-        </form>
+        <h2 className="section-title">Team <em>Auth</em></h2>
+        
+        <div id="recaptcha-container"></div>
+
+        {step === 1 ? (
+          <form className="feedback-form" style={{ marginTop: '2rem' }} onSubmit={handleSendOtp}>
+            <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '1rem' }}>Enter your registered mobile number (+91...)</p>
+            <input className="form-input" type="tel" placeholder="+91 00000 00000" value={phone} onChange={e => setPhone(e.target.value)} required />
+            {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</p>}
+            <button className="form-submit" type="submit">Send Code →</button>
+          </form>
+        ) : (
+          <form className="feedback-form" style={{ marginTop: '2rem' }} onSubmit={handleVerifyOtp}>
+            <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '1rem' }}>We've sent a 6-digit code to {phone}</p>
+            <input className="form-input" type="text" placeholder="Enter 6-digit code" value={otp} onChange={e => setOtp(e.target.value)} required />
+            {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</p>}
+            <button className="form-submit" type="submit">Verify & Login →</button>
+            <button className="event-dive-btn" style={{ marginTop: '1rem', border: 'none', background: 'transparent', color: var(--muted) }} onClick={() => setStep(1)}>← Back</button>
+          </form>
+        )}
       </div>
     </div>
   );
