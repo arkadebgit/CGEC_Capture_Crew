@@ -362,6 +362,7 @@ export default function App() {
     }
     setIsVerifying(false);
   };
+  const scrollTo = (id) => {
     if (selectedEvent) setSelectedEvent(null);
     setMobileMenuOpen(false);
     setTimeout(() => {
