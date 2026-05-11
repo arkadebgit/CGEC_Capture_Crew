@@ -292,6 +292,13 @@ export default function App() {
   const [monthSlide, setMonthSlide] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [heroImg, setHeroImg] = useState(GALLERY[0].url);
+
+  // Random Hero on load
+  useEffect(() => {
+    const randomImg = GALLERY[Math.floor(Math.random() * GALLERY.length)].url;
+    setHeroImg(randomImg);
+  }, []);
 
   // Nav scroll
   useEffect(() => {
@@ -358,7 +365,7 @@ export default function App() {
         <div className="hero-bg">
           <div
             className="hero-slide active"
-            style={{ backgroundImage: `url(${GALLERY[1].url})` }}
+            style={{ backgroundImage: `url(${heroImg})` }}
           />
           <div className="hero-overlay" />
         </div>
