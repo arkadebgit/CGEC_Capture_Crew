@@ -841,8 +841,11 @@ function AdminDashboard({ user, onClose }) {
   ];
   const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 
+  const [gallery, setGallery] = useState([]);
+
   useEffect(() => {
     fetchCerts();
+    fetchGallery();
   }, []);
 
   const fetchCerts = async () => {
@@ -852,12 +855,28 @@ function AdminDashboard({ user, onClose }) {
     } catch (e) { console.error(e); }
   };
 
+  const fetchGallery = async () => {
+    try {
+      const snap = await getDocs(collection(db, "gallery"));
+      setGallery(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
+
   const updateFeatured = async (type) => {
     setIsUpdating(true);
     try {
+      // 1. Update the Homepage Featured Slot
       await setDoc(doc(db, "config", type), featuredData);
-      alert(`Updated Capture of the ${type === 'week' ? 'Week' : 'Month'} Successfully!`);
+      
+      // 2. ALSO add this to the public Gallery automatically
+      await addDoc(collection(db, "gallery"), {
+        ...featuredData,
+        createdAt: new Date().toISOString()
+      });
+
+      alert(`Updated ${type === 'week' ? 'Week' : 'Month'} & Saved to Gallery!`);
       setFeaturedData({ url: "", title: "", photographer: "", story: "", dept: DEPTS[0], year: YEARS[0] });
+      fetchGallery(); // Refresh the list
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -888,8 +907,9 @@ function AdminDashboard({ user, onClose }) {
         </header>
 
         <div className="gallery-filter">
-          <button className={`filter-btn ${tab === 'week' ? 'active' : ''}`} onClick={() => setTab('week')}>Cap of the Week</button>
-          <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Cap of the Month</button>
+          <button className={`filter-btn ${tab === 'week' ? 'active' : ''}`} onClick={() => setTab('week')}>Set Week</button>
+          <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
+          <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
         </div>
 
@@ -912,8 +932,31 @@ function AdminDashboard({ user, onClose }) {
               <textarea className="form-input" placeholder="The story behind this shot..." rows="3" style={{ gridColumn: '1 / -1' }} value={featuredData.story} onChange={e => setFeaturedData({...featuredData, story: e.target.value})} />
               
               <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
-                {isUpdating ? "Updating..." : `Update Capture of the ${tab === 'week' ? 'Week' : 'Month'} →`}
+                {isUpdating ? "Updating..." : `Update & Save to Gallery →`}
               </button>
+            </div>
+          </div>
+        )}
+
+        {tab === 'gallery' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
+            <div className="gallery-grid">
+              {gallery.map(g => (
+                <div key={g.id} className="gallery-item">
+                  <img src={g.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
+                  <div style={{ padding: '0.5rem' }}>
+                    <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--white)' }}>{g.title}</div>
+                    <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
+                    <button onClick={async () => {
+                      if (window.confirm("Delete from Gallery?")) {
+                        await deleteDoc(doc(db, "gallery", g.id));
+                        fetchGallery();
+                      }
+                    }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Photo 🗑</button>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
