@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { db, auth } from "./firebase";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
 // ─── PLACEHOLDER DATA ───────────────────────────────────────────────────────
@@ -293,6 +296,16 @@ export default function App() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [heroImg, setHeroImg] = useState(GALLERY[0].url);
+  
+  // Certificate State
+  const [certId, setCertId] = useState("");
+  const [verifyResult, setVerifyResult] = useState(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  // Admin State
+  const [user, setUser] = useState(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [adminSection, setAdminSection] = useState("certificates");
 
   // Random Hero on load
   useEffect(() => {
@@ -325,7 +338,30 @@ export default function App() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
 
-  const scrollTo = (id) => {
+  // Auth Listener
+  useEffect(() => {
+    return onAuthStateChanged(auth, (u) => setUser(u));
+  }, []);
+
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    if (!certId.trim()) return;
+    setIsVerifying(true);
+    setVerifyResult(null);
+    try {
+      const q = query(collection(db, "certificates"), where("serialNo", "==", certId.trim()));
+      const snap = await getDocs(q);
+      if (!snap.empty) {
+        setVerifyResult(snap.docs[0].data());
+      } else {
+        setVerifyResult({ error: "Certificate not found. Please check the serial number." });
+      }
+    } catch (err) {
+      console.error(err);
+      setVerifyResult({ error: "Verification service unavailable." });
+    }
+    setIsVerifying(false);
+  };
     if (selectedEvent) setSelectedEvent(null);
     setMobileMenuOpen(false);
     setTimeout(() => {
@@ -599,6 +635,56 @@ export default function App() {
         </div>
       </section>
 
+      {/* VERIFY SECTION */}
+      <section id="verify" className="verify-section">
+        <div className="container">
+          <div className="verify-box fade-in">
+            <div className="section-label">✦ Authenticity</div>
+            <h2 className="section-title">Verify <em>Certificate</em></h2>
+            <p className="section-sub">Enter your certificate serial number to verify its authenticity and details.</p>
+            
+            <form className="verify-form" onSubmit={handleVerify}>
+              <input 
+                type="text" 
+                placeholder="Enter Serial Number (e.g. CC-2024-001)" 
+                value={certId}
+                onChange={(e) => setCertId(e.target.value)}
+                className="form-input"
+              />
+              <button type="submit" className="form-submit" disabled={isVerifying}>
+                {isVerifying ? "Verifying..." : "Verify Now →"}
+              </button>
+            </form>
+
+            {verifyResult && (
+              <div className="verify-result fade-in visible">
+                {verifyResult.error ? (
+                  <div className="result-error">{verifyResult.error}</div>
+                ) : (
+                  <div className="result-success">
+                    <div className="result-badge">✓ Verified Authenticity</div>
+                    <div className="result-grid">
+                      <div className="result-item">
+                        <span className="label">Issued To</span>
+                        <span className="value">{verifyResult.name}</span>
+                      </div>
+                      <div className="result-item">
+                        <span className="label">Date Issued</span>
+                        <span className="value">{verifyResult.date}</span>
+                      </div>
+                      <div className="result-item">
+                        <span className="label">Event</span>
+                        <span className="value">{verifyResult.event}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* FEEDBACK */}
       <section id="feedback" className="feedback-section">
         <div className="container">
@@ -641,9 +727,10 @@ export default function App() {
               <div className="footer-college">Photography Club · Cooch Behar Government Engineering College</div>
             </div>
             <div className="footer-links">
-              {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"]].map(([id, label]) => (
+              {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => (
                 <a key={id} onClick={() => scrollTo(id)}>{label}</a>
               ))}
+              <a onClick={() => setShowLogin(true)}>Admin Login</a>
             </div>
             <div className="footer-copy">
               © 2026 Capture Crew · All rights reserved <br />
@@ -670,11 +757,123 @@ export default function App() {
           </div>
         )}
       </div>
-      {/* EVENT PAGE MODAL/VIEW */}
+      {/* MODALS */}
       {selectedEvent && (
         <EventPage event={selectedEvent} onClose={() => setSelectedEvent(null)} />
       )}
+      {showLogin && !user && (
+        <LoginModal onClose={() => setShowLogin(false)} />
+      )}
+      {user && showLogin && (
+        <AdminDashboard user={user} onClose={() => setShowLogin(false)} />
+      )}
     </>
+  );
+}
+
+// ─── ADMIN COMPONENTS ───────────────────────────────────────────────────────
+
+function LoginModal({ onClose }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      onClose();
+    } catch (err) {
+      setError("Invalid credentials. Core Team access only.");
+    }
+  };
+
+  return (
+    <div className="lightbox open" onClick={onClose}>
+      <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()}>
+        <button className="lightbox-close" onClick={onClose}>✕</button>
+        <div className="section-label">Restricted Access</div>
+        <h2 className="section-title">Core Team <em>Login</em></h2>
+        <form className="feedback-form" style={{ marginTop: '2rem' }} onSubmit={handleLogin}>
+          <input className="form-input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+          <input className="form-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+          {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</p>}
+          <button className="form-submit" type="submit">Access Dashboard →</button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function AdminDashboard({ user, onClose }) {
+  const [tab, setTab] = useState("certs");
+  const [certs, setCerts] = useState([]);
+  const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
+
+  useEffect(() => {
+    const fetchCerts = async () => {
+      const snap = await getDocs(collection(db, "certificates"));
+      setCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    };
+    fetchCerts();
+  }, []);
+
+  const addCert = async (e) => {
+    e.preventDefault();
+    await addDoc(collection(db, "certificates"), newCert);
+    setNewCert({ name: "", serialNo: "", date: "", event: "" });
+    // Refresh
+    const snap = await getDocs(collection(db, "certificates"));
+    setCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+  };
+
+  return (
+    <div className="event-page-overlay">
+      <div className="container">
+        <header className="event-page-header">
+          <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
+          <div className="section-label">Admin Console</div>
+          <h1 className="section-title">Team <em>Dashboard</em></h1>
+          <p className="section-sub">Welcome back. You can manage certificates and site content here.</p>
+          <button className="event-dive-btn" style={{ position: 'absolute', top: '-1rem', right: 0 }} onClick={() => signOut(auth)}>Sign Out</button>
+        </header>
+
+        <div className="gallery-filter">
+          <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
+          <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Uploads</button>
+        </div>
+
+        {tab === 'certs' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Issue <em>Certificate</em></h3>
+            <form className="feedback-form" style={{ marginBottom: '4rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }} onSubmit={addCert}>
+              <input className="form-input" placeholder="Student Name" value={newCert.name} onChange={e => setNewCert({...newCert, name: e.target.value})} required />
+              <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
+              <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
+              <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
+              <button className="form-submit" type="submit" style={{ gridColumn: 'span 2' }}>Issue Certificate →</button>
+            </form>
+
+            <h3 className="subcategory-title">Active <em>Records</em></h3>
+            <div className="events-grid">
+              {certs.map(c => (
+                <div key={c.id} className="event-card" style={{ padding: '1.5rem' }}>
+                  <div className="team-name" style={{ fontSize: '1rem' }}>{c.name}</div>
+                  <div className="event-subtitle" style={{ fontSize: '0.65rem' }}>{c.serialNo}</div>
+                  <div className="event-date">{c.date} · {c.event}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {tab === 'gallery' && (
+          <div className="fade-in visible" style={{ textAlign: 'center', padding: '5rem 0' }}>
+            <p className="section-sub">Gallery upload and Week/Month picker integration coming in next phase.</p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
