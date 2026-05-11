@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
 // ─── PLACEHOLDER DATA ───────────────────────────────────────────────────────
@@ -338,21 +338,8 @@ export default function App() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
 
-  // Auth Listener & Redirect Handling
+  // Auth Listener
   useEffect(() => {
-    // Check if we just returned from a redirect
-    const checkRedirect = async () => {
-      try {
-        await getRedirectResult(auth);
-        if (sessionStorage.getItem('pendingAdminLogin') === 'true') {
-          setShowLogin(true);
-          sessionStorage.removeItem('pendingAdminLogin');
-        }
-      } catch (err) {
-        console.error("Redirect login error:", err);
-      }
-    };
-    checkRedirect();
     return onAuthStateChanged(auth, (u) => setUser(u));
   }, []);
 
@@ -793,10 +780,10 @@ function LoginModal({ onClose }) {
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      sessionStorage.setItem('pendingAdminLogin', 'true');
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
+      // Once logged in, the dashboard will show because user exists and showLogin is true
     } catch (err) {
-      setError("Failed to start Google sign-in.");
+      setError("Failed to sign in with Google.");
     }
   };
 
