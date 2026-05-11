@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc } from "firebase/firestore";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
 // ─── PLACEHOLDER DATA ───────────────────────────────────────────────────────
@@ -775,17 +775,15 @@ export default function App() {
 // ─── ADMIN COMPONENTS ───────────────────────────────────────────────────────
 
 function LoginModal({ onClose }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithPopup(auth, provider);
       onClose();
     } catch (err) {
-      setError("Invalid credentials. Core Team access only.");
+      setError("Failed to sign in with Google.");
     }
   };
 
@@ -795,12 +793,13 @@ function LoginModal({ onClose }) {
         <button className="lightbox-close" onClick={onClose}>✕</button>
         <div className="section-label">Restricted Access</div>
         <h2 className="section-title">Team <em>Login</em></h2>
-        <form className="feedback-form" style={{ marginTop: '2rem' }} onSubmit={handleLogin}>
-          <input className="form-input" type="email" placeholder="Admin Email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input className="form-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-          {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem' }}>{error}</p>}
-          <button className="form-submit" type="submit">Access Dashboard →</button>
-        </form>
+        <p className="section-sub" style={{ fontSize: '0.8rem', margin: '1.5rem 0' }}>Access is restricted to authorized Core Team members only.</p>
+        
+        <button className="form-submit" onClick={handleGoogleLogin} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px' }} />
+          Continue with Google
+        </button>
+        {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '1rem' }}>{error}</p>}
       </div>
     </div>
   );
