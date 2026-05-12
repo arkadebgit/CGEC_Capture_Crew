@@ -564,7 +564,7 @@ export default function App() {
               <div className="month-of">Premium Selection</div>
               <p className="month-story">{monthCaptures[monthSlide]?.title}</p>
               <div className="month-photographer">
-                By <span>{monthCaptures[monthSlide]?.photographer}</span> ({monthCaptures[monthSlide]?.dept})
+                By <span>{monthCaptures[monthSlide]?.photographer}</span> ({monthCaptures[monthSlide]?.dept} · {monthCaptures[monthSlide]?.year})
               </div>
               <div className="month-dots">
                 {monthCaptures.map((_, i) => (
@@ -578,7 +578,7 @@ export default function App() {
 
       {/* THE EXTRA FRAME */}
       {extraFrameCapture && (
-        <section id="extra" className="week-section" style={{ background: "var(--bg-dark)", borderTop: "1px solid var(--glass-border)" }}>
+        <section id="extra" className="week-section" style={{ background: "var(--card)", borderTop: "1px solid var(--border)" }}>
           <div className="container">
             <div className="fade-in" style={{ marginBottom: "4rem" }}>
               <div className="section-label">✦ Bonus Frame</div>
