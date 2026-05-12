@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
@@ -1051,6 +1051,7 @@ function AdminDashboard({ user, onClose }) {
           <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
           <button className={`filter-btn ${tab === 'extra' ? 'active' : ''}`} onClick={() => setTab('extra')}>Set Extra Frame</button>
           <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
+          <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
         </div>
 
@@ -1119,6 +1120,12 @@ function AdminDashboard({ user, onClose }) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+        {tab === 'apps' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Recruitment <em>Applications</em></h3>
+            <AdminApplications />
           </div>
         )}
 
@@ -1207,8 +1214,77 @@ function EventSection({ title, subtitle, photos }) {
 }
 
 // ─── RECRUITMENT MODAL ──────────────────────────────────────────────────────
+// ─── RECRUITMENT COMPONENTS ────────────────────────────────────────────────
+function AdminApplications() {
+  const [apps, setApps] = useState([]);
+
+  useEffect(() => {
+    const q = query(collection(db, "applications"), orderBy("timestamp", "desc"));
+    return onSnapshot(q, (s) => setApps(s.docs.map(d => ({ id: d.id, ...d.data() }))));
+  }, []);
+
+  return (
+    <div className="admin-grid-view">
+      <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+              <th style={{ padding: '1rem' }}>Applicant</th>
+              <th style={{ padding: '1rem' }}>Position</th>
+              <th style={{ padding: '1rem' }}>Contact Info</th>
+              <th style={{ padding: '1rem' }}>Portfolio</th>
+              <th style={{ padding: '1rem' }}>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {apps.map(app => (
+              <tr key={app.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <td style={{ padding: '1rem' }}>
+                  <div style={{ fontWeight: '600' }}>{app.name}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--gold)' }}>{app.dept} · {app.year}</div>
+                </td>
+                <td style={{ padding: '1rem' }}>{app.position}</td>
+                <td style={{ padding: '1rem' }}>
+                  <div>{app.email}</div>
+                  <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>{app.phone}</div>
+                </td>
+                <td style={{ padding: '1rem' }}>
+                  <a href={app.portfolio} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>Link</a>
+                </td>
+                <td style={{ padding: '1rem' }}>
+                  <button onClick={() => deleteDoc(doc(db, "applications", app.id))} style={{ background: '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Delete</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {apps.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No applications yet.</div>}
+      </div>
+    </div>
+  );
+}
+
 function RecruitmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '', email: '', phone: '', dept: '', year: '', position: '', portfolio: ''
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, "applications"), {
+        ...formData,
+        timestamp: serverTimestamp()
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Submission error:", err);
+      alert("Submission failed. Please check your internet.");
+    } finally { setIsSubmitting(false); }
+  };
 
   if (submitted) {
     return (
@@ -1216,7 +1292,7 @@ function RecruitmentModal({ onClose }) {
         <div className="admin-modal fade-in visible" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', maxWidth: '400px' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
           <h2 className="section-title">Application <em>Sent!</em></h2>
-          <p className="section-sub">Your details have been recorded. Our core team will review your application and get back to you shortly.</p>
+          <p className="section-sub">Your application has been saved. The core team will review it shortly.</p>
           <button className="form-submit" onClick={onClose} style={{ marginTop: '2rem', width: '100%' }}>Close</button>
         </div>
       </div>
@@ -1229,73 +1305,50 @@ function RecruitmentModal({ onClose }) {
         <button className="lightbox-close" onClick={onClose} style={{ top: '1.5rem', right: '1.5rem' }}>✕</button>
         <div className="section-label">✦ Recruitment 2026</div>
         <h2 className="section-title" style={{ fontSize: '2rem' }}>Become our <em>Core Member</em></h2>
-        <p className="section-sub" style={{ marginBottom: '2rem' }}>Join the most creative community at CGEC. Your application will be submitted directly to our database.</p>
+        <p className="section-sub" style={{ marginBottom: '2rem' }}>Join the most creative community at CGEC.</p>
         
-        {/* Hidden Iframe for Silent Submission */}
-        <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad={() => { if(submitted) return; }}></iframe>
-
-        <form 
-          action="https://docs.google.com/forms/d/e/1FAIpQLSfstAa8vVx8GTQbz07BnwwadoyrXZJ0ufs-5y4q_ZOActtxDg/formResponse"
-          method="POST"
-          target="hidden_iframe"
-          className="feedback-form" 
-          onSubmit={() => setSubmitted(true)}
-        >
+        <form className="feedback-form" onSubmit={handleSubmit}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Full Name</label>
-              <input name="entry.1951908948" className="form-input" type="text" placeholder="Enter your name" required />
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Full Name</label>
+              <input className="form-input" placeholder="Your name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
             </div>
-
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Phone Number</label>
-              <input name="entry.1740949442" className="form-input" type="tel" placeholder="Your WhatsApp number" required />
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Email</label>
+              <input className="form-input" type="email" placeholder="Email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
             </div>
-
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Department</label>
-              <select name="entry.1173251580" className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Phone</label>
+              <input className="form-input" placeholder="WhatsApp No" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+            </div>
+            <div className="form-group">
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Dept</label>
+              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required value={formData.dept} onChange={e => setFormData({...formData, dept: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Dept</option>
-                <option value="Computer Science & Engineering" style={{ background: '#111' }}>CSE</option>
-                <option value="Electronics & Communication Engineering" style={{ background: '#111' }}>ECE</option>
-                <option value="Electrical Engineering" style={{ background: '#111' }}>EE</option>
-                <option value="Mechanical Engineering" style={{ background: '#111' }}>ME</option>
-                <option value="Civil Engineering" style={{ background: '#111' }}>CE</option>
+                <option style={{ background: '#111' }}>CSE</option><option style={{ background: '#111' }}>ECE</option><option style={{ background: '#111' }}>EE</option><option style={{ background: '#111' }}>ME</option><option style={{ background: '#111' }}>CE</option>
               </select>
             </div>
-
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Academic Year</label>
-              <select name="entry.1863640859" className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Year</label>
+              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Year</option>
-                <option value="1st Year" style={{ background: '#111' }}>1st Year</option>
-                <option value="2nd Year" style={{ background: '#111' }}>2nd Year</option>
-                <option value="3rd Year" style={{ background: '#111' }}>3rd Year</option>
-                <option value="4th Year" style={{ background: '#111' }}>4th Year</option>
+                <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option>
               </select>
             </div>
-
-            <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Position you want to apply for</label>
-              <select name="entry.1246931524" className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
-                <option value="" style={{ background: '#111' }}>Select Position</option>
-                <option value="Graphic Designer" style={{ background: '#111' }}>Graphic Designer</option>
-                <option value="Video Editor" style={{ background: '#111' }}>Video Editor</option>
-                <option value="Videographer" style={{ background: '#111' }}>Videographer</option>
-                <option value="Photographer" style={{ background: '#111' }}>Photographer</option>
-                <option value="Photo Editor" style={{ background: '#111' }}>Photo Editor</option>
-                <option value="PR Manager" style={{ background: '#111' }}>PR Manager</option>
-              </select>
-            </div>
-
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Portfolio Link (G-Drive / Instagram / Behance)</label>
-              <input name="entry.1992343263" className="form-input" type="url" placeholder="https://..." required />
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Position</label>
+              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})}>
+                <option value="" style={{ background: '#111' }}>Select Position</option>
+                <option style={{ background: '#111' }}>Graphic Designer</option><option style={{ background: '#111' }}>Video Editor</option><option style={{ background: '#111' }}>Videographer</option><option style={{ background: '#111' }}>Photographer</option><option style={{ background: '#111' }}>Photo Editor</option><option style={{ background: '#111' }}>PR Manager</option>
+              </select>
+            </div>
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Portfolio Link</label>
+              <input className="form-input" placeholder="https://..." required value={formData.portfolio} onChange={e => setFormData({...formData, portfolio: e.target.value})} />
             </div>
           </div>
-
-          <button className="form-submit" type="submit" style={{ marginTop: '1.5rem', width: '100%' }}>
-            Submit Application →
+          <button className="form-submit" type="submit" disabled={isSubmitting} style={{ marginTop: '1.5rem', width: '100%' }}>
+            {isSubmitting ? "Submitting..." : "Submit Application →"}
           </button>
         </form>
       </div>
