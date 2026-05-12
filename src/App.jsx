@@ -46,7 +46,7 @@ const EVENTS = [
     id: "varnakriti",
     name: "VARNAKRITI",
     subtitle: "Annual Photo Exhibition",
-    date: "March 2024",
+    date: "February 2026",
     color: "#C9A96E",
     desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.",
     highlight: "Top 3 Winners crowned. 60+ photos on display.",
@@ -56,17 +56,18 @@ const EVENTS = [
     id: "esperanza",
     name: "ESPERANZA",
     subtitle: "Annual Flagship Event",
-    date: "February 2024",
+    date: "June 2026",
     color: "#7EB8D4",
     desc: "The grand annual celebration of Capture Crew — a full-day photo walk, workshop, and exhibition bringing together photography enthusiasts from across the campus.",
     highlight: "500+ attendees. Campus-wide photo walk.",
     emoji: "🌟",
+    comingSoon: true
   },
   {
     id: "croeso",
     name: "CROESO",
     subtitle: "Freshers' Welcome",
-    date: "September 2023",
+    date: "February 2026",
     color: "#A8D8A8",
     desc: "A warm welcome for first-year students into the world of photography. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.",
     highlight: "Welcome to the frame. New eyes, new stories.",
@@ -76,17 +77,18 @@ const EVENTS = [
     id: "independence",
     name: "Independence Day",
     subtitle: "15th August Special",
-    date: "August 2023",
+    date: "August 2026",
     color: "#FF9933",
     desc: "Capturing the spirit of patriotism through the lens — flag hoisting ceremonies, portrait sessions, and a special themed photo series celebrating India's independence.",
     highlight: "Tricolor through the lens.",
     emoji: "🇮🇳",
+    comingSoon: true
   },
   {
     id: "saraswati",
     name: "Saraswati Puja",
     subtitle: "Festival Documentation",
-    date: "January 2024",
+    date: "January 2026",
     color: "#DEB8D0",
     desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from the early morning rituals to the immersion procession, captured with reverence and artistry.",
     highlight: "Devotion in every frame.",
@@ -96,7 +98,7 @@ const EVENTS = [
     id: "holi",
     name: "Holi Event",
     subtitle: "Festival of Colors",
-    date: "March 2024",
+    date: "March 2026",
     color: "#FF69B4",
     desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy, togetherness, and splash of colors captured in every frame.",
     highlight: "Vibrance in every splash.",
@@ -663,7 +665,12 @@ export default function App() {
                 <div className="event-date">{ev.date}</div>
                 <div className="event-desc">{ev.desc}</div>
                 <div className="event-highlight">{ev.highlight}</div>
-                <button className="event-dive-btn" onClick={() => setSelectedEvent(ev)}>Dive In →</button>
+                <button 
+                  className="event-dive-btn" 
+                  onClick={() => ev.comingSoon ? alert("Coming Soon!") : setSelectedEvent(ev)}
+                >
+                  {ev.comingSoon ? "Coming Soon →" : "Dive In →"}
+                </button>
               </div>
             ))}
           </div>
