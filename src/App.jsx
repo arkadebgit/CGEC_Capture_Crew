@@ -302,16 +302,16 @@ const MONTH_CAPTURES = [
 ];
 
 const HERO_COVERS = [
-  "/covers/image.png",
-  "/covers/image (1).png",
-  "/covers/image (2).png",
-  "/covers/image (3).png",
-  "/covers/image (4).png",
-  "/covers/image (5).png",
-  "/covers/image (6).png",
-  "/covers/image (7).png",
-  "/covers/image (8).png"
-];
+  "covers/image.png",
+  "covers/image (1).png",
+  "covers/image (2).png",
+  "covers/image (3).png",
+  "covers/image (4).png",
+  "covers/image (5).png",
+  "covers/image (6).png",
+  "covers/image (7).png",
+  "covers/image (8).png"
+].map(path => (import.meta.env.BASE_URL || "/") + path);
 
 // ─── APP ────────────────────────────────────────────────────────────────────
 
