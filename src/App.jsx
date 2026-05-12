@@ -1417,7 +1417,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
       "https://i.ibb.co/jP0ZGpMp/PXL-20260217-194656883.jpg"
     ],
     holi: [
-      "https://i.ibb.co/CK1mmf8b/Save-Clip-App-642148216-17961485553051405-8385715078758128532-n.jpg",
+      "https://i.postimg.cc/3wj5DM1T/Save-Clip-App-642148216-17961485553051405-8385715078758128532-n.jpg",
       "https://i.ibb.co/CKF9SYBn/Save-Clip-App-642529503-17961485511051405-131829195843355943-n.jpg",
       "https://i.ibb.co/8DRv4NQL/Save-Clip-App-642635932-17961485550051405-2472211186656361010-n.jpg",
       "https://i.ibb.co/yc850NW3/Save-Clip-App-642666667-17961485388051405-2814668728871964987-n.jpg",
