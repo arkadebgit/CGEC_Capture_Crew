@@ -621,14 +621,10 @@ export default function App() {
               <div className="section-label">✦ Premium Showcase</div>
               <h2 className="section-title">Capture of the <em>Month</em></h2>
             </div>
-            <div className="month-nav">
-              <button className="month-nav-btn" onClick={() => setMonthSlide(s => (s - 1 + monthCaptures.length) % monthCaptures.length)}>←</button>
-              <button className="month-nav-btn" onClick={() => setMonthSlide(s => (s + 1) % monthCaptures.length)}>→</button>
-            </div>
           </div>
           <div className="month-slide fade-in">
             <div className="month-image-wrap">
-              <img src={monthCaptures[monthSlide]?.url || "/placeholder.jpg"} alt={monthCaptures[monthSlide]?.title} className="month-img" referrerPolicy="no-referrer" />
+              <img src={monthCaptures[0]?.url || "/placeholder.jpg"} alt={monthCaptures[0]?.title} className="month-img" referrerPolicy="no-referrer" />
               <div className="month-frame" />
               <div className="month-award">
                 <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -636,14 +632,9 @@ export default function App() {
             </div>
             <div className="month-info">
               <div className="month-of">Premium Selection</div>
-              <p className="month-story">{monthCaptures[monthSlide]?.title}</p>
-              <div className="month-photographer">
-                By <span>{monthCaptures[monthSlide]?.photographer}</span> ({monthCaptures[monthSlide]?.dept} · {monthCaptures[monthSlide]?.year})
-              </div>
-              <div className="month-dots">
-                {monthCaptures.map((_, i) => (
-                  <button key={i} className={`month-dot ${i === monthSlide ? "active" : ""}`} onClick={() => setMonthSlide(i)} />
-                ))}
+              <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCaptures[0]?.title}</h3>
+              <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                By <span>{monthCaptures[0]?.photographer}</span> ({monthCaptures[0]?.dept} · {monthCaptures[0]?.year})
               </div>
             </div>
           </div>
@@ -654,23 +645,21 @@ export default function App() {
       {extraFrameCapture && (
         <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }}>
           <div className="container">
-            <div className="fade-in" style={{ marginBottom: "5rem" }}>
+            <div className="fade-in" style={{ marginBottom: "4rem" }}>
               <div className="section-label">✦ Bonus Frame</div>
               <h2 className="section-title">The <em>Extra Frame</em></h2>
-              <p className="section-sub">Beyond the weekly and monthly picks — something truly unique.</p>
             </div>
             <div className="week-inner fade-in">
-              <div className="week-info" style={{ padding: '0' }}>
-                <div className="week-date">Special Moments</div>
-                <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>{extraFrameCapture.title}</h3>
-                <p className="week-story" style={{ fontSize: '1rem', opacity: 0.8 }}>{extraFrameCapture.story || "A moment captured with precision and passion, showcasing the extraordinary beauty in everyday life."}</p>
-                <div className="month-photographer" style={{ marginTop: '2.5rem', paddingTop: '2.5rem', borderTop: '1px solid var(--border)' }}>
-                  By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
-                </div>
-              </div>
               <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
                 <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0' }} referrerPolicy="no-referrer" />
                 <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
+              </div>
+              <div className="week-info" style={{ padding: '0' }}>
+                <div className="week-date">Bonus Feature</div>
+                <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{extraFrameCapture.title}</h3>
+                <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                  By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
+                </div>
               </div>
             </div>
           </div>
