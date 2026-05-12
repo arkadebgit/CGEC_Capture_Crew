@@ -1386,19 +1386,19 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
 
         {isVarnakriti ? (
           <div className="varnakriti-sections">
-            <EventSection title="Exhibition" subtitle="General" photos={eventPhotos.varnakriti.general} setLightboxItem={setLightboxItem} />
-            <EventSection title="Awards" subtitle="Prize Distribution" photos={eventPhotos.varnakriti.prize} setLightboxItem={setLightboxItem} />
-            <EventSection title="Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} setLightboxItem={setLightboxItem} />
+            <EventSection title="Exhibition" subtitle="General" photos={eventPhotos.varnakriti.general} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Awards" subtitle="Prize Distribution" photos={eventPhotos.varnakriti.prize} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} setLightboxItem={setLightboxItem} onClose={onClose} />
           </div>
         ) : (
-          <EventSection title="Gallery" subtitle="Highlights" photos={Array.isArray(photos) ? photos : []} setLightboxItem={setLightboxItem} />
+          <EventSection title="Gallery" subtitle="Highlights" photos={Array.isArray(photos) ? photos : []} setLightboxItem={setLightboxItem} onClose={onClose} />
         )}
       </div>
     </div>
   );
 }
 
-function EventSection({ title, subtitle, photos, setLightboxItem }) {
+function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
   const [searchTerm, setSearchTerm] = useState("");
   if (!photos || photos.length === 0) return null;
 
@@ -1411,7 +1411,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem }) {
       <div className="explorer-header">
         <div className="explorer-toolbar">
           <div className="explorer-path">
-            <span className="path-root">Events</span>
+            <span className="path-root" onClick={onClose} style={{ cursor: 'pointer' }}>Events</span>
             <span className="path-sep">/</span>
             <span className="path-folder">{subtitle}</span>
             <span className="path-sep">/</span>
