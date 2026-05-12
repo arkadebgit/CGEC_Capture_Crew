@@ -64,35 +64,24 @@ const EVENTS = [
     comingSoon: true
   },
   {
+    id: "republic",
+    name: "Republic Day",
+    subtitle: "Patriotic Documentation",
+    date: "January 2026",
+    color: "#000080",
+    desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.",
+    highlight: "Tricolor flag hoisting and cultural documentation.",
+    emoji: "🇮🇳",
+  },
+  {
     id: "croeso",
     name: "CROESO",
     subtitle: "Freshers' Welcome",
     date: "February 2026",
     color: "#A8D8A8",
-    desc: "A warm welcome for first-year students into the world of photography. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.",
+    desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.",
     highlight: "Welcome to the frame. New eyes, new stories.",
     emoji: "🎓",
-  },
-  {
-    id: "independence",
-    name: "Independence Day",
-    subtitle: "15th August Special",
-    date: "August 2026",
-    color: "#FF9933",
-    desc: "Capturing the spirit of patriotism through the lens — flag hoisting ceremonies, portrait sessions, and a special themed photo series celebrating India's independence.",
-    highlight: "Tricolor through the lens.",
-    emoji: "🇮🇳",
-    comingSoon: true
-  },
-  {
-    id: "saraswati",
-    name: "Saraswati Puja",
-    subtitle: "Festival Documentation",
-    date: "January 2026",
-    color: "#DEB8D0",
-    desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from the early morning rituals to the immersion procession, captured with reverence and artistry.",
-    highlight: "Devotion in every frame.",
-    emoji: "🌸",
   },
   {
     id: "holi",
@@ -100,9 +89,41 @@ const EVENTS = [
     subtitle: "Festival of Colors",
     date: "March 2026",
     color: "#FF69B4",
-    desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy, togetherness, and splash of colors captured in every frame.",
+    desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.",
     highlight: "Vibrance in every splash.",
     emoji: "🎨",
+  },
+  {
+    id: "saraswati",
+    name: "Saraswati Puja",
+    subtitle: "Festival Documentation",
+    date: "January 2026",
+    color: "#DEB8D0",
+    desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from rituals to the procession.",
+    highlight: "Devotion in every frame.",
+    emoji: "🌸",
+  },
+  {
+    id: "independence",
+    name: "Independence Day",
+    subtitle: "15th August Special",
+    date: "August 2026",
+    color: "#FF9933",
+    desc: "Capturing the spirit of patriotism — flag hoisting ceremonies and special themed photo series.",
+    highlight: "Tricolor through the lens.",
+    emoji: "🇮🇳",
+    comingSoon: true
+  },
+  {
+    id: "esperanza",
+    name: "ESPERANZA",
+    subtitle: "Annual Flagship Event",
+    date: "June 2026",
+    color: "#7EB8D4",
+    desc: "The grand annual celebration of Capture Crew — a full-day workshop and exhibition.",
+    highlight: "500+ attendees. Campus-wide photo walk.",
+    emoji: "🌟",
+    comingSoon: true
   },
 ];
 
@@ -1311,33 +1332,105 @@ function EventPage({ event, onClose }) {
   const eventPhotos = {
     varnakriti: {
       general: [
-        "/events/varnakriti/events/image (1).png", 
-        "/events/varnakriti/events/image.png", 
-        "/events/varnakriti/events/SaveClip.App_634440523_17913157053299557_2777657706342258186_n.jpg",
-        "/events/varnakriti/events/WhatsApp Image 2026-05-11 at 8.55.11 PM.jpeg",
-        "/events/varnakriti/events/WhatsApp Image 2026-05-12 at 4.34.07 PM.jpeg"
+        "https://i.postimg.cc/L8vk7cYh/image.png",
+        "https://i.postimg.cc/TwsDGGf6/image-(1).png",
+        "https://i.postimg.cc/htKb2DGy/image-(2).png",
+        "https://i.postimg.cc/sgKP8kQY/image-(6).png"
       ],
-      prize: Array.from({ length: 12 }, (_, i) => `/events/varnakriti/prize/image${i === 0 ? "" : ` (${i+1})`}.png`),
-      winners: ["/events/varnakriti/winners/SaveClip.App_640302939_17960191608051405_7355162228165538329_n.jpg", "/events/varnakriti/winners/SaveClip.App_640396337_17960191617051405_8629856469985778477_n.jpg", "/events/varnakriti/winners/SaveClip.App_640415008_17960191587051405_6590193589515239244_n.jpg"]
+      prize: [
+        "https://i.ibb.co/x8mCpzhG/image-1.png",
+        "https://i.ibb.co/prkJ404d/image-2.png",
+        "https://i.ibb.co/tTC5cXJS/image-3.png",
+        "https://i.ibb.co/m5Ytyz7G/image-4.png",
+        "https://i.ibb.co/C3tQGv04/image-5.png",
+        "https://i.ibb.co/Ld1zYbQG/image-6.png",
+        "https://i.ibb.co/bfqmG7y/image-7.png",
+        "https://i.ibb.co/DgS4vV95/image-8.png",
+        "https://i.ibb.co/rfQhYd6g/image-9.png",
+        "https://i.ibb.co/bjGwBCKK/image-10.png",
+        "https://i.ibb.co/YF4j8xgf/image-11.png",
+        "https://i.ibb.co/Rp47r97x/image-12.png",
+        "https://i.ibb.co/ks6RMH47/image.png"
+      ],
+      winners: [
+        "https://i.ibb.co/JwRqhtNY/Save-Clip-App-640302939-17960191608051405-7355162228165538329-n.webp",
+        "https://i.ibb.co/gLvWSgwg/Save-Clip-App-640396337-17960191617051405-8629856469985778477-n.webp",
+        "https://i.ibb.co/chHd6DHN/Save-Clip-App-640415008-17960191587051405-6590193589515239244-n.webp"
+      ]
     },
     croeso: [
-      "IMG-20260217-WA0140.jpg", "IMG-20260217-WA0142.jpg", "IMG-20260217-WA0146.jpg", "IMG-20260217-WA0147.jpg",
-      "IMG-20260217-WA0149.jpg", "IMG-20260217-WA0157.jpg", "IMG-20260217-WA0159.jpg", "IMG-20260217-WA0161.jpg",
-      "IMG-20260217-WA0163.jpg", "IMG-20260217-WA0164.jpg", "IMG-20260217-WA0165.jpg", "IMG-20260217-WA0166.jpg",
-      "IMG-20260217-WA0167.jpg", "IMG-20260217-WA0168.jpg", "IMG-20260217-WA0170.jpg", "IMG-20260217-WA0172.jpg",
-      "IMG-20260217-WA0174.jpg", "IMG-20260218-WA0029.jpg", "IMG-20260219-WA0015.jpg", "IMG-20260219-WA0016.jpg",
-      "IMG-20260219-WA0017.jpg", "IMG-20260219-WA0018.jpg", "IMG-20260219-WA0019.jpg", "IMG20260217201023 (1).jpg",
-      "IMG_20260217_104013405.jpg", "IMG_20260217_104018666.jpg", "IMG_20260217_104031799.jpg", "IMG_20260217_104040598.jpg",
-      "IMG_20260217_104220050.jpg", "IMG_20260217_105435377.jpg", "IMG_20260217_105550033.jpg", "IMG_20260217_165431.jpg",
-      "IMG_20260217_165433.jpg", "IMG_20260217_165527.jpg", "IMG_20260217_185447.jpg", "IMG_20260217_185450.jpg",
-      "IMG_20260217_190023.jpg", "IMG_20260217_190100.jpg", "IMG_20260217_190111.jpg", "IMG_20260217_190130.jpg",
-      "IMG_20260217_190511899.jpg", "IMG_20260217_190740498_HDR~2.jpg", "IMG_20260217_191240418~2.jpg", "IMG_20260217_201131203~2.jpg",
-      "IMG_20260217_205004.jpg", "IMG_20260217_205006.jpg", "PXL_20260217_104556883.jpg", "PXL_20260217_104645465.jpg",
-      "PXL_20260217_104758690.jpg", "PXL_20260217_175532791.jpg", "PXL_20260217_192135594.jpg", "PXL_20260217_193632847.jpg",
-      "PXL_20260217_194649852.jpg", "PXL_20260217_194656883.jpg", "PXL_20260217_194906694.jpg", "image (2).png", "image.png",
-      "t's a time to disco ....Captured byArkadeb Thokdar, 1st yr. ME..jpg"
-    ].map(f => `/events/croeso/${f}`),
-    holi: ["SaveClip.App_642148216_17961485553051405_8385715078758128532_n.jpg", "SaveClip.App_642529503_17961485511051405_131829195843355943_n.jpg", "SaveClip.App_642635932_17961485550051405_2472211186656361010_n.jpg", "SaveClip.App_642666667_17961485388051405_2814668728871964987_n.jpg", "SaveClip.App_642683403_17961485373051405_7735649280446324333_n.jpg", "SaveClip.App_642698762_17961485562051405_1727925144419840966_n.jpg", "SaveClip.App_642709633_17961485523051405_6942903691962638290_n.jpg", "SaveClip.App_645446133_17961485409051405_3632317390478327203_n.jpg", "SaveClip.App_648129421_17961485535051405_4433441016486177670_n.jpg", "SaveClip.App_648768061_17961485364051405_841916865367389342_n.jpg"].map(f => `/events/holi/${f}`)
+      "https://i.ibb.co/S76whsZ3/IMG-20260217-165431.jpg",
+      "https://i.ibb.co/d0KWQfy0/IMG-20260217-165527.jpg",
+      "https://i.ibb.co/FLT9WxW2/IMG-20260217-190023.jpg",
+      "https://i.ibb.co/hJMQxJk2/IMG-20260217-205006.jpg",
+      "https://i.ibb.co/cc6ZfwR1/IMG-20260217-104013405.jpg",
+      "https://i.ibb.co/39QrgcWg/IMG-20260217-104018666.jpg",
+      "https://i.ibb.co/hJRKc5QN/IMG-20260217-104031799.jpg",
+      "https://i.ibb.co/67twSf2H/IMG-20260217-104040598.jpg",
+      "https://i.ibb.co/DH1BMYm0/IMG-20260217-104220050.jpg",
+      "https://i.ibb.co/3558xnc8/IMG-20260217-105435377.jpg",
+      "https://i.ibb.co/Nggq8Q2v/IMG-20260217-105550033.jpg",
+      "https://i.ibb.co/GLR2MQM/IMG-20260217-190511899.jpg",
+      "https://i.ibb.co/LdcDXDXx/IMG-20260217-190740498-HDR-2.jpg",
+      "https://i.ibb.co/WW0zP5zt/IMG-20260217-191240418-2.jpg",
+      "https://i.ibb.co/1tNG4RS9/IMG-20260217-201131203-2.jpg",
+      "https://i.ibb.co/NgzpP7sC/IMG-20260217-WA0146.jpg",
+      "https://i.ibb.co/JWrpgn65/IMG-20260217-WA0149.jpg",
+      "https://i.ibb.co/cSNbn0NR/IMG-20260217-WA0161.jpg",
+      "https://i.ibb.co/Z6wwtK42/IMG-20260217-WA0164.jpg",
+      "https://i.ibb.co/JRz3L8TF/IMG-20260217-WA0166.jpg",
+      "https://i.ibb.co/B5Bk0Gh5/IMG-20260217-WA0167.jpg",
+      "https://i.ibb.co/ptPkg6Y/IMG-20260217-WA0172.jpg",
+      "https://i.ibb.co/spQj0bFK/IMG-20260217-WA0174.jpg",
+      "https://i.ibb.co/Y7DNf3v4/IMG-20260219-WA0015.jpg",
+      "https://i.ibb.co/qMfYC5Gq/IMG-20260219-WA0016.jpg",
+      "https://i.ibb.co/7NCby2c3/IMG-20260219-WA0017.jpg",
+      "https://i.ibb.co/DDyg2b4d/IMG-20260219-WA0018.jpg",
+      "https://i.ibb.co/G459XfNt/IMG-20260219-WA0019.jpg",
+      "https://i.ibb.co/xtYPp74R/IMG20260217201023-1.jpg",
+      "https://i.ibb.co/J0Rkh17/PXL-20260217-104556883.jpg",
+      "https://i.ibb.co/twdLKdsN/PXL-20260217-104645465.jpg",
+      "https://i.ibb.co/7H23sMc/PXL-20260217-104758690.jpg",
+      "https://i.ibb.co/G3QtDhBt/PXL-20260217-175532791.jpg",
+      "https://i.ibb.co/8y6zd3q/PXL-20260217-192135594.jpg",
+      "https://i.ibb.co/Z6J3LMpw/PXL-20260217-193632847.jpg",
+      "https://i.ibb.co/7my2Pnm/PXL-20260217-194649852.jpg",
+      "https://i.ibb.co/jP0ZGpMp/PXL-20260217-194656883.jpg"
+    ],
+    holi: [
+      "https://i.postimg.cc/XY6Ywqs3/Save-Clip-App-642148216-17961485553051405-8385715078758128532-n.jpg",
+      "https://i.postimg.cc/cJs1bjqP/Save-Clip-App-642529503-17961485511051405-131829195843355943-n.jpg",
+      "https://i.postimg.cc/bJryztwd/Save-Clip-App-642635932-17961485550051405-2472211186656361010-n.jpg",
+      "https://i.postimg.cc/d04QPBwk/Save-Clip-App-642666667-17961485388051405-2814668728871964987-n.jpg",
+      "https://i.postimg.cc/0Nc5RfPR/Save-Clip-App-642683403-17961485373051405-7735649280446324333-n.jpg",
+      "https://i.postimg.cc/ydGVW8JV/Save-Clip-App-642698762-17961485562051405-1727925144419840966-n.jpg",
+      "https://i.postimg.cc/tJV96GPb/Save-Clip-App-642709633-17961485523051405-6942903691962638290-n.jpg",
+      "https://i.postimg.cc/Bb1JFfDn/Save-Clip-App-645446133-17961485409051405-3632317390478327203-n.jpg",
+      "https://i.postimg.cc/nrQnmf7D/Save-Clip-App-648129421-17961485535051405-4433441016486177670-n.jpg",
+      "https://i.postimg.cc/tJV96GPN/Save-Clip-App-648768061-17961485364051405-841916865367389342-n.jpg"
+    ],
+    saraswati: [
+      "https://i.postimg.cc/qMb9T5CS/image.png",
+      "https://i.postimg.cc/0yr1Kss1/image-(1).png",
+      "https://i.postimg.cc/Y965B21f/image-(2).png",
+      "https://i.postimg.cc/JnNfC7bK/image-(3).png",
+      "https://i.postimg.cc/XJfR6Nwh/image-(4).png",
+      "https://i.postimg.cc/KjmdGXN0/image-(5).png"
+    ],
+    republic: [
+      "https://i.ibb.co/cKvTd26Z/image-1.png", "https://i.ibb.co/WN2RhJ8w/image-2.png", "https://i.ibb.co/hRZJQsjB/image-3.png",
+      "https://i.ibb.co/gM9kRmK3/image-4.png", "https://i.ibb.co/v4vvwFbs/image-5.png", "https://i.ibb.co/KxcKwsDc/image-6.png",
+      "https://i.ibb.co/Z16J13cX/image-7.png", "https://i.ibb.co/k69Vt6Gk/image-8.png", "https://i.ibb.co/Z43DjX7/image-9.png",
+      "https://i.ibb.co/MJ0k1t6/image-10.png", "https://i.ibb.co/rG1r3Q6r/image-11.png", "https://i.ibb.co/jk6vQfSm/image-12.png",
+      "https://i.ibb.co/HDcYS9Ff/image-13.png", "https://i.ibb.co/xK5j6t3b/image-14.png", "https://i.ibb.co/v4K6JpBD/image-15.png",
+      "https://i.ibb.co/Wmbq5Fp/image-16.png", "https://i.ibb.co/1tS00rPx/image-17.png", "https://i.ibb.co/svLXkpFx/image-18.png",
+      "https://i.ibb.co/ZRmcRm87/image-19.png", "https://i.ibb.co/Vcdz97bb/image-20.png", "https://i.ibb.co/NdVv1Y6S/image-21.png",
+      "https://i.ibb.co/YFY0swYk/image-22.png", "https://i.ibb.co/WNcvvKjR/image-23.png", "https://i.ibb.co/0VvY79kB/image-24.png",
+      "https://i.ibb.co/7dPMQ5Bb/image-25.png", "https://i.ibb.co/K8g7MBk/image-27.png", "https://i.ibb.co/LDc9Sqwv/image-28.png",
+      "https://i.ibb.co/4RBCCYSp/image-29.png", "https://i.ibb.co/KzV78YZC/image-30.png", "https://i.ibb.co/rR94SJ9T/image-31.png",
+      "https://i.ibb.co/MkqdRZ5W/image-32.png", "https://i.ibb.co/hx5N1zQv/image-33.png", "https://i.ibb.co/LdRW1b3n/image-34.png",
+      "https://i.ibb.co/21qSZTTv/image.png"
+    ]
   };
 
   const livePhotos = liveEvents[event.id] || [];
@@ -1361,12 +1454,12 @@ function EventPage({ event, onClose }) {
 
         {isVarnakriti ? (
           <div className="varnakriti-sections">
-            <EventSection title="The Exhibition" subtitle="Event Moments" photos={eventPhotos.varnakriti.general} />
-            <EventSection title="Prize Distribution" subtitle="Celebrating Excellence" photos={eventPhotos.varnakriti.prize} />
-            <EventSection title="The Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} />
+            <EventSection title="Exhibition" subtitle="General" photos={eventPhotos.varnakriti.general} />
+            <EventSection title="Awards" subtitle="Prize Distribution" photos={eventPhotos.varnakriti.prize} />
+            <EventSection title="Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} />
           </div>
         ) : (
-          <EventSection title="Event Highlights" subtitle="Captured Moments" photos={Array.isArray(photos) ? photos : []} />
+          <EventSection title="Gallery" subtitle="Highlights" photos={Array.isArray(photos) ? photos : []} />
         )}
       </div>
     </div>
@@ -1374,40 +1467,59 @@ function EventPage({ event, onClose }) {
 }
 
 function EventSection({ title, subtitle, photos }) {
+  const [searchTerm, setSearchTerm] = useState("");
   if (!photos || photos.length === 0) return null;
 
-  // Split photos into 3 rows
-  const rowCount = 3;
-  const rows = [];
-  for (let i = 0; i < rowCount; i++) {
-    rows.push(photos.filter((_, idx) => idx % rowCount === i));
-  }
+  const filteredPhotos = photos.filter((_, i) => 
+    `IMG_${1000 + i}.JPG`.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="event-detail-section fade-in visible">
-      <div className="section-label">{subtitle}</div>
-      <h2 className="section-title">{title}</h2>
+      <div className="explorer-header">
+        <div className="explorer-toolbar">
+          <div className="explorer-path">
+            <span className="path-root">Events</span>
+            <span className="path-sep">/</span>
+            <span className="path-folder">{subtitle}</span>
+            <span className="path-sep">/</span>
+            <span className="path-current">{title}</span>
+          </div>
+          <div className="explorer-actions">
+            <div className="explorer-search">
+              <span className="search-icon">🔍</span>
+              <input 
+                type="text" 
+                placeholder="Search images..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="explorer-info">{filteredPhotos.length} Items</div>
+          </div>
+        </div>
+      </div>
       
-      <div className="multi-marquee-container">
-        {rows.map((rowPhotos, rowIndex) => {
-          if (rowPhotos.length === 0) return null;
-          // Duplicate for seamless loop (Doubling is enough for performance)
-          const displayPhotos = [...rowPhotos, ...rowPhotos];
-          const direction = rowIndex % 2 === 0 ? "left" : "right";
-          
-          return (
-            <div key={rowIndex} className={`event-carousel marquee-${direction}`}>
-              <div className="marquee-track">
-                {displayPhotos.map((p, i) => (
-                  <div key={i} className="carousel-item">
-                    <img src={p} alt={title} loading="lazy" />
-                  </div>
-                ))}
+      <div className="gallery-grid-system">
+        {filteredPhotos.map((p, i) => (
+          <div 
+            key={i} 
+            className="gallery-grid-item" 
+            style={{ "--delay": `${(i % 12) * 0.05}s` }}
+          >
+            <div className="grid-item-inner">
+              <img src={p} alt={title} loading="lazy" />
+              <div className="grid-item-meta">
+                <span className="file-icon">📷</span>
+                <span className="file-name">IMG_{1000 + photos.indexOf(p)}.JPG</span>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
+      {filteredPhotos.length === 0 && (
+        <div className="no-results">No images found matching "{searchTerm}"</div>
+      )}
     </div>
   );
 }
