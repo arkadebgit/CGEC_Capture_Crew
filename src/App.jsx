@@ -406,7 +406,7 @@ export default function App() {
     );
     els.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, [galleryFilter, gallery, weekCapture, monthCaptures, extraFrameCapture]);
+  }, [galleryFilter, gallery, weekCapture, monthCaptures, extraFrameCapture, expandedGallery, expandedEvents, expandedTeam]);
 
   // Lightbox esc
   useEffect(() => {
