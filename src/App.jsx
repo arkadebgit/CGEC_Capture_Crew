@@ -960,7 +960,6 @@ export default function App() {
             setTimeout(() => scrollTo("events"), 50);
           }}
           setLightboxItem={setLightboxItem} 
-          eventPhotos={eventPhotos}
           liveEvents={liveEvents}
         />
       )}
