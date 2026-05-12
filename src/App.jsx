@@ -301,6 +301,18 @@ const MONTH_CAPTURES = [
   GALLERY[11]  // Prince Mahato
 ];
 
+const HERO_COVERS = [
+  "/covers/image.png",
+  "/covers/image (1).png",
+  "/covers/image (2).png",
+  "/covers/image (3).png",
+  "/covers/image (4).png",
+  "/covers/image (5).png",
+  "/covers/image (6).png",
+  "/covers/image (7).png",
+  "/covers/image (8).png"
+];
+
 // ─── APP ────────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -311,7 +323,7 @@ export default function App() {
   const [monthSlide, setMonthSlide] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [heroImg, setHeroImg] = useState(GALLERY[0].url);
+  const [heroImg, setHeroImg] = useState(HERO_COVERS[0]);
   
   // Certificate State
   const [certId, setCertId] = useState("");
@@ -392,7 +404,7 @@ export default function App() {
 
   // Random Hero on load
   useEffect(() => {
-    const randomImg = GALLERY[Math.floor(Math.random() * GALLERY.length)].url;
+    const randomImg = HERO_COVERS[Math.floor(Math.random() * HERO_COVERS.length)];
     setHeroImg(randomImg);
   }, []);
 
@@ -1222,7 +1234,13 @@ function EventPage({ event, onClose }) {
 
   const eventPhotos = {
     varnakriti: {
-      general: ["/events/varnakriti/events/image (1).png", "/events/varnakriti/events/image.png", "/events/varnakriti/events/SaveClip.App_634440523_17913157053299557_2777657706342258186_n.jpg"],
+      general: [
+        "/events/varnakriti/events/image (1).png", 
+        "/events/varnakriti/events/image.png", 
+        "/events/varnakriti/events/SaveClip.App_634440523_17913157053299557_2777657706342258186_n.jpg",
+        "/events/varnakriti/events/WhatsApp Image 2026-05-11 at 8.55.11 PM.jpeg",
+        "/events/varnakriti/events/WhatsApp Image 2026-05-12 at 4.34.07 PM.jpeg"
+      ],
       prize: Array.from({ length: 12 }, (_, i) => `/events/varnakriti/prize/image${i === 0 ? "" : ` (${i+1})`}.png`),
       winners: ["/events/varnakriti/winners/SaveClip.App_640302939_17960191608051405_7355162228165538329_n.jpg", "/events/varnakriti/winners/SaveClip.App_640396337_17960191617051405_8629856469985778477_n.jpg", "/events/varnakriti/winners/SaveClip.App_640415008_17960191587051405_6590193589515239244_n.jpg"]
     },
