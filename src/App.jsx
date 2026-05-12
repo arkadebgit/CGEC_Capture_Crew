@@ -610,7 +610,7 @@ export default function App() {
           </div>
           <div className="week-inner fade-in">
             <div className="week-image-wrap">
-              <img src={weekCapture?.url || "/placeholder.jpg"} alt={weekCapture?.title} className="week-img" />
+              <img src={weekCapture?.url || "/placeholder.jpg"} alt={weekCapture?.title} className="week-img" referrerPolicy="no-referrer" />
               <div className="week-badge">This Week's Pick</div>
             </div>
             <div className="week-info">
@@ -639,7 +639,7 @@ export default function App() {
           </div>
           <div className="month-slide fade-in">
             <div className="month-image-wrap">
-              <img src={monthCaptures[monthSlide]?.url || "/placeholder.jpg"} alt={monthCaptures[monthSlide]?.title} className="month-img" />
+              <img src={monthCaptures[monthSlide]?.url || "/placeholder.jpg"} alt={monthCaptures[monthSlide]?.title} className="month-img" referrerPolicy="no-referrer" />
               <div className="month-frame" />
               <div className="month-award">
                 <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -680,7 +680,7 @@ export default function App() {
                 </div>
               </div>
               <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0' }} />
+                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0' }} referrerPolicy="no-referrer" />
                 <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
               </div>
             </div>
@@ -713,6 +713,7 @@ export default function App() {
                   alt={item.title} 
                   className="gallery-thumb" 
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                 />
                 <div className="gallery-overlay">
                   <div>
@@ -1165,8 +1166,15 @@ function AdminDashboard({ user, onClose }) {
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
+            <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., https://i.ibb.co/... or https://i.postimg.cc/...). PostImage is recommended for stability.</p>
             <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
-              <input className="form-input" placeholder="Image Direct Link (https://...)" value={featuredData.url} onChange={e => setFeaturedData({...featuredData, url: e.target.value})} style={{ gridColumn: '1 / -1' }} />
+              <input className="form-input" placeholder="Image Direct Link (https://i.ibb.co/...)" value={featuredData.url} onChange={e => {
+                let val = e.target.value;
+                if (val.includes('ibb.co') && !val.includes('i.ibb.co')) {
+                  console.warn("Likely not a direct link");
+                }
+                setFeaturedData({...featuredData, url: val})
+              }} style={{ gridColumn: '1 / -1' }} />
               <input className="form-input" placeholder="Caption / Title" value={featuredData.title} onChange={e => setFeaturedData({...featuredData, title: e.target.value})} />
               <input className="form-input" placeholder="Photographer Name" value={featuredData.photographer} onChange={e => setFeaturedData({...featuredData, photographer: e.target.value})} />
               
@@ -1217,7 +1225,7 @@ function AdminDashboard({ user, onClose }) {
                   <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                     {(liveEvents[e.id] || []).map((url, idx) => (
                       <div key={idx} style={{ position: 'relative' }}>
-                        <img src={url} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                        <img src={url} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} referrerPolicy="no-referrer" />
                         <button onClick={async () => {
                           if (confirm("Remove this link?")) {
                             const newPhotos = liveEvents[e.id].filter((_, i) => i !== idx);
@@ -1240,7 +1248,7 @@ function AdminDashboard({ user, onClose }) {
             <div className="gallery-grid">
               {gallery.map(g => (
                 <div key={g.id} className="gallery-item">
-                  <img src={g.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} />
+                  <img src={g.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} referrerPolicy="no-referrer" />
                   <div style={{ padding: '0.5rem' }}>
                     <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--white)' }}>{g.title}</div>
                     <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
@@ -1520,7 +1528,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem }) {
             })}
           >
             <div className="grid-item-inner">
-              <img src={p} alt={title} loading="lazy" />
+              <img src={p} alt={title} loading="lazy" referrerPolicy="no-referrer" />
               <div className="grid-item-meta">
                 <span className="file-icon">📷</span>
                 <span className="file-name">IMG_{1000 + photos.indexOf(p)}.JPG</span>
