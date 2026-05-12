@@ -583,14 +583,10 @@ export default function App() {
             </div>
             <div className="week-inner fade-in">
               <div className="week-info">
-                <div className="week-date">Special Feature</div>
+                <div className="week-date">Special Moments</div>
                 <p className="week-story">{extraFrameCapture.title}</p>
-                <div className="week-credit">
-                  <div className="week-avatar">✨</div>
-                  <div>
-                    <div className="week-credit-name">{extraFrameCapture.photographer}</div>
-                    <div className="week-credit-role">{extraFrameCapture.dept} · {extraFrameCapture.year}</div>
-                  </div>
+                <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                  By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
                 </div>
               </div>
               <div className="week-image-wrap">
