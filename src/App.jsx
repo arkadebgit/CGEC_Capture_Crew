@@ -508,9 +508,12 @@ export default function App() {
         </button>
 
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
-          {[["home","Home"],["week","Week"],["month","Month"],["extra","Extra"],["gallery","Gallery"],["events","Events"],["team","Team"],["feedback","Feedback"]].map(([id, label]) => (
+          {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => (
             <li key={id} className={activeSection === id ? "active" : ""} onClick={() => scrollTo(id)}>{label}</li>
           ))}
+          <li className="nav-btn-wrapper">
+            <button className="admin-nav-btn" onClick={() => setShowLogin(true)}>Admin Console</button>
+          </li>
         </ul>
       </nav>
 
@@ -863,38 +866,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* FEEDBACK */}
-      <section id="feedback" className="feedback-section">
-        <div className="container">
-          <div className="feedback-inner">
-            <div className="feedback-aside fade-in">
-              <div className="section-label">✦ Your Voice</div>
-              <div className="feedback-quote">
-                Every frame tells a story.<br />
-                <em>Tell us yours.</em>
-              </div>
-              <p className="feedback-note">
-                Share your thoughts, suggestions, or appreciation with the Capture Crew team. Your feedback helps us grow as photographers and storytellers.
-              </p>
-            </div>
-            <div className="feedback-form fade-in">
-              <div className="form-group">
-                <label className="form-label">Name</label>
-                <input className="form-input" type="text" placeholder="Your name" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Email</label>
-                <input className="form-input" type="email" placeholder="your@email.com" />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Message</label>
-                <textarea className="form-textarea" rows={5} placeholder="Share your thoughts..." />
-              </div>
-              <button className="form-submit">Send Message →</button>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <footer className="footer">
         <div className="container">
