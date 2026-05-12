@@ -955,9 +955,13 @@ export default function App() {
       {selectedEvent && (
         <EventPage 
           event={selectedEvent} 
-          liveEvents={liveEvents} 
-          onClose={() => setSelectedEvent(null)} 
-          setLightboxItem={setLightboxItem}
+          onClose={() => {
+            setSelectedEvent(null);
+            setTimeout(() => scrollTo("events"), 50);
+          }}
+          setLightboxItem={setLightboxItem} 
+          eventPhotos={eventPhotos}
+          liveEvents={liveEvents}
         />
       )}
       {showLogin && !user && (
