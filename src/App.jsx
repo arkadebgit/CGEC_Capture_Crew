@@ -323,7 +323,7 @@ export default function App() {
   const [monthSlide, setMonthSlide] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [heroImg, setHeroImg] = useState(HERO_COVERS[0]);
+  const [heroImg, setHeroImg] = useState(() => HERO_COVERS[Math.floor(Math.random() * HERO_COVERS.length)]);
   
   // Certificate State
   const [certId, setCertId] = useState("");
@@ -402,11 +402,6 @@ export default function App() {
     fetchLiveData();
   }, [showLogin]);
 
-  // Random Hero on load
-  useEffect(() => {
-    const randomImg = HERO_COVERS[Math.floor(Math.random() * HERO_COVERS.length)];
-    setHeroImg(randomImg);
-  }, []);
 
   // Nav scroll & Mobile detection
   useEffect(() => {
