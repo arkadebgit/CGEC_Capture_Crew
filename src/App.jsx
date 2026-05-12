@@ -344,16 +344,16 @@ export default function App() {
         if (!gallerySnap.empty) {
           const liveGallery = gallerySnap.docs.map(d => ({ id: d.id, ...d.data() }));
           
-          // Sort by date to find latest
+          // Sort by captureDate primarily
           const sorted = [...liveGallery].sort((a, b) => {
-            const dateA = a.captureDate || a.createdAt || "";
-            const dateB = b.captureDate || b.createdAt || "";
+            const dateA = a.captureDate || "";
+            const dateB = b.captureDate || "";
             return dateB.localeCompare(dateA);
           });
 
           setGallery(liveGallery);
 
-          // Auto-promote latest if they exist
+          // Auto-promote latest by capture date
           const latestWeek = sorted.find(g => g.category === "Weekly Captures");
           const latestMonths = sorted.filter(g => g.category === "Monthly Captures").slice(0, 3);
 
@@ -451,8 +451,8 @@ export default function App() {
   };
 
   const sortedGallery = [...gallery].sort((a, b) => {
-    const dateA = a.captureDate || a.createdAt || "";
-    const dateB = b.captureDate || b.createdAt || "";
+    const dateA = a.captureDate || "";
+    const dateB = b.captureDate || "";
     return dateB.localeCompare(dateA);
   });
 
@@ -946,18 +946,27 @@ function AdminDashboard({ user, onClose }) {
   const updateFeatured = async (type) => {
     setIsUpdating(true);
     try {
-      // 1. Update the Homepage Featured Slot
-      await setDoc(doc(db, "config", type), featuredData);
-      
-      // 2. ALSO add this to the public Gallery automatically
-      await addDoc(collection(db, "gallery"), {
+      const newPhoto = {
         ...featuredData,
         createdAt: new Date().toISOString()
-      });
+      };
 
-      alert(`Updated ${type === 'week' ? 'Week' : 'Month'} & Saved to Gallery!`);
+      // 1. ALWAYS add to the public Gallery
+      await addDoc(collection(db, "gallery"), newPhoto);
+      
+      // 2. Check if this is the latest date compared to current featured
+      const configDoc = await getDoc(doc(db, "config", type));
+      const currentDate = configDoc.exists() ? (configDoc.data().captureDate || "") : "";
+
+      if (newPhoto.captureDate >= currentDate) {
+        await setDoc(doc(db, "config", type), newPhoto);
+        alert(`Featured Updated & Saved to Gallery!`);
+      } else {
+        alert(`Saved to Gallery! (Older capture added to archive)`);
+      }
+
       setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
-      fetchGallery(); // Refresh the list
+      fetchGallery(); 
     } catch (err) {
       alert("Error: " + err.message);
     }
