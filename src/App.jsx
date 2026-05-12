@@ -1036,6 +1036,18 @@ function AdminDashboard({ user, onClose }) {
     }
   };
 
+  const deleteCert = async (id) => {
+    if (window.confirm("Delete this certificate record?")) {
+      try {
+        await deleteDoc(doc(db, "certificates", id));
+        fetchCerts();
+        alert("Certificate record deleted.");
+      } catch (err) {
+        alert("Delete failed: " + err.message);
+      }
+    }
+  };
+
   return (
     <div className="event-page-overlay">
       <div className="container" style={{ paddingBottom: '5rem' }}>
@@ -1133,13 +1145,42 @@ function AdminDashboard({ user, onClose }) {
         {tab === 'certs' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Issue <em>Certificate</em></h3>
-            <form className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={addCert}>
+            <form className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '3rem' }} onSubmit={addCert}>
               <input className="form-input" placeholder="Student Name" value={newCert.name} onChange={e => setNewCert({...newCert, name: e.target.value})} required />
               <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
               <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
               <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
               <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate →</button>
             </form>
+
+            <h3 className="subcategory-title">Issued <em>Certificates</em></h3>
+            <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem' }}>Student Name</th>
+                    <th style={{ padding: '1rem' }}>Serial No</th>
+                    <th style={{ padding: '1rem' }}>Event</th>
+                    <th style={{ padding: '1rem' }}>Date</th>
+                    <th style={{ padding: '1rem' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {certs.map(c => (
+                    <tr key={c.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '1rem', fontWeight: '600' }}>{c.name}</td>
+                      <td style={{ padding: '1rem', color: 'var(--gold)' }}>{c.serialNo}</td>
+                      <td style={{ padding: '1rem' }}>{c.event}</td>
+                      <td style={{ padding: '1rem', opacity: 0.7 }}>{c.date}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <button onClick={() => deleteCert(c.id)} style={{ background: '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {certs.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No certificates issued yet.</div>}
+            </div>
           </div>
         )}
       </div>
