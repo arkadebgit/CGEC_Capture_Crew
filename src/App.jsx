@@ -104,7 +104,7 @@ const EVENTS = [
   },
 ];
 
-const GALLERY_CATEGORIES = ["All", "Weekly Captures", "Monthly Captures", "Event Photography"];
+const GALLERY_CATEGORIES = ["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"];
 
 const GALLERY = [
   {
@@ -325,6 +325,7 @@ export default function App() {
   const [weekCapture, setWeekCapture] = useState(null);
   const [monthCapture, setMonthCapture] = useState(null);
   const [monthCaptures, setMonthCaptures] = useState(MONTH_CAPTURES);
+  const [extraFrameCapture, setExtraFrameCapture] = useState(null);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
@@ -336,8 +337,10 @@ export default function App() {
         // 1. Fetch Featured Config
         const weekDoc = await getDoc(doc(db, "config", "week"));
         const monthDoc = await getDoc(doc(db, "config", "month"));
+        const extraDoc = await getDoc(doc(db, "config", "extra"));
         if (weekDoc.exists()) setWeekCapture(weekDoc.data());
         if (monthDoc.exists()) setMonthCapture(monthDoc.data());
+        if (extraDoc.exists()) setExtraFrameCapture(extraDoc.data());
 
         // 2. Fetch Public Gallery
         const gallerySnap = await getDocs(collection(db, "gallery"));
@@ -356,9 +359,11 @@ export default function App() {
           // Auto-promote latest by capture date
           const latestWeek = sorted.find(g => g.category === "Weekly Captures");
           const latestMonths = sorted.filter(g => g.category === "Monthly Captures").slice(0, 3);
+          const latestExtra = sorted.find(g => g.category === "The Extra Frame");
 
           setWeekCapture(latestWeek || null);
           setMonthCaptures(latestMonths.length > 0 ? latestMonths : MONTH_CAPTURES);
+          setExtraFrameCapture(latestExtra || null);
         }
       } catch (err) { console.error("Data fetch error:", err); }
     };
@@ -476,7 +481,7 @@ export default function App() {
         </button>
 
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
-          {[["home","Home"],["week","Week"],["month","Month"],["gallery","Gallery"],["events","Events"],["team","Team"],["feedback","Feedback"]].map(([id, label]) => (
+          {[["home","Home"],["week","Week"],["month","Month"],["extra","Extra"],["gallery","Gallery"],["events","Events"],["team","Team"],["feedback","Feedback"]].map(([id, label]) => (
             <li key={id} className={activeSection === id ? "active" : ""} onClick={() => scrollTo(id)}>{label}</li>
           ))}
         </ul>
@@ -568,6 +573,36 @@ export default function App() {
           </div>
         </div>
       </section>
+
+      {/* THE EXTRA FRAME */}
+      {extraFrameCapture && (
+        <section id="extra" className="week-section" style={{ background: "var(--bg-dark)", borderTop: "1px solid var(--glass-border)" }}>
+          <div className="container">
+            <div className="fade-in" style={{ marginBottom: "4rem" }}>
+              <div className="section-label">✦ Bonus Frame</div>
+              <h2 className="section-title">The <em>Extra Frame</em></h2>
+              <p className="section-sub">Beyond the weekly and monthly picks — something truly unique.</p>
+            </div>
+            <div className="week-inner fade-in">
+              <div className="week-info">
+                <div className="week-date">Special Feature</div>
+                <p className="week-story">{extraFrameCapture.title}</p>
+                <div className="week-credit">
+                  <div className="week-avatar">✨</div>
+                  <div>
+                    <div className="week-credit-name">{extraFrameCapture.photographer}</div>
+                    <div className="week-credit-role">{extraFrameCapture.dept} · {extraFrameCapture.year}</div>
+                  </div>
+                </div>
+              </div>
+              <div className="week-image-wrap">
+                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" />
+                <div className="week-badge" style={{ background: "var(--accent-gold)", color: "var(--bg-dark)" }}>Extra Frame</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* GALLERY */}
       <section id="gallery" className="gallery-section">
@@ -948,7 +983,7 @@ function AdminDashboard({ user, onClose }) {
     try {
       const newPhoto = {
         ...featuredData,
-        category: type === "week" ? "Weekly Captures" : "Monthly Captures",
+        category: type === "week" ? "Weekly Captures" : type === "month" ? "Monthly Captures" : "The Extra Frame",
         createdAt: new Date().toISOString()
       };
 
@@ -1000,13 +1035,14 @@ function AdminDashboard({ user, onClose }) {
         <div className="gallery-filter">
           <button className={`filter-btn ${tab === 'week' ? 'active' : ''}`} onClick={() => setTab('week')}>Set Week</button>
           <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
+          <button className={`filter-btn ${tab === 'extra' ? 'active' : ''}`} onClick={() => setTab('extra')}>Set Extra Frame</button>
           <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
         </div>
 
-        {(tab === 'week' || tab === 'month') && (
+        {(tab === 'week' || tab === 'month' || tab === 'extra') && (
           <div className="fade-in visible">
-            <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : 'Monthly'} <em>Featured</em></h3>
+            <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
             <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
               <input className="form-input" placeholder="Image Direct Link (https://...)" value={featuredData.url} onChange={e => setFeaturedData({...featuredData, url: e.target.value})} style={{ gridColumn: '1 / -1' }} />
               <input className="form-input" placeholder="Caption / Title" value={featuredData.title} onChange={e => setFeaturedData({...featuredData, title: e.target.value})} />
