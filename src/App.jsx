@@ -1417,16 +1417,16 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
       "https://i.ibb.co/jP0ZGpMp/PXL-20260217-194656883.jpg"
     ],
     holi: [
-      "https://i.postimg.cc/3wj5DM1T/Save-Clip-App-642148216-17961485553051405-8385715078758128532-n.jpg",
-      "https://i.ibb.co/CKF9SYBn/Save-Clip-App-642529503-17961485511051405-131829195843355943-n.jpg",
-      "https://i.ibb.co/8DRv4NQL/Save-Clip-App-642635932-17961485550051405-2472211186656361010-n.jpg",
-      "https://i.ibb.co/yc850NW3/Save-Clip-App-642666667-17961485388051405-2814668728871964987-n.jpg",
-      "https://i.ibb.co/WN22nmYD/Save-Clip-App-642683403-17961485373051405-7735649280446324333-n.jpg",
-      "https://i.ibb.co/4nFPjYSz/Save-Clip-App-642698762-17961485562051405-1727925144419840966-n.jpg",
-      "https://i.ibb.co/q3V21DSs/Save-Clip-App-642709633-17961485523051405-6942903691962638290-n.jpg",
-      "https://i.ibb.co/Q7K1VSMf/Save-Clip-App-645446133-17961485409051405-3632317390478327203-n.jpg",
-      "https://i.ibb.co/Xkpw46pC/Save-Clip-App-648129421-17961485535051405-4433441016486177670-n.jpg",
-      "https://i.ibb.co/wZcvB6zS/Save-Clip-App-648768061-17961485364051405-841916865367389342-n.jpg"
+      "https://beeimg.com/images/f75985559851.jpg",
+      "https://beeimg.com/images/j35091568733.jpg",
+      "https://beeimg.com/images/k16558572102.jpg",
+      "https://beeimg.com/images/l71712377343.jpg",
+      "https://beeimg.com/images/p71510405482.jpg",
+      "https://beeimg.com/images/p72936648931.jpg",
+      "https://beeimg.com/images/s41771946862.jpg",
+      "https://beeimg.com/images/t50602691533.jpg",
+      "https://beeimg.com/images/w78816169124.jpg",
+      "https://beeimg.com/images/x33353119143.jpg"
     ],
     saraswati: [
       "https://i.postimg.cc/qMb9T5CS/image.png",
