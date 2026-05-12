@@ -1208,68 +1208,95 @@ function EventSection({ title, subtitle, photos }) {
 
 // ─── RECRUITMENT MODAL ──────────────────────────────────────────────────────
 function RecruitmentModal({ onClose }) {
+  const [submitted, setSubmitted] = useState(false);
+
+  if (submitted) {
+    return (
+      <div className="lightbox open" onClick={onClose}>
+        <div className="admin-modal fade-in visible" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', maxWidth: '400px' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+          <h2 className="section-title">Application <em>Sent!</em></h2>
+          <p className="section-sub">Your details have been recorded. Our core team will review your application and get back to you shortly.</p>
+          <button className="form-submit" onClick={onClose} style={{ marginTop: '2rem', width: '100%' }}>Close</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="lightbox open" onClick={onClose}>
       <div className="admin-modal fade-in visible" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
         <button className="lightbox-close" onClick={onClose} style={{ top: '1.5rem', right: '1.5rem' }}>✕</button>
         <div className="section-label">✦ Recruitment 2026</div>
         <h2 className="section-title" style={{ fontSize: '2rem' }}>Become our <em>Core Member</em></h2>
-        <p className="section-sub" style={{ marginBottom: '2rem' }}>Join the most creative community at CGEC. Fill in your primary details to start your application.</p>
+        <p className="section-sub" style={{ marginBottom: '2rem' }}>Join the most creative community at CGEC. Your application will be submitted directly to our database.</p>
         
-        <form className="feedback-form" onSubmit={(e) => {
-          e.preventDefault();
-          window.open("https://forms.gle/MgaexSbCBNfZaiMEA", "_blank");
-          onClose();
-        }}>
+        {/* Hidden Iframe for Silent Submission */}
+        <iframe name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }} onLoad={() => { if(submitted) return; }}></iframe>
+
+        <form 
+          action="https://docs.google.com/forms/d/e/1FAIpQLSfstAa8vVx8GTQbz07BnwwadoyrXZJ0ufs-5y4q_ZOActtxDg/formResponse"
+          method="POST"
+          target="hidden_iframe"
+          className="feedback-form" 
+          onSubmit={() => setSubmitted(true)}
+        >
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
               <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Full Name</label>
-              <input className="form-input" type="text" placeholder="Enter your name" required />
+              <input name="entry.1951908948" className="form-input" type="text" placeholder="Enter your name" required />
             </div>
-            
+
+            <div className="form-group">
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Phone Number</label>
+              <input name="entry.1740949442" className="form-input" type="tel" placeholder="Your WhatsApp number" required />
+            </div>
+
             <div className="form-group">
               <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Department</label>
-              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+              <select name="entry.1173251580" className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
                 <option value="" style={{ background: '#111' }}>Select Dept</option>
-                <option style={{ background: '#111' }}>CSE</option>
-                <option style={{ background: '#111' }}>ECE</option>
-                <option style={{ background: '#111' }}>EE</option>
-                <option style={{ background: '#111' }}>ME</option>
-                <option style={{ background: '#111' }}>CE</option>
+                <option value="Computer Science & Engineering" style={{ background: '#111' }}>CSE</option>
+                <option value="Electronics & Communication Engineering" style={{ background: '#111' }}>ECE</option>
+                <option value="Electrical Engineering" style={{ background: '#111' }}>EE</option>
+                <option value="Mechanical Engineering" style={{ background: '#111' }}>ME</option>
+                <option value="Civil Engineering" style={{ background: '#111' }}>CE</option>
               </select>
             </div>
 
             <div className="form-group">
               <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Academic Year</label>
-              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+              <select name="entry.1863640859" className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
                 <option value="" style={{ background: '#111' }}>Select Year</option>
-                <option style={{ background: '#111' }}>1st Year</option>
-                <option style={{ background: '#111' }}>2nd Year</option>
-                <option style={{ background: '#111' }}>3rd Year</option>
-                <option style={{ background: '#111' }}>4th Year</option>
+                <option value="1st Year" style={{ background: '#111' }}>1st Year</option>
+                <option value="2nd Year" style={{ background: '#111' }}>2nd Year</option>
+                <option value="3rd Year" style={{ background: '#111' }}>3rd Year</option>
+                <option value="4th Year" style={{ background: '#111' }}>4th Year</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Position you want to apply for</label>
+              <select name="entry.1246931524" className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+                <option value="" style={{ background: '#111' }}>Select Position</option>
+                <option value="Graphic Designer" style={{ background: '#111' }}>Graphic Designer</option>
+                <option value="Video Editor" style={{ background: '#111' }}>Video Editor</option>
+                <option value="Videographer" style={{ background: '#111' }}>Videographer</option>
+                <option value="Photographer" style={{ background: '#111' }}>Photographer</option>
+                <option value="Photo Editor" style={{ background: '#111' }}>Photo Editor</option>
+                <option value="PR Manager" style={{ background: '#111' }}>PR Manager</option>
               </select>
             </div>
 
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Position you want to apply for</label>
-              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
-                <option value="" style={{ background: '#111' }}>Select Position</option>
-                <option style={{ background: '#111' }}>Graphic Designer</option>
-                <option style={{ background: '#111' }}>Video Editor</option>
-                <option style={{ background: '#111' }}>Videographer</option>
-                <option style={{ background: '#111' }}>Photographer</option>
-                <option style={{ background: '#111' }}>Photo Editor</option>
-                <option style={{ background: '#111' }}>PR Manager</option>
-              </select>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Portfolio Link (G-Drive / Instagram / Behance)</label>
+              <input name="entry.1992343263" className="form-input" type="url" placeholder="https://..." required />
             </div>
           </div>
 
           <button className="form-submit" type="submit" style={{ marginTop: '1.5rem', width: '100%' }}>
-            Continue to Official Form →
+            Submit Application →
           </button>
-          <p className="week-credit-role" style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.65rem' }}>
-            You will be redirected to Google Forms to complete the detailed application.
-          </p>
         </form>
       </div>
     </div>
