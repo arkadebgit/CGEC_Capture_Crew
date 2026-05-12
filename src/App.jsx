@@ -1078,9 +1078,11 @@ function AdminDashboard({ user, onClose }) {
       setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
       fetchGallery(); 
       fetchLiveData(); // Refresh featured calculation
+    } catch (err) {
       alert("Error: " + err.message);
+    } finally {
+      setIsUpdating(false);
     }
-    setIsUpdating(false);
   };
 
   const addCert = async (e) => {
