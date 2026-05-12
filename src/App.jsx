@@ -394,7 +394,7 @@ export default function App() {
     );
     els.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, [galleryFilter]);
+  }, [galleryFilter, gallery, weekCapture, monthCaptures, extraFrameCapture]);
 
   // Lightbox esc
   useEffect(() => {
