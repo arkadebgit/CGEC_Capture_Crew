@@ -363,9 +363,9 @@ export default function App() {
           const latestMonths = sorted.filter(g => g.category === "Monthly Captures").slice(0, 3);
           const latestExtra = sorted.find(g => g.category === "The Extra Frame");
 
-          setWeekCapture(latestWeek || null);
-          setMonthCaptures(latestMonths.length > 0 ? latestMonths : MONTH_CAPTURES);
-          setExtraFrameCapture(latestExtra || null);
+          if (latestWeek) setWeekCapture(latestWeek);
+          if (latestMonths.length > 0) setMonthCaptures(latestMonths);
+          if (latestExtra) setExtraFrameCapture(latestExtra);
         }
       } catch (err) { console.error("Data fetch error:", err); }
     };
@@ -595,7 +595,7 @@ export default function App() {
               </div>
               <div className="week-image-wrap">
                 <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" />
-                <div className="week-badge" style={{ background: "var(--accent-gold)", color: "var(--bg-dark)" }}>Extra Frame</div>
+                <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)" }}>Extra Frame</div>
               </div>
             </div>
           </div>
