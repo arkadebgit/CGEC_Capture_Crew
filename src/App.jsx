@@ -330,7 +330,7 @@ export default function App() {
   const [activeSection, setActiveSection] = useState("home");
   const [galleryFilter, setGalleryFilter] = useState("All");
   const [lightboxItem, setLightboxItem] = useState(null);
-  const [monthSlide, setMonthSlide] = useState(0);
+
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(() => {
@@ -455,7 +455,7 @@ export default function App() {
     );
     els.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, [galleryFilter, gallery, weekCapture, monthCaptures, extraFrameCapture, expandedGallery, expandedEvents, expandedTeam]);
+  }, [galleryFilter, gallery, weekCapture, monthCapture, extraFrameCapture, expandedGallery, expandedEvents, expandedTeam]);
 
   // Lightbox esc
   useEffect(() => {
