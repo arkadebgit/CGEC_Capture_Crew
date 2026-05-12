@@ -575,24 +575,25 @@ export default function App() {
 
       {/* THE EXTRA FRAME */}
       {extraFrameCapture && (
-        <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}>
+        <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }}>
           <div className="container">
-            <div className="fade-in" style={{ marginBottom: "4rem" }}>
+            <div className="fade-in" style={{ marginBottom: "5rem" }}>
               <div className="section-label">✦ Bonus Frame</div>
               <h2 className="section-title">The <em>Extra Frame</em></h2>
               <p className="section-sub">Beyond the weekly and monthly picks — something truly unique.</p>
             </div>
             <div className="week-inner fade-in">
-              <div className="week-info">
+              <div className="week-info" style={{ padding: '0' }}>
                 <div className="week-date">Special Moments</div>
-                <p className="week-story">{extraFrameCapture.title}</p>
-                <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.5rem' }}>{extraFrameCapture.title}</h3>
+                <p className="week-story" style={{ fontSize: '1rem', opacity: 0.8 }}>{extraFrameCapture.story || "A moment captured with precision and passion, showcasing the extraordinary beauty in everyday life."}</p>
+                <div className="month-photographer" style={{ marginTop: '2.5rem', paddingTop: '2.5rem', borderTop: '1px solid var(--border)' }}>
                   By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
                 </div>
               </div>
-              <div className="week-image-wrap">
-                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" />
-                <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)" }}>Extra Frame</div>
+              <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0' }} />
+                <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
               </div>
             </div>
           </div>
@@ -1249,7 +1250,7 @@ function AdminApplications() {
                   <div style={{ fontSize: '0.7rem', opacity: 0.7 }}>{app.phone}</div>
                 </td>
                 <td style={{ padding: '1rem' }}>
-                  <a href={app.portfolio} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>Link</a>
+                  <a href={app.portfolio} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'none' }}>View Link</a>
                 </td>
                 <td style={{ padding: '1rem' }}>
                   <button onClick={() => deleteDoc(doc(db, "applications", app.id))} style={{ background: '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Delete</button>
@@ -1289,11 +1290,11 @@ function RecruitmentModal({ onClose }) {
   if (submitted) {
     return (
       <div className="lightbox open" onClick={onClose}>
-        <div className="admin-modal fade-in visible" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', maxWidth: '400px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🎉</div>
+        <div className="admin-modal glass-form fade-in visible" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', maxWidth: '450px' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>✨</div>
           <h2 className="section-title">Application <em>Sent!</em></h2>
-          <p className="section-sub">Your application has been saved. The core team will review it shortly.</p>
-          <button className="form-submit" onClick={onClose} style={{ marginTop: '2rem', width: '100%' }}>Close</button>
+          <p className="section-sub">Your application has been received. We'll be in touch soon!</p>
+          <button className="form-submit" onClick={onClose} style={{ marginTop: '2.5rem', width: '100%' }}>Return to Site</button>
         </div>
       </div>
     );
@@ -1301,54 +1302,54 @@ function RecruitmentModal({ onClose }) {
 
   return (
     <div className="lightbox open" onClick={onClose}>
-      <div className="admin-modal fade-in visible" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-        <button className="lightbox-close" onClick={onClose} style={{ top: '1.5rem', right: '1.5rem' }}>✕</button>
-        <div className="section-label">✦ Recruitment 2026</div>
-        <h2 className="section-title" style={{ fontSize: '2rem' }}>Become our <em>Core Member</em></h2>
-        <p className="section-sub" style={{ marginBottom: '2rem' }}>Join the most creative community at CGEC.</p>
+      <div className="admin-modal glass-form fade-in visible" onClick={e => e.stopPropagation()} style={{ maxWidth: '650px' }}>
+        <button className="lightbox-close" onClick={onClose} style={{ top: '2rem', right: '2rem' }}>✕</button>
+        <div className="section-label">✦ Join our legacy</div>
+        <h2 className="section-title" style={{ fontSize: '2.5rem' }}>The <em>Core Team</em></h2>
+        <p className="section-sub" style={{ marginBottom: '3rem' }}>We are looking for creative souls. Apply below.</p>
         
-        <form className="feedback-form" onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
+        <form className="feedback-form" style={{ background: 'transparent', padding: '0', boxShadow: 'none' }} onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', textAlign: 'left' }}>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Full Name</label>
-              <input className="form-input" placeholder="Your name" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Full Name</label>
+              <input className="form-input" placeholder="e.g. John Doe" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
             </div>
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Email</label>
-              <input className="form-input" type="email" placeholder="Email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Email Address</label>
+              <input className="form-input" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
             </div>
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Phone</label>
-              <input className="form-input" placeholder="WhatsApp No" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>WhatsApp No.</label>
+              <input className="form-input" placeholder="+91 XXXX" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
             </div>
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Dept</label>
-              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required value={formData.dept} onChange={e => setFormData({...formData, dept: e.target.value})}>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Department</label>
+              <select className="form-input" style={{ appearance: 'none' }} required value={formData.dept} onChange={e => setFormData({...formData, dept: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Dept</option>
                 <option style={{ background: '#111' }}>CSE</option><option style={{ background: '#111' }}>ECE</option><option style={{ background: '#111' }}>EE</option><option style={{ background: '#111' }}>ME</option><option style={{ background: '#111' }}>CE</option>
               </select>
             </div>
             <div className="form-group">
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Year</label>
-              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Academic Year</label>
+              <select className="form-input" style={{ appearance: 'none' }} required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Year</option>
                 <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option>
               </select>
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Position</label>
-              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})}>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Position you're applying for</label>
+              <select className="form-input" style={{ appearance: 'none' }} required value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Position</option>
                 <option style={{ background: '#111' }}>Graphic Designer</option><option style={{ background: '#111' }}>Video Editor</option><option style={{ background: '#111' }}>Videographer</option><option style={{ background: '#111' }}>Photographer</option><option style={{ background: '#111' }}>Photo Editor</option><option style={{ background: '#111' }}>PR Manager</option>
               </select>
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.4rem' }}>Portfolio Link</label>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Portfolio Link (G-Drive / Behance)</label>
               <input className="form-input" placeholder="https://..." required value={formData.portfolio} onChange={e => setFormData({...formData, portfolio: e.target.value})} />
             </div>
           </div>
-          <button className="form-submit" type="submit" disabled={isSubmitting} style={{ marginTop: '1.5rem', width: '100%' }}>
-            {isSubmitting ? "Submitting..." : "Submit Application →"}
+          <button className="form-submit" type="submit" disabled={isSubmitting} style={{ marginTop: '2.5rem', width: '100%' }}>
+            {isSubmitting ? "PROCESSING..." : "SUBMIT APPLICATION →"}
           </button>
         </form>
       </div>
