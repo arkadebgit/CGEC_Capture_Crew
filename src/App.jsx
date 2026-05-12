@@ -978,7 +978,7 @@ export default function App() {
       </div>
       {/* MODALS */}
       {selectedEvent && (
-        <EventPage event={selectedEvent} onClose={() => setSelectedEvent(null)} />
+        <EventPage event={selectedEvent} liveEvents={liveEvents} onClose={() => setSelectedEvent(null)} />
       )}
       {showLogin && !user && (
         <LoginModal onClose={() => setShowLogin(false)} />
@@ -1326,7 +1326,7 @@ function AdminDashboard({ user, onClose }) {
 
 // ─── EVENT PAGE COMPONENT ───────────────────────────────────────────────────
 
-function EventPage({ event, onClose }) {
+function EventPage({ event, liveEvents, onClose }) {
   const [activeSlide, setActiveSlide] = useState(0);
 
   const eventPhotos = {
