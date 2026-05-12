@@ -1226,7 +1226,14 @@ function EventPage({ event, onClose }) {
       prize: Array.from({ length: 12 }, (_, i) => `/events/varnakriti/prize/image${i === 0 ? "" : ` (${i+1})`}.png`),
       winners: ["/events/varnakriti/winners/SaveClip.App_640302939_17960191608051405_7355162228165538329_n.jpg", "/events/varnakriti/winners/SaveClip.App_640396337_17960191617051405_8629856469985778477_n.jpg", "/events/varnakriti/winners/SaveClip.App_640415008_17960191587051405_6590193589515239244_n.jpg"]
     },
-    croeso: ["/events/croeso/image (2).png", "/events/croeso/image.png", "/events/croeso/disco.jpg"],
+    croeso: [
+      "/events/croeso/image (2).png", 
+      "/events/croeso/image.png", 
+      "/events/croeso/disco.jpg",
+      "/events/croeso/image (2).png", 
+      "/events/croeso/image.png", 
+      "/events/croeso/disco.jpg"
+    ],
     holi: ["SaveClip.App_642148216_17961485553051405_8385715078758128532_n.jpg", "SaveClip.App_642529503_17961485511051405_131829195843355943_n.jpg", "SaveClip.App_642635932_17961485550051405_2472211186656361010_n.jpg", "SaveClip.App_642666667_17961485388051405_2814668728871964987_n.jpg", "SaveClip.App_642683403_17961485373051405_7735649280446324333_n.jpg", "SaveClip.App_642698762_17961485562051405_1727925144419840966_n.jpg", "SaveClip.App_642709633_17961485523051405_6942903691962638290_n.jpg", "SaveClip.App_645446133_17961485409051405_3632317390478327203_n.jpg", "SaveClip.App_648129421_17961485535051405_4433441016486177670_n.jpg", "SaveClip.App_648768061_17961485364051405_841916865367389342_n.jpg"].map(f => `/events/holi/${f}`)
   };
 
@@ -1262,21 +1269,39 @@ function EventPage({ event, onClose }) {
 }
 
 function EventSection({ title, subtitle, photos }) {
-  // Duplicate photos for seamless marquee loop
-  const displayPhotos = [...photos, ...photos];
+  if (!photos || photos.length === 0) return null;
+
+  // Split photos into 3 rows
+  const rowCount = 3;
+  const rows = [];
+  for (let i = 0; i < rowCount; i++) {
+    rows.push(photos.filter((_, idx) => idx % rowCount === i));
+  }
 
   return (
     <div className="event-detail-section fade-in visible">
       <div className="section-label">{subtitle}</div>
       <h2 className="section-title">{title}</h2>
-      <div className="event-carousel">
-        <div className="marquee-track">
-          {displayPhotos.map((p, i) => (
-            <div key={i} className="carousel-item">
-              <img src={p} alt={title} />
+      
+      <div className="multi-marquee-container">
+        {rows.map((rowPhotos, rowIndex) => {
+          if (rowPhotos.length === 0) return null;
+          // Duplicate for seamless loop
+          const displayPhotos = [...rowPhotos, ...rowPhotos, ...rowPhotos];
+          const direction = rowIndex % 2 === 0 ? "left" : "right";
+          
+          return (
+            <div key={rowIndex} className={`event-carousel marquee-${direction}`}>
+              <div className="marquee-track">
+                {displayPhotos.map((p, i) => (
+                  <div key={i} className="carousel-item">
+                    <img src={p} alt={title} loading="lazy" />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </div>
   );
