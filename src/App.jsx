@@ -364,6 +364,7 @@ export default function App() {
   const [expandedEvents, setExpandedEvents] = useState(false);
   const [expandedTeam, setExpandedTeam] = useState(false);
   const [shuffledCore, setShuffledCore] = useState([]);
+  const [liveEvents, setLiveEvents] = useState({});
 
   useEffect(() => {
     const shuffle = (array) => {
@@ -385,6 +386,9 @@ export default function App() {
     const fetchLiveData = async () => {
       try {
         // 1. Fetch Featured Config
+        const configSnap = await getDocs(collection(db, "config"));
+        configSnap.forEach(d => console.log("Config Doc:", d.id, d.data()));
+
         const weekDoc = await getDoc(doc(db, "config", "week"));
         const monthDoc = await getDoc(doc(db, "config", "month"));
         const extraDoc = await getDoc(doc(db, "config", "extra"));
@@ -415,6 +419,14 @@ export default function App() {
           if (latestMonths.length > 0) setMonthCaptures(latestMonths);
           if (latestExtra) setExtraFrameCapture(latestExtra);
         }
+
+        // 3. Fetch Live Events
+        const eventsSnap = await getDocs(collection(db, "events"));
+        const eventsMap = {};
+        eventsSnap.forEach(d => {
+          eventsMap[d.id] = d.data().photos || [];
+        });
+        setLiveEvents(eventsMap);
       } catch (err) { console.error("Data fetch error:", err); }
     };
     fetchLiveData();
@@ -1119,6 +1131,7 @@ function AdminDashboard({ user, onClose }) {
           <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
           <button className={`filter-btn ${tab === 'extra' ? 'active' : ''}`} onClick={() => setTab('extra')}>Set Extra Frame</button>
           <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
+          <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
           <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
         </div>
@@ -1144,6 +1157,53 @@ function AdminDashboard({ user, onClose }) {
               <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
                 {isUpdating ? "Updating..." : `Update & Save to Gallery →`}
               </button>
+            </div>
+          </div>
+        )}
+        {tab === 'events' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Manage Event <em>Photos</em></h3>
+            <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Add PostImage direct links for event highlights to ensure fast loading.</p>
+            <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem', marginBottom: '2rem' }}>
+              <select className="form-input" id="event-select">
+                {EVENTS.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}
+              </select>
+              <button className="form-submit" onClick={async () => {
+                const id = document.getElementById('event-select').value;
+                const link = prompt("Paste PostImage Direct Link (https://i.postimg.cc/...):");
+                if (link && link.startsWith('http')) {
+                  try {
+                    const eventRef = doc(db, "events", id);
+                    const docSnap = await getDoc(eventRef);
+                    const existing = docSnap.exists() ? (docSnap.data().photos || []) : [];
+                    await setDoc(eventRef, { photos: [...existing, link] }, { merge: true });
+                    alert("Link added! Refreshing...");
+                    window.location.reload();
+                  } catch (e) { alert(e.message); }
+                }
+              }}>Add Photo Link +</button>
+            </div>
+            
+            <div className="admin-grid-view">
+              {EVENTS.map(e => (
+                <div key={e.id} style={{ marginBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem' }}>{e.name}</h4>
+                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                    {(liveEvents[e.id] || []).map((url, idx) => (
+                      <div key={idx} style={{ position: 'relative' }}>
+                        <img src={url} alt="" style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px' }} />
+                        <button onClick={async () => {
+                          if (confirm("Remove this link?")) {
+                            const newPhotos = liveEvents[e.id].filter((_, i) => i !== idx);
+                            await setDoc(doc(db, "events", e.id), { photos: newPhotos });
+                            window.location.reload();
+                          }
+                        }} style={{ position: 'absolute', top: '-5px', right: '-5px', background: 'red', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px' }}>✕</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -1280,7 +1340,9 @@ function EventPage({ event, onClose }) {
     holi: ["SaveClip.App_642148216_17961485553051405_8385715078758128532_n.jpg", "SaveClip.App_642529503_17961485511051405_131829195843355943_n.jpg", "SaveClip.App_642635932_17961485550051405_2472211186656361010_n.jpg", "SaveClip.App_642666667_17961485388051405_2814668728871964987_n.jpg", "SaveClip.App_642683403_17961485373051405_7735649280446324333_n.jpg", "SaveClip.App_642698762_17961485562051405_1727925144419840966_n.jpg", "SaveClip.App_642709633_17961485523051405_6942903691962638290_n.jpg", "SaveClip.App_645446133_17961485409051405_3632317390478327203_n.jpg", "SaveClip.App_648129421_17961485535051405_4433441016486177670_n.jpg", "SaveClip.App_648768061_17961485364051405_841916865367389342_n.jpg"].map(f => `/events/holi/${f}`)
   };
 
-  const photos = eventPhotos[event.id] || [];
+  const livePhotos = liveEvents[event.id] || [];
+  const hardcodedPhotos = eventPhotos[event.id] || [];
+  const photos = livePhotos.length > 0 ? livePhotos : hardcodedPhotos;
   const isVarnakriti = event.id === "varnakriti";
 
   useEffect(() => {
@@ -1329,8 +1391,8 @@ function EventSection({ title, subtitle, photos }) {
       <div className="multi-marquee-container">
         {rows.map((rowPhotos, rowIndex) => {
           if (rowPhotos.length === 0) return null;
-          // Duplicate for seamless loop
-          const displayPhotos = [...rowPhotos, ...rowPhotos, ...rowPhotos];
+          // Duplicate for seamless loop (Doubling is enough for performance)
+          const displayPhotos = [...rowPhotos, ...rowPhotos];
           const direction = rowIndex % 2 === 0 ? "left" : "right";
           
           return (
