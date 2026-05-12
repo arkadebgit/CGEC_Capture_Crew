@@ -329,6 +329,10 @@ export default function App() {
   const [monthCaptures, setMonthCaptures] = useState(MONTH_CAPTURES);
   const [extraFrameCapture, setExtraFrameCapture] = useState(null);
   const [showRecruitment, setShowRecruitment] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [expandedGallery, setExpandedGallery] = useState(false);
+  const [expandedEvents, setExpandedEvents] = useState(false);
+  const [expandedTeam, setExpandedTeam] = useState(false);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
@@ -379,11 +383,18 @@ export default function App() {
     setHeroImg(randomImg);
   }, []);
 
-  // Nav scroll
+  // Nav scroll & Mobile detection
   useEffect(() => {
-    const fn = () => setNavScrolled(window.scrollY > 60);
+    const fn = () => {
+      setNavScrolled(window.scrollY > 60);
+      setIsMobile(window.innerWidth <= 768);
+    };
     window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
+    window.addEventListener("resize", fn);
+    return () => {
+      window.removeEventListener("scroll", fn);
+      window.removeEventListener("resize", fn);
+    };
   }, []);
 
   // Fade-in observer
@@ -614,7 +625,7 @@ export default function App() {
             ))}
           </div>
           <div className="gallery-masonry fade-in">
-            {filteredGallery.map(item => (
+            {filteredGallery.slice(0, (isMobile && !expandedGallery) ? 3 : undefined).map(item => (
               <div
                 key={item.id}
                 className="gallery-item"
@@ -635,6 +646,11 @@ export default function App() {
               </div>
             ))}
           </div>
+          {isMobile && !expandedGallery && filteredGallery.length > 3 && (
+            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+              <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures →</button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -647,7 +663,7 @@ export default function App() {
             <p className="section-sub">From intimate workshops to grand exhibitions — every event, immortalized through our lenses.</p>
           </div>
           <div className="events-grid">
-            {EVENTS.map(ev => (
+            {EVENTS.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => (
               <div
                 key={ev.id}
                 className="event-card fade-in"
@@ -668,6 +684,11 @@ export default function App() {
               </div>
             ))}
           </div>
+          {isMobile && !expandedEvents && EVENTS.length > 3 && (
+            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+              <button className="event-dive-btn" onClick={() => setExpandedEvents(true)}>View All Events →</button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -735,7 +756,7 @@ export default function App() {
             <div className="team-subcategory">
               <h3 className="subcategory-title">Core <em>Team</em></h3>
               <div className="team-grid">
-                {TEAM_DATA.core.map(m => (
+                {TEAM_DATA.core.slice(0, (isMobile && !expandedTeam) ? 3 : undefined).map(m => (
                   <div key={m.name} className="team-card fade-in">
                     <div className="team-avatar">
                       {m.img ? (
@@ -750,16 +771,29 @@ export default function App() {
                   </div>
                 ))}
                 
-                {/* RECRUITMENT CARD */}
-                <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
-                  <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
-                    ➕
+                {isMobile && !expandedTeam && TEAM_DATA.core.length > 3 && (
+                  <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedTeam(true)}>
+                    <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)' }}>
+                      📂
+                    </div>
+                    <div className="team-name" style={{ color: 'var(--gold)' }}>Show All</div>
+                    <div className="team-role">Full Core Team</div>
+                    <div className="team-dept">{TEAM_DATA.core.length} Members Total</div>
                   </div>
-                  <div className="team-name" style={{ color: 'var(--gold)' }}>Join Our Crew</div>
-                  <div className="team-role">Become a Member</div>
-                  <div className="team-dept">Apply for Core Team</div>
-                  <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now →</button>
-                </div>
+                )}
+                
+                {/* RECRUITMENT CARD - Always show or show after expansion? Let's always show it or show it at end */}
+                {(expandedTeam || !isMobile) && (
+                  <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
+                    <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
+                      ➕
+                    </div>
+                    <div className="team-name" style={{ color: 'var(--gold)' }}>Join Our Crew</div>
+                    <div className="team-role">Become a Member</div>
+                    <div className="team-dept">Apply for Core Team</div>
+                    <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now →</button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
