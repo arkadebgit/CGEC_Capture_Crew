@@ -965,11 +965,17 @@ export default function App() {
         <button className="lightbox-close" onClick={() => setLightboxItem(null)}>✕</button>
         {lightboxItem && (
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
-            <div
-              className="lightbox-img"
+            <img
+              src={lightboxItem.url}
+              alt={lightboxItem.title}
+              className="lightbox-img-tag"
+              referrerPolicy="no-referrer"
               style={{
-                backgroundImage: `url(${lightboxItem.url})`,
-                width: "70vw", height: "55vh",
+                width: "auto",
+                maxWidth: "90vw",
+                maxHeight: "80vh",
+                borderRadius: "12px",
+                boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
               }}
             />
             <div className="lightbox-title">{lightboxItem.title}</div>
