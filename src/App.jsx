@@ -357,8 +357,8 @@ export default function App() {
           const latestWeek = sorted.find(g => g.category === "Weekly Captures");
           const latestMonths = sorted.filter(g => g.category === "Monthly Captures").slice(0, 3);
 
-          if (latestWeek) setWeekCapture(latestWeek);
-          if (latestMonths.length > 0) setMonthCaptures(latestMonths);
+          setWeekCapture(latestWeek || null);
+          setMonthCaptures(latestMonths.length > 0 ? latestMonths : MONTH_CAPTURES);
         }
       } catch (err) { console.error("Data fetch error:", err); }
     };
@@ -1040,8 +1040,28 @@ function AdminDashboard({ user, onClose }) {
                     <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
                     <button onClick={async () => {
                       if (window.confirm("Delete from Gallery?")) {
-                        await deleteDoc(doc(db, "gallery", g.id));
-                        fetchGallery();
+                        try {
+                          const photoToDelete = g;
+                          await deleteDoc(doc(db, "gallery", g.id));
+                          
+                          // Also remove from featured config if it matches
+                          const weekRef = doc(db, "config", "week");
+                          const monthRef = doc(db, "config", "month");
+                          
+                          const [weekSnap, monthSnap] = await Promise.all([getDoc(weekRef), getDoc(monthRef)]);
+                          
+                          if (weekSnap.exists() && weekSnap.data().url === photoToDelete.url) {
+                            await deleteDoc(weekRef);
+                          }
+                          if (monthSnap.exists() && monthSnap.data().url === photoToDelete.url) {
+                            await deleteDoc(monthRef);
+                          }
+
+                          alert("Photo deleted successfully!");
+                          fetchGallery();
+                        } catch (err) {
+                          alert("Delete failed: " + err.message);
+                        }
                       }
                     }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Photo 🗑</button>
                   </div>
