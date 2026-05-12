@@ -323,7 +323,24 @@ export default function App() {
   const [monthSlide, setMonthSlide] = useState(0);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [heroImg, setHeroImg] = useState(() => HERO_COVERS[Math.floor(Math.random() * HERO_COVERS.length)]);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(() => {
+    const last = localStorage.getItem("lastHeroIndex");
+    let next = Math.floor(Math.random() * HERO_COVERS.length);
+    if (last !== null && HERO_COVERS.length > 1) {
+      while (next === parseInt(last)) {
+        next = Math.floor(Math.random() * HERO_COVERS.length);
+      }
+    }
+    localStorage.setItem("lastHeroIndex", next);
+    return next;
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentHeroIndex(prev => (prev + 1) % HERO_COVERS.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, []);
   
   // Certificate State
   const [certId, setCertId] = useState("");
@@ -527,10 +544,13 @@ export default function App() {
       {/* HERO */}
       <section id="home" className="hero">
         <div className="hero-bg">
-          <div
-            className="hero-slide active"
-            style={{ backgroundImage: `url(${heroImg})` }}
-          />
+          {HERO_COVERS.map((img, idx) => (
+            <div
+              key={idx}
+              className={`hero-slide ${idx === currentHeroIndex ? "active" : ""}`}
+              style={{ backgroundImage: `url(${img})` }}
+            />
+          ))}
           <div className="hero-overlay" />
         </div>
         <div className="hero-content">
