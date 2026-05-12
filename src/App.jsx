@@ -12,8 +12,8 @@ const TEAM_DATA = {
     { name: "Arman Mia", role: "Founder", dept: "4th Yr. CSE", img: "/team/Arman.png" },
   ],
   incharge: [
-    { name: "Jyotirmoy Mondal", role: "Incharge", dept: "3rd Year EE", img: "/team/Jyotirmoy.png" },
-    { name: "Saikat Saha", role: "Incharge", dept: "3rd YR CE", img: "/team/Saikat.png" },
+    { name: "Jyotirmoy Mondal", role: "Incharge", dept: "3rd Yr. EE", img: "/team/Jyotirmoy.png" },
+    { name: "Saikat Saha", role: "Incharge", dept: "3rd Yr. CE", img: "/team/Saikat.png" },
   ],
   coordinators: [
     { name: "Samprada Adhikari", role: "Co-Ordinator", dept: "2nd Yr. ME", img: "/team/Samprada.png" },
@@ -333,6 +333,19 @@ export default function App() {
   const [expandedGallery, setExpandedGallery] = useState(false);
   const [expandedEvents, setExpandedEvents] = useState(false);
   const [expandedTeam, setExpandedTeam] = useState(false);
+  const [shuffledCore, setShuffledCore] = useState([]);
+
+  useEffect(() => {
+    const shuffle = (array) => {
+      const s = [...array];
+      for (let i = s.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s[i], s[j]] = [s[j], s[i]];
+      }
+      return s;
+    };
+    setShuffledCore(shuffle(TEAM_DATA.core));
+  }, []);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
@@ -756,7 +769,7 @@ export default function App() {
             <div className="team-subcategory">
               <h3 className="subcategory-title">Core <em>Team</em></h3>
               <div className="team-grid">
-                {TEAM_DATA.core.slice(0, (isMobile && !expandedTeam) ? 3 : undefined).map(m => (
+                {shuffledCore.slice(0, (isMobile && !expandedTeam) ? 3 : undefined).map(m => (
                   <div key={m.name} className="team-card fade-in">
                     <div className="team-avatar">
                       {m.img ? (
@@ -771,14 +784,14 @@ export default function App() {
                   </div>
                 ))}
                 
-                {isMobile && !expandedTeam && TEAM_DATA.core.length > 3 && (
+                {isMobile && !expandedTeam && shuffledCore.length > 3 && (
                   <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedTeam(true)}>
                     <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)' }}>
                       📂
                     </div>
                     <div className="team-name" style={{ color: 'var(--gold)' }}>Show All</div>
                     <div className="team-role">Full Core Team</div>
-                    <div className="team-dept">{TEAM_DATA.core.length} Members Total</div>
+                    <div className="team-dept">{shuffledCore.length} Members Total</div>
                   </div>
                 )}
                 
