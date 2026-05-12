@@ -1546,15 +1546,20 @@ function RecruitmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    name: '', email: '', phone: '', dept: '', year: '', position: '', portfolio: ''
+    name: '', email: '', phone: '', dept: '', year: '', positions: [], portfolio: ''
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.positions.length === 0) {
+      alert("Please select at least one position.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       await addDoc(collection(db, "applications"), {
         ...formData,
+        position: formData.positions.join(', '),
         timestamp: serverTimestamp()
       });
       setSubmitted(true);
@@ -1563,6 +1568,17 @@ function RecruitmentModal({ onClose }) {
       alert("Submission failed. Please check your internet.");
     } finally { setIsSubmitting(false); }
   };
+
+  const togglePosition = (pos) => {
+    setFormData(prev => ({
+      ...prev,
+      positions: prev.positions.includes(pos)
+        ? prev.positions.filter(p => p !== pos)
+        : [...prev.positions, pos]
+    }));
+  };
+
+  const POSITIONS = ["Graphic Designer", "Video Editor", "Videographer", "Photographer", "Photo Editor", "PR Manager", "Content Writer", "Social Media Manager"];
 
   if (submitted) {
     return (
@@ -1614,11 +1630,30 @@ function RecruitmentModal({ onClose }) {
               </select>
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Position you're applying for</label>
-              <select className="form-input" style={{ appearance: 'none' }} required value={formData.position} onChange={e => setFormData({...formData, position: e.target.value})}>
-                <option value="" style={{ background: '#111' }}>Select Position</option>
-                <option style={{ background: '#111' }}>Graphic Designer</option><option style={{ background: '#111' }}>Video Editor</option><option style={{ background: '#111' }}>Videographer</option><option style={{ background: '#111' }}>Photographer</option><option style={{ background: '#111' }}>Photo Editor</option><option style={{ background: '#111' }}>PR Manager</option>
-              </select>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '1rem', color: 'var(--gold)', fontSize: '0.75rem', fontWeight: 'bold' }}>Positions you're applying for (Select all that apply)</label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.8rem' }}>
+                {POSITIONS.map(pos => (
+                  <div 
+                    key={pos} 
+                    onClick={() => togglePosition(pos)}
+                    style={{ 
+                      padding: '0.8rem 1rem', 
+                      borderRadius: '8px', 
+                      background: formData.positions.includes(pos) ? 'var(--gold)' : 'rgba(255,255,255,0.03)',
+                      color: formData.positions.includes(pos) ? 'var(--ink)' : 'var(--white)',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      border: '1px solid',
+                      borderColor: formData.positions.includes(pos) ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
+                      transition: 'all 0.2s ease',
+                      textAlign: 'center',
+                      fontWeight: formData.positions.includes(pos) ? 'bold' : 'normal'
+                    }}
+                  >
+                    {pos}
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
               <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Portfolio Link (G-Drive / Behance)</label>
