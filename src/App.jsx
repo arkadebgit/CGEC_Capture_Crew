@@ -568,7 +568,8 @@ export default function App() {
         <div className="hero-content">
           <div className="hero-eyebrow">Capture Crew · CGEC Photography Club</div>
           <h1 className="hero-title">
-            CAPTURING <em>MOMENTS,</em><br />CREATING MEMORIES.
+            CAPTURING <em>MOMENTS,</em><br />
+            CREATING <em>MEMORIES.</em>
           </h1>
           <p className="hero-tagline">Exploring the World through the CGEC lens</p>
           <button className="hero-cta" onClick={() => scrollTo("gallery")}>
