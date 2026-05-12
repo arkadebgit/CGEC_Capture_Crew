@@ -527,12 +527,8 @@ export default function App() {
             <div className="week-info">
               <div className="week-date">Featured</div>
               <p className="week-story">{weekCapture?.title || "Fetching the latest capture..."}</p>
-              <div className="week-credit">
-                <div className="week-avatar">📷</div>
-                <div>
-                  <div className="week-credit-name">{weekCapture?.photographer || "Photographer"}</div>
-                  <div className="week-credit-role">{weekCapture?.dept} · {weekCapture?.year}</div>
-                </div>
+              <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                By <span>{weekCapture?.photographer}</span> ({weekCapture?.dept} · {weekCapture?.year})
               </div>
             </div>
           </div>
@@ -578,7 +574,7 @@ export default function App() {
 
       {/* THE EXTRA FRAME */}
       {extraFrameCapture && (
-        <section id="extra" className="week-section" style={{ background: "var(--card)", borderTop: "1px solid var(--border)" }}>
+        <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)" }}>
           <div className="container">
             <div className="fade-in" style={{ marginBottom: "4rem" }}>
               <div className="section-label">✦ Bonus Frame</div>
