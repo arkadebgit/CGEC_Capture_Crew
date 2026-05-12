@@ -883,23 +883,32 @@ export default function App() {
         </div>
       </section>
 
-      {/* FOOTER */}
       <footer className="footer">
         <div className="container">
-          <div className="footer-inner">
-            <div>
-              <div className="footer-brand">Capture <span>Crew</span></div>
-              <div className="footer-college">Photography Club · Cooch Behar Government Engineering College</div>
-            </div>
+          <div className="footer-top">
+            <div className="footer-brand">Capture <span>Crew</span></div>
+            <p className="footer-college">Cooch Behar Government Engineering College</p>
+          </div>
+          
+          <div className="footer-mid">
             <div className="footer-links">
               {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => (
-                <a key={id} onClick={() => scrollTo(id)}>{label}</a>
+                <a key={id} onClick={() => scrollTo(id)} className="footer-link">{label}</a>
               ))}
-              <a onClick={() => setShowLogin(true)}>Admin Login</a>
+              <a onClick={() => setShowLogin(true)} className="footer-link">Admin Console</a>
             </div>
-            <div className="footer-copy">
-              © 2026 Capture Crew · All rights reserved <br />
-              <span className="made-by">Made with <span className="heart">❤️</span> by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a></span>
+            
+            <div className="footer-socials">
+              <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noreferrer" className="social-icon">Instagram</a>
+              <a href="#" className="social-icon">YouTube</a>
+              <a href="#" className="social-icon">Facebook</a>
+            </div>
+          </div>
+          
+          <div className="footer-bottom">
+            <div className="footer-copy">© 2026 Capture Crew · All Rights Reserved</div>
+            <div className="footer-credit">
+              Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
             </div>
           </div>
         </div>
