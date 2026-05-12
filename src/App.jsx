@@ -978,7 +978,12 @@ export default function App() {
       </div>
       {/* MODALS */}
       {selectedEvent && (
-        <EventPage event={selectedEvent} liveEvents={liveEvents} onClose={() => setSelectedEvent(null)} />
+        <EventPage 
+          event={selectedEvent} 
+          liveEvents={liveEvents} 
+          onClose={() => setSelectedEvent(null)} 
+          setLightboxItem={setLightboxItem}
+        />
       )}
       {showLogin && !user && (
         <LoginModal onClose={() => setShowLogin(false)} />
@@ -1326,7 +1331,7 @@ function AdminDashboard({ user, onClose }) {
 
 // ─── EVENT PAGE COMPONENT ───────────────────────────────────────────────────
 
-function EventPage({ event, liveEvents, onClose }) {
+function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
   const [activeSlide, setActiveSlide] = useState(0);
 
   const eventPhotos = {
@@ -1340,6 +1345,7 @@ function EventPage({ event, liveEvents, onClose }) {
       prize: [
         "https://i.ibb.co/x8mCpzhG/image-1.png",
         "https://i.ibb.co/prkJ404d/image-2.png",
+        "https://i.ibb.co/ks6RMH47/image.png",
         "https://i.ibb.co/tTC5cXJS/image-3.png",
         "https://i.ibb.co/m5Ytyz7G/image-4.png",
         "https://i.ibb.co/C3tQGv04/image-5.png",
@@ -1349,13 +1355,12 @@ function EventPage({ event, liveEvents, onClose }) {
         "https://i.ibb.co/rfQhYd6g/image-9.png",
         "https://i.ibb.co/bjGwBCKK/image-10.png",
         "https://i.ibb.co/YF4j8xgf/image-11.png",
-        "https://i.ibb.co/Rp47r97x/image-12.png",
-        "https://i.ibb.co/ks6RMH47/image.png"
+        "https://i.ibb.co/Rp47r97x/image-12.png"
       ],
       winners: [
+        "https://i.ibb.co/chHd6DHN/Save-Clip-App-640415008-17960191587051405-6590193589515239244-n.webp",
         "https://i.ibb.co/JwRqhtNY/Save-Clip-App-640302939-17960191608051405-7355162228165538329-n.webp",
-        "https://i.ibb.co/gLvWSgwg/Save-Clip-App-640396337-17960191617051405-8629856469985778477-n.webp",
-        "https://i.ibb.co/chHd6DHN/Save-Clip-App-640415008-17960191587051405-6590193589515239244-n.webp"
+        "https://i.ibb.co/gLvWSgwg/Save-Clip-App-640396337-17960191617051405-8629856469985778477-n.webp"
       ]
     },
     croeso: [
@@ -1454,19 +1459,19 @@ function EventPage({ event, liveEvents, onClose }) {
 
         {isVarnakriti ? (
           <div className="varnakriti-sections">
-            <EventSection title="Exhibition" subtitle="General" photos={eventPhotos.varnakriti.general} />
-            <EventSection title="Awards" subtitle="Prize Distribution" photos={eventPhotos.varnakriti.prize} />
-            <EventSection title="Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} />
+            <EventSection title="Exhibition" subtitle="General" photos={eventPhotos.varnakriti.general} setLightboxItem={setLightboxItem} />
+            <EventSection title="Awards" subtitle="Prize Distribution" photos={eventPhotos.varnakriti.prize} setLightboxItem={setLightboxItem} />
+            <EventSection title="Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} setLightboxItem={setLightboxItem} />
           </div>
         ) : (
-          <EventSection title="Gallery" subtitle="Highlights" photos={Array.isArray(photos) ? photos : []} />
+          <EventSection title="Gallery" subtitle="Highlights" photos={Array.isArray(photos) ? photos : []} setLightboxItem={setLightboxItem} />
         )}
       </div>
     </div>
   );
 }
 
-function EventSection({ title, subtitle, photos }) {
+function EventSection({ title, subtitle, photos, setLightboxItem }) {
   const [searchTerm, setSearchTerm] = useState("");
   if (!photos || photos.length === 0) return null;
 
@@ -1506,6 +1511,13 @@ function EventSection({ title, subtitle, photos }) {
             key={i} 
             className="gallery-grid-item" 
             style={{ "--delay": `${(i % 12) * 0.05}s` }}
+            onClick={() => setLightboxItem({
+              url: p,
+              title: title,
+              photographer: "Capture Crew",
+              dept: subtitle,
+              year: "2026"
+            })}
           >
             <div className="grid-item-inner">
               <img src={p} alt={title} loading="lazy" />
