@@ -395,38 +395,28 @@ export default function App() {
   useEffect(() => {
     const fetchLiveData = async () => {
       try {
-        // 1. Fetch Featured Config
-        const configSnap = await getDocs(collection(db, "config"));
-        configSnap.forEach(d => console.log("Config Doc:", d.id, d.data()));
-
-        const weekDoc = await getDoc(doc(db, "config", "week"));
-        const monthDoc = await getDoc(doc(db, "config", "month"));
-        const extraDoc = await getDoc(doc(db, "config", "extra"));
-        if (weekDoc.exists()) setWeekCapture(weekDoc.data());
-        if (monthDoc.exists()) setMonthCapture(monthDoc.data());
-        if (extraDoc.exists()) setExtraFrameCapture(extraDoc.data());
-
         // 2. Fetch Public Gallery
         const gallerySnap = await getDocs(collection(db, "gallery"));
         if (!gallerySnap.empty) {
           const liveGallery = gallerySnap.docs.map(d => ({ id: d.id, ...d.data() }));
           
-          // Sort by captureDate primarily
+          // Sort by captureDate primarily, then createdAt
           const sorted = [...liveGallery].sort((a, b) => {
             const dateA = a.captureDate || "";
             const dateB = b.captureDate || "";
-            return dateB.localeCompare(dateA);
+            if (dateB !== dateA) return dateB.localeCompare(dateA);
+            return (b.createdAt || "").localeCompare(a.createdAt || "");
           });
 
           setGallery(liveGallery);
 
-          // Auto-promote latest by capture date
+          // AUTO-DETECTION: Always take the latest available for each category
           const latestWeek = sorted.find(g => g.category === "Weekly Captures");
-          const latestMonths = sorted.filter(g => g.category === "Monthly Captures").slice(0, 3);
+          const latestMonth = sorted.find(g => g.category === "Monthly Captures");
           const latestExtra = sorted.find(g => g.category === "The Extra Frame");
 
           if (latestWeek) setWeekCapture(latestWeek);
-          if (latestMonths.length > 0) setMonthCaptures(latestMonths);
+          if (latestMonth) setMonthCapture(latestMonth);
           if (latestExtra) setExtraFrameCapture(latestExtra);
         }
 
@@ -1080,23 +1070,14 @@ function AdminDashboard({ user, onClose }) {
         createdAt: new Date().toISOString()
       };
 
-      // 1. ALWAYS add to the public Gallery
+      // 1. Add to the public Gallery
       await addDoc(collection(db, "gallery"), newPhoto);
       
-      // 2. Check if this is the latest date compared to current featured
-      const configDoc = await getDoc(doc(db, "config", type));
-      const currentDate = configDoc.exists() ? (configDoc.data().captureDate || "") : "";
-
-      if (newPhoto.captureDate >= currentDate) {
-        await setDoc(doc(db, "config", type), newPhoto);
-        alert(`Featured Updated & Saved to Gallery!`);
-      } else {
-        alert(`Saved to Gallery! (Older capture added to archive)`);
-      }
+      alert(`Saved to Gallery and Featured automatically!`);
 
       setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
       fetchGallery(); 
-    } catch (err) {
+      fetchLiveData(); // Refresh featured calculation
       alert("Error: " + err.message);
     }
     setIsUpdating(false);
