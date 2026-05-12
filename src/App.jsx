@@ -1403,16 +1403,16 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
       "https://i.ibb.co/jP0ZGpMp/PXL-20260217-194656883.jpg"
     ],
     holi: [
-      "https://i.postimg.cc/XY6Ywqs3/Save-Clip-App-642148216-17961485553051405-8385715078758128532-n.jpg",
-      "https://i.postimg.cc/cJs1bjqP/Save-Clip-App-642529503-17961485511051405-131829195843355943-n.jpg",
-      "https://i.postimg.cc/bJryztwd/Save-Clip-App-642635932-17961485550051405-2472211186656361010-n.jpg",
-      "https://i.postimg.cc/d04QPBwk/Save-Clip-App-642666667-17961485388051405-2814668728871964987-n.jpg",
-      "https://i.postimg.cc/0Nc5RfPR/Save-Clip-App-642683403-17961485373051405-7735649280446324333-n.jpg",
-      "https://i.postimg.cc/ydGVW8JV/Save-Clip-App-642698762-17961485562051405-1727925144419840966-n.jpg",
-      "https://i.postimg.cc/tJV96GPb/Save-Clip-App-642709633-17961485523051405-6942903691962638290-n.jpg",
-      "https://i.postimg.cc/Bb1JFfDn/Save-Clip-App-645446133-17961485409051405-3632317390478327203-n.jpg",
-      "https://i.postimg.cc/nrQnmf7D/Save-Clip-App-648129421-17961485535051405-4433441016486177670-n.jpg",
-      "https://i.postimg.cc/tJV96GPN/Save-Clip-App-648768061-17961485364051405-841916865367389342-n.jpg"
+      "https://i.ibb.co/CK1mmf8b/Save-Clip-App-642148216-17961485553051405-8385715078758128532-n.jpg",
+      "https://i.ibb.co/CKF9SYBn/Save-Clip-App-642529503-17961485511051405-131829195843355943-n.jpg",
+      "https://i.ibb.co/8DRv4NQL/Save-Clip-App-642635932-17961485550051405-2472211186656361010-n.jpg",
+      "https://i.ibb.co/yc850NW3/Save-Clip-App-642666667-17961485388051405-2814668728871964987-n.jpg",
+      "https://i.ibb.co/WN22nmYD/Save-Clip-App-642683403-17961485373051405-7735649280446324333-n.jpg",
+      "https://i.ibb.co/4nFPjYSz/Save-Clip-App-642698762-17961485562051405-1727925144419840966-n.jpg",
+      "https://i.ibb.co/q3V21DSs/Save-Clip-App-642709633-17961485523051405-6942903691962638290-n.jpg",
+      "https://i.ibb.co/Q7K1VSMf/Save-Clip-App-645446133-17961485409051405-3632317390478327203-n.jpg",
+      "https://i.ibb.co/Xkpw46pC/Save-Clip-App-648129421-17961485535051405-4433441016486177670-n.jpg",
+      "https://i.ibb.co/wZcvB6zS/Save-Clip-App-648768061-17961485364051405-841916865367389342-n.jpg"
     ],
     saraswati: [
       "https://i.postimg.cc/qMb9T5CS/image.png",
