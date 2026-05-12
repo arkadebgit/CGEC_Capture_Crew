@@ -117,7 +117,8 @@ const GALLERY = [
     url: "/gallery/week/week_1.jpg",
     aspect: 1.5,
     hue: 200,
-    story: "Silence turns into beauty."
+    story: "Silence turns into beauty.",
+    captureDate: "2024-05-01"
   },
   {
     id: 2,
@@ -129,7 +130,8 @@ const GALLERY = [
     url: "/gallery/week/week_2.jpg",
     aspect: 1.4,
     hue: 45,
-    story: "Bridges don't just connect places, they connect stories."
+    story: "Bridges don't just connect places, they connect stories.",
+    captureDate: "2024-05-02"
   },
   {
     id: 3,
@@ -141,7 +143,8 @@ const GALLERY = [
     url: "/gallery/week/week_3.webp",
     aspect: 1.5,
     hue: 210,
-    story: "Where silence turns into beauty."
+    story: "Where silence turns into beauty.",
+    captureDate: "2024-05-03"
   },
   {
     id: 4,
@@ -153,7 +156,8 @@ const GALLERY = [
     url: "/gallery/week/week_4.heic",
     aspect: 1.2,
     hue: 45,
-    story: "Nature painted this morning with rays of gold."
+    story: "Nature painted this morning with rays of gold.",
+    captureDate: "2024-05-04"
   },
   {
     id: 5,
@@ -165,7 +169,8 @@ const GALLERY = [
     url: "/gallery/week/week_5.heic",
     aspect: 1.4,
     hue: 30,
-    story: "Timeless elegance at Cooch Behar Rajbari."
+    story: "Timeless elegance at Cooch Behar Rajbari.",
+    captureDate: "2024-05-05"
   },
   {
     id: 6,
@@ -177,7 +182,8 @@ const GALLERY = [
     url: "/gallery/week/week_6.jpg",
     aspect: 1.1,
     hue: 340,
-    story: "Saath saath woh hai mere."
+    story: "Saath saath woh hai mere.",
+    captureDate: "2024-05-06"
   },
   {
     id: 7,
@@ -189,7 +195,8 @@ const GALLERY = [
     url: "/gallery/week/week_7.heic",
     aspect: 1.0,
     hue: 190,
-    story: "The train may be late, but the memories arrive on time."
+    story: "The train may be late, but the memories arrive on time.",
+    captureDate: "2024-05-07"
   },
   {
     id: 8,
@@ -201,7 +208,8 @@ const GALLERY = [
     url: "/gallery/week/week_8.webp",
     aspect: 1.3,
     hue: 160,
-    story: "Where dreams once sat in classrooms, now the silence writes its own story."
+    story: "Where dreams once sat in classrooms, now the silence writes its own story.",
+    captureDate: "2024-05-08"
   },
   {
     id: 9,
@@ -213,7 +221,8 @@ const GALLERY = [
     url: "/gallery/week/week_9.jpg",
     aspect: 1.5,
     hue: 200,
-    story: "Where the water whispers and the hills smile back."
+    story: "Where the water whispers and the hills smile back.",
+    captureDate: "2024-05-09"
   },
   {
     id: 10,
@@ -225,7 +234,8 @@ const GALLERY = [
     url: "/gallery/week/week_10.webp",
     aspect: 0.8,
     hue: 280,
-    story: "Capturing the void."
+    story: "Capturing the void.",
+    captureDate: "2024-05-10"
   },
   {
     id: 11,
@@ -237,7 +247,8 @@ const GALLERY = [
     url: "/gallery/week/week_11.webp",
     aspect: 1.1,
     hue: 120,
-    story: "Nature doesn't rush, yet everything feels perfect here."
+    story: "Nature doesn't rush, yet everything feels perfect here.",
+    captureDate: "2024-05-11"
   },
   {
     id: 12,
@@ -249,7 +260,8 @@ const GALLERY = [
     url: "/gallery/month/month_1.heic",
     aspect: 1.6,
     hue: 320,
-    story: "A lone tree, a golden field, and a sky that feels like a dream."
+    story: "A lone tree, a golden field, and a sky that feels like a dream.",
+    captureDate: "2024-05-12"
   },
   {
     id: 13,
@@ -261,7 +273,8 @@ const GALLERY = [
     url: "/gallery/month/month_2.webp",
     aspect: 1.5,
     hue: 45,
-    story: "Summer vibes in a frame."
+    story: "Summer vibes in a frame.",
+    captureDate: "2024-05-13"
   },
   {
     id: 14,
@@ -273,7 +286,8 @@ const GALLERY = [
     url: "/gallery/month/month_3.jpg",
     aspect: 1.5,
     hue: 40,
-    story: "Under a sky of fairy lights and whispered wishes."
+    story: "Under a sky of fairy lights and whispered wishes.",
+    captureDate: "2024-05-14"
   }
 ];
 
@@ -310,6 +324,10 @@ export default function App() {
   const [gallery, setGallery] = useState(GALLERY);
   const [weekCapture, setWeekCapture] = useState(null);
   const [monthCapture, setMonthCapture] = useState(null);
+  const [monthCaptures, setMonthCaptures] = useState(MONTH_CAPTURES);
+
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(false);
 
   // Fetch All Live Data
   useEffect(() => {
@@ -325,8 +343,22 @@ export default function App() {
         const gallerySnap = await getDocs(collection(db, "gallery"));
         if (!gallerySnap.empty) {
           const liveGallery = gallerySnap.docs.map(d => ({ id: d.id, ...d.data() }));
-          // Merge with static data or just use live
+          
+          // Sort by date to find latest
+          const sorted = [...liveGallery].sort((a, b) => {
+            const dateA = a.captureDate || a.createdAt || "";
+            const dateB = b.captureDate || b.createdAt || "";
+            return dateB.localeCompare(dateA);
+          });
+
           setGallery(liveGallery);
+
+          // Auto-promote latest if they exist
+          const latestWeek = sorted.find(g => g.category === "Weekly Captures");
+          const latestMonths = sorted.filter(g => g.category === "Monthly Captures").slice(0, 3);
+
+          if (latestWeek) setWeekCapture(latestWeek);
+          if (latestMonths.length > 0) setMonthCaptures(latestMonths);
         }
       } catch (err) { console.error("Data fetch error:", err); }
     };
@@ -364,9 +396,30 @@ export default function App() {
     return () => window.removeEventListener("keydown", fn);
   }, []);
 
-  // Auth Listener
+  // Auth Listener with Admin Check
   useEffect(() => {
-    return onAuthStateChanged(auth, (u) => setUser(u));
+    return onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (u) {
+        setIsAuthChecking(true);
+        try {
+          const adminDoc = await getDoc(doc(db, "admins", u.email));
+          if (adminDoc.exists()) {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+            // Auto sign out if not in admin list to keep it clean
+            // await signOut(auth); 
+          }
+        } catch (err) {
+          console.error("Admin check error:", err);
+          setIsAdmin(false);
+        }
+        setIsAuthChecking(false);
+      } else {
+        setIsAdmin(false);
+      }
+    });
   }, []);
 
   const handleVerify = async (e) => {
@@ -397,9 +450,15 @@ export default function App() {
     }, 100);
   };
 
+  const sortedGallery = [...gallery].sort((a, b) => {
+    const dateA = a.captureDate || a.createdAt || "";
+    const dateB = b.captureDate || b.createdAt || "";
+    return dateB.localeCompare(dateA);
+  });
+
   const filteredGallery = galleryFilter === "All"
-    ? gallery
-    : gallery.filter(g => g.category === galleryFilter);
+    ? sortedGallery
+    : sortedGallery.filter(g => g.category === galleryFilter);
 
   return (
     <>
@@ -460,8 +519,7 @@ export default function App() {
             </div>
             <div className="week-info">
               <div className="week-date">Featured</div>
-              <h3 className="week-title">{weekCapture?.title || "Loading..."}</h3>
-              <p className="week-story">{weekCapture?.story || "Fetching the latest capture..."}</p>
+              <p className="week-story">{weekCapture?.title || "Fetching the latest capture..."}</p>
               <div className="week-credit">
                 <div className="week-avatar">📷</div>
                 <div>
@@ -483,13 +541,13 @@ export default function App() {
               <h2 className="section-title">Capture of the <em>Month</em></h2>
             </div>
             <div className="month-nav">
-              <button className="month-nav-btn" onClick={() => setMonthSlide(s => (s - 1 + MONTH_CAPTURES.length) % MONTH_CAPTURES.length)}>←</button>
-              <button className="month-nav-btn" onClick={() => setMonthSlide(s => (s + 1) % MONTH_CAPTURES.length)}>→</button>
+              <button className="month-nav-btn" onClick={() => setMonthSlide(s => (s - 1 + monthCaptures.length) % monthCaptures.length)}>←</button>
+              <button className="month-nav-btn" onClick={() => setMonthSlide(s => (s + 1) % monthCaptures.length)}>→</button>
             </div>
           </div>
           <div className="month-slide fade-in">
             <div className="month-image-wrap">
-              <img src={MONTH_CAPTURES[monthSlide].url} alt={MONTH_CAPTURES[monthSlide].title} className="month-img" />
+              <img src={monthCaptures[monthSlide]?.url || "/placeholder.jpg"} alt={monthCaptures[monthSlide]?.title} className="month-img" />
               <div className="month-frame" />
               <div className="month-award">
                 <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -497,13 +555,12 @@ export default function App() {
             </div>
             <div className="month-info">
               <div className="month-of">Premium Selection</div>
-              <h3 className="month-title">{MONTH_CAPTURES[monthSlide].title}</h3>
-              <p className="month-story">{MONTH_CAPTURES[monthSlide].story}</p>
+              <p className="month-story">{monthCaptures[monthSlide]?.title}</p>
               <div className="month-photographer">
-                By <span>{MONTH_CAPTURES[monthSlide].photographer}</span> ({MONTH_CAPTURES[monthSlide].dept})
+                By <span>{monthCaptures[monthSlide]?.photographer}</span> ({monthCaptures[monthSlide]?.dept})
               </div>
               <div className="month-dots">
-                {MONTH_CAPTURES.map((_, i) => (
+                {monthCaptures.map((_, i) => (
                   <button key={i} className={`month-dot ${i === monthSlide ? "active" : ""}`} onClick={() => setMonthSlide(i)} />
                 ))}
               </div>
@@ -791,7 +848,13 @@ export default function App() {
       {showLogin && !user && (
         <LoginModal onClose={() => setShowLogin(false)} />
       )}
-      {user && showLogin && (
+      {showLogin && user && isAuthChecking && (
+        <div className="lightbox open"><div className="lightbox-content">Verifying Authorization...</div></div>
+      )}
+      {showLogin && user && !isAuthChecking && !isAdmin && (
+        <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
+      )}
+      {showLogin && user && !isAuthChecking && isAdmin && (
         <AdminDashboard user={user} onClose={() => setShowLogin(false)} />
       )}
     </>
@@ -800,7 +863,7 @@ export default function App() {
 
 // ─── ADMIN COMPONENTS ───────────────────────────────────────────────────────
 
-function LoginModal({ onClose }) {
+function LoginModal({ onClose, user, isUnauthorized }) {
   const [error, setError] = useState("");
 
   const handleGoogleLogin = async () => {
@@ -818,13 +881,21 @@ function LoginModal({ onClose }) {
       <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()}>
         <button className="lightbox-close" onClick={onClose}>✕</button>
         <div className="section-label">Restricted Access</div>
-        <h2 className="section-title">Team <em>Login</em></h2>
-        <p className="section-sub" style={{ fontSize: '0.8rem', margin: '1.5rem 0' }}>Access is restricted to authorized Core Team members only.</p>
+        <h2 className="section-title">Team <em>{isUnauthorized ? "Unauthorized" : "Login"}</em></h2>
+        <p className="section-sub" style={{ fontSize: '0.8rem', margin: '1.5rem 0' }}>
+          {isUnauthorized 
+            ? `Your email (${user?.email}) is not authorized to access the Admin Console. Please contact the lead.`
+            : "Access is restricted to authorized Core Team members only."}
+        </p>
         
-        <button className="form-submit" onClick={handleGoogleLogin} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px' }} />
-          Continue with Google
-        </button>
+        {isUnauthorized ? (
+          <button className="form-submit" onClick={() => signOut(auth)} style={{ width: '100%' }}>Sign Out & Try Again</button>
+        ) : (
+          <button className="form-submit" onClick={handleGoogleLogin} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px' }} />
+            Continue with Google
+          </button>
+        )}
         {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '1rem' }}>{error}</p>}
       </div>
     </div>
@@ -837,7 +908,7 @@ function AdminDashboard({ user, onClose }) {
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
   
   const [featuredData, setFeaturedData] = useState({ 
-    url: "", title: "", photographer: "", story: "", 
+    url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], 
     dept: "Computer Science & Engineering", year: "1st Year" 
   });
   const [isUpdating, setIsUpdating] = useState(false);
@@ -885,7 +956,7 @@ function AdminDashboard({ user, onClose }) {
       });
 
       alert(`Updated ${type === 'week' ? 'Week' : 'Month'} & Saved to Gallery!`);
-      setFeaturedData({ url: "", title: "", photographer: "", story: "", dept: DEPTS[0], year: YEARS[0] });
+      setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
       fetchGallery(); // Refresh the list
     } catch (err) {
       alert("Error: " + err.message);
@@ -939,7 +1010,7 @@ function AdminDashboard({ user, onClose }) {
                 {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
               </select>
 
-              <textarea className="form-input" placeholder="The story behind this shot..." rows="3" style={{ gridColumn: '1 / -1' }} value={featuredData.story} onChange={e => setFeaturedData({...featuredData, story: e.target.value})} />
+              <input type="date" className="form-input" placeholder="Capture Date" value={featuredData.captureDate} onChange={e => setFeaturedData({...featuredData, captureDate: e.target.value})} />
               
               <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
                 {isUpdating ? "Updating..." : `Update & Save to Gallery →`}
