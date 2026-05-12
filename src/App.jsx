@@ -948,6 +948,7 @@ function AdminDashboard({ user, onClose }) {
     try {
       const newPhoto = {
         ...featuredData,
+        category: type === "week" ? "Weekly Captures" : "Monthly Captures",
         createdAt: new Date().toISOString()
       };
 
