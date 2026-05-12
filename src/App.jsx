@@ -8,36 +8,36 @@ import placeholderImg from "./assets/placeholder.png";
 
 const TEAM_DATA = {
   founders: [
-    { name: "Rishad Hoque", role: "Founder", dept: "Batch '24 Passout, CE", img: "/team/Rishad.png" },
-    { name: "Arman Mia", role: "Founder", dept: "4th Yr. CSE", img: "/team/Arman.png" },
+    { name: "Rishad Hoque", role: "Founder", dept: "Batch '24 Passout, CE", img: "/team/Rishad.png", insta: "https://www.instagram.com/rishad_hoque/" },
+    { name: "Arman Mia", role: "Founder", dept: "4th Yr. CSE", img: "/team/Arman.png", insta: "https://www.instagram.com/arman_ansari.13/" },
   ],
   incharge: [
-    { name: "Jyotirmoy Mondal", role: "Incharge", dept: "3rd Yr. EE", img: "/team/Jyotirmoy.png" },
-    { name: "Saikat Saha", role: "Incharge", dept: "3rd Yr. CE", img: "/team/Saikat.png" },
+    { name: "Jyotirmoy Mondal", role: "Incharge", dept: "3rd Yr. EE", img: "/team/Jyotirmoy.png", insta: "https://www.instagram.com/flybyfifteen/" },
+    { name: "Saikat Saha", role: "Incharge", dept: "3rd Yr. CE", img: "/team/Saikat.png", insta: "https://www.instagram.com/_riz_saha_/" },
   ],
   coordinators: [
     { name: "Samprada Adhikari", role: "Co-Ordinator", dept: "2nd Yr. ME", img: "/team/Samprada.png" },
-    { name: "Nirupam Konar", role: "Co-Ordinator", dept: "2nd Yr. ECE", img: "/team/Nirupam konar.png" },
+    { name: "Nirupam Konar", role: "Co-Ordinator", dept: "2nd Yr. ECE", img: "/team/Nirupam konar.png", insta: "https://www.instagram.com/itsnirupam07_/" },
   ],
   core: [
-    { name: "Indrakshi Ghosh", role: "Moderator", dept: "1st Yr. CE", img: "/team/Indrakshi.png" },
-    { name: "Nabanita Barman", role: "Photography Lead", dept: "1st Yr. CE", img: "/team/Nabanita.png" },
-    { name: "Shreejan Roy", role: "Photographer & Editor", dept: "1st Yr. EE", img: "/team/Shreejan.png" },
-    { name: "Arkadeb Thokdar", role: "Photographer & Editor", dept: "1st Yr. ME", img: "/team/Arkadeb.png" },
-    { name: "MD Kaif", role: "Photographer", dept: "1st Yr. ECE", img: "/team/MD Kaif.png" },
-    { name: "Akash Ghara", role: "Photo Editor", dept: "1st Yr. ME", img: "/team/Akash.png" },
-    { name: "Ramanath Hansda", role: "Videography Lead", dept: "1st Yr. CSE", img: "/team/Ramanath.png" },
-    { name: "Irfan Ahmed", role: "Videographer", dept: "3rd Yr. CE", img: "/team/Irfan.png" },
-    { name: "Biswajyoti Deb", role: "Videographer & PR", dept: "1st Yr. CSE", img: "/team/Biswajyoti.png" },
+    { name: "Indrakshi Ghosh", role: "Moderator", dept: "1st Yr. CE", img: "/team/Indrakshi.png", insta: "https://www.instagram.com/indrakshi.______/" },
+    { name: "Nabanita Barman", role: "Photography Lead", dept: "1st Yr. CE", img: "/team/Nabanita.png", insta: "https://www.instagram.com/nabonitaaaaaaa/" },
+    { name: "Shreejan Roy", role: "Photographer & Editor", dept: "1st Yr. EE", img: "/team/Shreejan.png", insta: "https://www.instagram.com/snapbyjaan/" },
+    { name: "Arkadeb Thokdar", role: "Photographer & Editor", dept: "1st Yr. ME", img: "/team/Arkadeb.png", insta: "https://www.instagram.com/destructive_antagonist/" },
+    { name: "MD Kaif", role: "Photographer", dept: "1st Yr. ECE", img: "/team/MD Kaif.png", insta: "https://www.instagram.com/k4if_28/" },
+    { name: "Akash Ghara", role: "Photo Editor", dept: "1st Yr. ME", img: "/team/Akash.png", insta: "https://www.instagram.com/akash_ghara_/" },
+    { name: "Ramanath Hansda", role: "Videography Lead", dept: "1st Yr. CSE", img: "/team/Ramanath.png", insta: "https://www.instagram.com/_jubatus._09/" },
+    { name: "Irfan Ahmed", role: "Videographer", dept: "3rd Yr. CE", img: "/team/Irfan.png", insta: "https://www.instagram.com/irfan.a.verse/" },
+    { name: "Biswajyoti Deb", role: "Videographer & PR", dept: "1st Yr. CSE", img: "/team/Biswajyoti.png", insta: "https://www.instagram.com/kami.oni_/" },
     { name: "Priyanshu Mondal", role: "Videographer", dept: "1st Yr. ME", img: "/team/Priyanshu Mondal.png" },
-    { name: "Snehashis Ghosh", role: "Video Editor", dept: "2nd Yr. EE", img: "/team/Snehashish.png" },
-    { name: "Harasundar Patra", role: "Video Editor & Designer", dept: "2nd Yr. ME", img: "/team/Harasundar.png" },
-    { name: "Balaram Mardi", role: "Video Editor", dept: "3rd Yr. EE", img: "/team/Balaram Mardi.png" },
-    { name: "Dibyendu Kumar Kundu", role: "Video Editor & Designer", dept: "1st Yr. ECE", img: "/team/Dibyendu.png" },
-    { name: "Sampreety Swarnakar", role: "Content Writer", dept: "2nd Yr. ECE", img: "/team/Sampreety.png" },
-    { name: "Ankur Shit", role: "Content Writer & PR", dept: "1st Yr. CSE", img: "/team/Ankur.png" },
-    { name: "Priyanshu Dhara", role: "Authenticity Verifier", dept: "3rd Yr. ME", img: "/team/Priyanshu Dhara.png" },
-    { name: "Sabarno Mondal", role: "PR Manager", dept: "1st Yr. EE", img: "/team/Sabarno Mondal.png" },
+    { name: "Snehashis Ghosh", role: "Video Editor", dept: "2nd Yr. EE", img: "/team/Snehashish.png", insta: "https://www.instagram.com/mr_shinchan_editzs/" },
+    { name: "Harasundar Patra", role: "Video Editor & Designer", dept: "2nd Yr. ME", img: "/team/Harasundar.png", insta: "https://www.instagram.com/harasundar_/" },
+    { name: "Balaram Mardi", role: "Video Editor", dept: "3rd Yr. EE", img: "/team/Balaram Mardi.png", insta: "https://www.instagram.com/balaram_mardi1/" },
+    { name: "Dibyendu Kumar Kundu", role: "Video Editor & Designer", dept: "1st Yr. ECE", img: "/team/Dibyendu.png", insta: "https://www.instagram.com/_dibyen.du_k_/" },
+    { name: "Sampreety Swarnakar", role: "Content Writer", dept: "2nd Yr. ECE", img: "/team/Sampreety.png", insta: "https://www.instagram.com/koli.forever/" },
+    { name: "Ankur Shit", role: "Content Writer & PR", dept: "1st Yr. CSE", img: "/team/Ankur.png", insta: "https://www.instagram.com/_ankur_shit/" },
+    { name: "Priyanshu Dhara", role: "Authenticity Verifier", dept: "3rd Yr. ME", img: "/team/Priyanshu Dhara.png", insta: "https://www.instagram.com/iam_priyansu.12/" },
+    { name: "Sabarno Mondal", role: "PR Manager", dept: "1st Yr. EE", img: "/team/Sabarno Mondal.png", insta: "https://www.instagram.com/culer_mariner_sabarno_10/" },
   ]
 };
 
@@ -716,11 +716,11 @@ export default function App() {
           <div className="team-container">
             {/* FOUNDERS */}
             <div className="team-subcategory">
-              <h3 className="subcategory-title">The <em>Founders</em></h3>
-              <div className="team-grid founders-grid">
+              <h3 className="subcategory-title"><em>Founders</em></h3>
+              <div className="team-grid">
                 {TEAM_DATA.founders.map(m => (
-                  <div key={m.name} className="team-card founder-card fade-in">
-                    <div className="team-avatar highlight">
+                  <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
+                    <div className="team-avatar">
                       <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
                     <div className="team-name">{m.name}</div>
@@ -736,7 +736,7 @@ export default function App() {
               <h3 className="subcategory-title"><em>Incharge</em></h3>
               <div className="team-grid incharge-grid">
                 {TEAM_DATA.incharge.map(m => (
-                  <div key={m.name} className="team-card incharge-card fade-in">
+                  <div key={m.name} className="team-card incharge-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
                     <div className="team-avatar highlight-silver">
                       <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
@@ -753,7 +753,7 @@ export default function App() {
               <h3 className="subcategory-title"><em>Co-Ordinators</em></h3>
               <div className="team-grid">
                 {TEAM_DATA.coordinators.map(m => (
-                  <div key={m.name} className="team-card fade-in">
+                  <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
                     <div className="team-avatar">
                       <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
@@ -770,7 +770,7 @@ export default function App() {
               <h3 className="subcategory-title">Core <em>Team</em></h3>
               <div className="team-grid">
                 {shuffledCore.slice(0, (isMobile && !expandedTeam) ? 3 : undefined).map(m => (
-                  <div key={m.name} className="team-card fade-in">
+                  <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
                     <div className="team-avatar">
                       {m.img ? (
                         <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
