@@ -328,6 +328,7 @@ export default function App() {
   const [monthCapture, setMonthCapture] = useState(null);
   const [monthCaptures, setMonthCaptures] = useState(MONTH_CAPTURES);
   const [extraFrameCapture, setExtraFrameCapture] = useState(null);
+  const [showRecruitment, setShowRecruitment] = useState(false);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
@@ -747,6 +748,17 @@ export default function App() {
                     <div className="team-dept">{m.dept}</div>
                   </div>
                 ))}
+                
+                {/* RECRUITMENT CARD */}
+                <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
+                  <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
+                    ➕
+                  </div>
+                  <div className="team-name" style={{ color: 'var(--gold)' }}>Join Our Crew</div>
+                  <div className="team-role">Become a Member</div>
+                  <div className="team-dept">Apply for Core Team</div>
+                  <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now →</button>
+                </div>
               </div>
             </div>
           </div>
@@ -890,6 +902,9 @@ export default function App() {
       )}
       {showLogin && user && !isAuthChecking && isAdmin && (
         <AdminDashboard user={user} onClose={() => setShowLogin(false)} />
+      )}
+      {showRecruitment && (
+        <RecruitmentModal onClose={() => setShowRecruitment(false)} />
       )}
     </>
   );
@@ -1186,6 +1201,76 @@ function EventSection({ title, subtitle, photos }) {
             </div>
           ))}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── RECRUITMENT MODAL ──────────────────────────────────────────────────────
+function RecruitmentModal({ onClose }) {
+  return (
+    <div className="lightbox open" onClick={onClose}>
+      <div className="admin-modal fade-in visible" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+        <button className="lightbox-close" onClick={onClose} style={{ top: '1.5rem', right: '1.5rem' }}>✕</button>
+        <div className="section-label">✦ Recruitment 2026</div>
+        <h2 className="section-title" style={{ fontSize: '2rem' }}>Become our <em>Core Member</em></h2>
+        <p className="section-sub" style={{ marginBottom: '2rem' }}>Join the most creative community at CGEC. Fill in your primary details to start your application.</p>
+        
+        <form className="feedback-form" onSubmit={(e) => {
+          e.preventDefault();
+          window.open("https://forms.gle/MgaexSbCBNfZaiMEA", "_blank");
+          onClose();
+        }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', textAlign: 'left' }}>
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Full Name</label>
+              <input className="form-input" type="text" placeholder="Enter your name" required />
+            </div>
+            
+            <div className="form-group">
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Department</label>
+              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+                <option value="" style={{ background: '#111' }}>Select Dept</option>
+                <option style={{ background: '#111' }}>CSE</option>
+                <option style={{ background: '#111' }}>ECE</option>
+                <option style={{ background: '#111' }}>EE</option>
+                <option style={{ background: '#111' }}>ME</option>
+                <option style={{ background: '#111' }}>CE</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Academic Year</label>
+              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+                <option value="" style={{ background: '#111' }}>Select Year</option>
+                <option style={{ background: '#111' }}>1st Year</option>
+                <option style={{ background: '#111' }}>2nd Year</option>
+                <option style={{ background: '#111' }}>3rd Year</option>
+                <option style={{ background: '#111' }}>4th Year</option>
+              </select>
+            </div>
+
+            <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+              <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.5rem' }}>Position you want to apply for</label>
+              <select className="form-input" style={{ appearance: 'none', background: 'rgba(255,255,255,0.05)', color: '#fff' }} required>
+                <option value="" style={{ background: '#111' }}>Select Position</option>
+                <option style={{ background: '#111' }}>Graphic Designer</option>
+                <option style={{ background: '#111' }}>Video Editor</option>
+                <option style={{ background: '#111' }}>Videographer</option>
+                <option style={{ background: '#111' }}>Photographer</option>
+                <option style={{ background: '#111' }}>Photo Editor</option>
+                <option style={{ background: '#111' }}>PR Manager</option>
+              </select>
+            </div>
+          </div>
+
+          <button className="form-submit" type="submit" style={{ marginTop: '1.5rem', width: '100%' }}>
+            Continue to Official Form →
+          </button>
+          <p className="week-credit-role" style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.65rem' }}>
+            You will be redirected to Google Forms to complete the detailed application.
+          </p>
+        </form>
       </div>
     </div>
   );
