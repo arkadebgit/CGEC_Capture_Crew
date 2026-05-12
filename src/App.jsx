@@ -366,7 +366,6 @@ export default function App() {
   const [gallery, setGallery] = useState(GALLERY);
   const [weekCapture, setWeekCapture] = useState(null);
   const [monthCapture, setMonthCapture] = useState(null);
-  const [monthCaptures, setMonthCaptures] = useState(MONTH_CAPTURES);
   const [extraFrameCapture, setExtraFrameCapture] = useState(null);
   const [showRecruitment, setShowRecruitment] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -614,7 +613,7 @@ export default function App() {
           </div>
           <div className="month-slide fade-in">
             <div className="month-image-wrap">
-              <img src={monthCaptures[0]?.url || "/placeholder.jpg"} alt={monthCaptures[0]?.title} className="month-img" referrerPolicy="no-referrer" />
+              <img src={monthCapture?.url || "/placeholder.jpg"} alt={monthCapture?.title} className="month-img" referrerPolicy="no-referrer" />
               <div className="month-frame" />
               <div className="month-award">
                 <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -622,9 +621,9 @@ export default function App() {
             </div>
             <div className="month-info">
               <div className="month-of">Premium Selection</div>
-              <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCaptures[0]?.title}</h3>
+              <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCapture?.title}</h3>
               <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                By <span>{monthCaptures[0]?.photographer}</span> ({monthCaptures[0]?.dept} · {monthCaptures[0]?.year})
+                By <span>{monthCapture?.photographer}</span> ({monthCapture?.dept} · {monthCapture?.year})
               </div>
             </div>
           </div>
