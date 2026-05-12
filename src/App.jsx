@@ -912,9 +912,9 @@ export default function App() {
             </div>
             
             <div className="footer-socials">
-              <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noreferrer" className="social-icon">Instagram</a>
+              <a href="https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==" target="_blank" rel="noreferrer" className="social-icon">Instagram</a>
               <a href="#" className="social-icon">YouTube</a>
-              <a href="#" className="social-icon">Facebook</a>
+              <a href="https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony" target="_blank" rel="noreferrer" className="social-icon">Facebook</a>
             </div>
           </div>
           
