@@ -336,11 +336,12 @@ export default function App() {
   });
 
   useEffect(() => {
+    console.log("Hero Image Change:", currentHeroIndex, HERO_COVERS[currentHeroIndex]);
     const timer = setInterval(() => {
       setCurrentHeroIndex(prev => (prev + 1) % HERO_COVERS.length);
     }, 8000);
     return () => clearInterval(timer);
-  }, []);
+  }, [currentHeroIndex]);
   
   // Certificate State
   const [certId, setCertId] = useState("");
@@ -548,7 +549,7 @@ export default function App() {
             <div
               key={idx}
               className={`hero-slide ${idx === currentHeroIndex ? "active" : ""}`}
-              style={{ backgroundImage: `url(${img})` }}
+              style={{ backgroundImage: `url("${img}")`, backgroundColor: '#111' }}
             />
           ))}
           <div className="hero-overlay" />
