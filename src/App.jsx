@@ -1157,7 +1157,6 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
   const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 
   const [gallery, setGallery] = useState([]);
-  const [dynamicMembers, setDynamicMembers] = useState([]);
   const updateRepublicDayPhotos = async () => {
     const setA = [
       "https://beeimg.com/images/c58546952951.jpg", "https://beeimg.com/images/h17773436031.jpg",
