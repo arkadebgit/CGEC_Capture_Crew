@@ -42,79 +42,15 @@ const TEAM_DATA = {
   members: []
 };
 
-const EVENTS = [
-  {
-    id: "varnakriti",
-    name: "VARNAKRITI",
-    subtitle: "Annual Photo Exhibition",
-    date: "February 2026",
-    color: "#C9A96E",
-    desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.",
-    highlight: "Top 3 Winners crowned. 30+ photos on display.",
-    emoji: "🏆",
-  },
-  {
-    id: "esperanza",
-    name: "ESPERANZA 2k26",
-    subtitle: "Annual Tech Cum Cultural Fest",
-    date: "June 2026",
-    color: "#7EB8D4",
-    desc: "The grand annual celebration of Capture Crew — a full-day photo walk, workshop, and exhibition bringing together photography enthusiasts from across the campus.",
-    highlight: "500+ attendees. Campus-wide photo walk.",
-    emoji: "🌟",
-    comingSoon: true
-  },
-  {
-    id: "republic",
-    name: "Republic Day",
-    subtitle: "Patriotic Documentation",
-    date: "January 2026",
-    color: "#FF9933",
-    desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.",
-    highlight: "Tricolor flag hoisting and cultural documentation.",
-    emoji: "🇮🇳",
-  },
-  {
-    id: "croeso",
-    name: "CROESO 2k25",
-    subtitle: "Freshers' Welcome",
-    date: "February 2026",
-    color: "#A8D8A8",
-    desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.",
-    highlight: "Welcome to the frame. New eyes, new stories.",
-    emoji: "🎓",
-  },
-  {
-    id: "holi",
-    name: "Holi Event",
-    subtitle: "Festival of Colors",
-    date: "March 2026",
-    color: "#FF69B4",
-    desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.",
-    highlight: "Vibrance in every splash.",
-    emoji: "🎨",
-  },
-  {
-    id: "saraswati",
-    name: "Saraswati Puja",
-    subtitle: "Festival Documentation",
-    date: "January 2026",
-    color: "#DEB8D0",
-    desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from rituals to the procession.",
-    highlight: "Devotion in every frame.",
-    emoji: "🌸",
-  },
-  {
-    id: "independence",
-    name: "Independence Day",
-    subtitle: "15th August Special",
-    date: "August 2026",
-    color: "#FF9933",
-    desc: "Capturing the spirit of patriotism — flag hoisting ceremonies and special themed photo series.",
-    highlight: "Tricolor through the lens.",
-    emoji: "🇮🇳",
-    comingSoon: true
-  },
+// This will be populated from Firestore
+let STATIC_EVENTS = [
+  { id: "varnakriti", name: "VARNAKRITI", subtitle: "Annual Photo Exhibition", date: "February 2026", color: "#C9A96E", desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.", highlight: "Top 3 Winners crowned. 30+ photos on display.", emoji: "🏆", order: 1 },
+  { id: "esperanza", name: "ESPERANZA 2k26", subtitle: "Annual Tech Cum Cultural Fest", date: "June 2026", color: "#7EB8D4", desc: "The grand annual celebration of Capture Crew — a full-day photo walk, workshop, and exhibition bringing together photography enthusiasts from across the campus.", highlight: "500+ attendees. Campus-wide photo walk.", emoji: "🌟", comingSoon: true, order: 2 },
+  { id: "republic", name: "Republic Day", subtitle: "Patriotic Documentation", date: "January 2026", color: "#FF9933", desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.", highlight: "Tricolor flag hoisting and cultural documentation.", emoji: "🇮🇳", order: 3 },
+  { id: "croeso", name: "CROESO 2k25", subtitle: "Freshers' Welcome", date: "February 2026", color: "#A8D8A8", desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.", highlight: "Welcome to the frame. New eyes, new stories.", emoji: "🎓", order: 4 },
+  { id: "holi", name: "Holi Event", subtitle: "Festival of Colors", date: "March 2026", color: "#FF69B4", desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.", highlight: "Vibrance in every splash.", emoji: "🎨", order: 5 },
+  { id: "saraswati", name: "Saraswati Puja", subtitle: "Festival Documentation", date: "January 2026", color: "#DEB8D0", desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from rituals to the procession.", highlight: "Devotion in every frame.", emoji: "🌸", order: 6 },
+  { id: "independence", name: "Independence Day", subtitle: "15th August Special", date: "August 2026", color: "#FF9933", desc: "Capturing the spirit of patriotism — flag hoisting ceremonies and special themed photo series.", highlight: "Tricolor through the lens.", emoji: "🇮🇳", comingSoon: true, order: 7 }
 ];
 
 const GALLERY_CATEGORIES = ["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"];
@@ -378,6 +314,7 @@ export default function App() {
   const [shuffledMembers, setShuffledMembers] = useState([]);
   const [dynamicMembers, setDynamicMembers] = useState([]);
   const [liveEvents, setLiveEvents] = useState({});
+  const [liveEventsList, setLiveEventsList] = useState([]);
   const [isInitializing, setIsInitializing] = useState(true);
 
   // Initial Shuffles
@@ -444,8 +381,24 @@ export default function App() {
         }
 
         const eventsMap = {};
-        eventsSnap.forEach(d => { eventsMap[d.id] = d.data().photos || []; });
+        const eventList = [];
+        eventsSnap.forEach(d => { 
+          const data = d.data();
+          eventsMap[d.id] = data.photos || []; 
+          eventList.push({ id: d.id, ...data });
+        });
+
+        // Migration logic: If no events found in DB, seed them from static list
+        if (eventsSnap.empty) {
+          for (const ev of STATIC_EVENTS) {
+            await setDoc(doc(db, "events", ev.id), ev);
+            eventList.push(ev);
+            eventsMap[ev.id] = [];
+          }
+        }
+
         setLiveEvents(eventsMap);
+        setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
         
         // Finalize initialization
         setTimeout(() => setIsInitializing(false), 800);
@@ -779,7 +732,7 @@ export default function App() {
             <p className="section-sub">From intimate workshops to grand exhibitions — every event, immortalized through our lenses.</p>
           </div>
           <div className="events-grid">
-            {EVENTS.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => (
+            {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => (
               <div
                 key={ev.id}
                 className="event-card fade-in"
@@ -800,7 +753,7 @@ export default function App() {
               </div>
             ))}
           </div>
-          {isMobile && !expandedEvents && EVENTS.length > 3 && (
+          {isMobile && !expandedEvents && liveEventsList.length > 3 && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
               <button className="event-dive-btn" onClick={() => setExpandedEvents(true)}>View All Events →</button>
             </div>
@@ -1127,6 +1080,12 @@ function LoginModal({ onClose, user, isUnauthorized }) {
 
 function AdminDashboard({ user, onClose }) {
   const [tab, setTab] = useState("week");
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [eventFormData, setEventFormData] = useState({
+    id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
+    desc: "", highlight: "", emoji: "📅", comingSoon: false, order: 99
+  });
+  const [newEventPhoto, setNewEventPhoto] = useState("");
   const [certs, setCerts] = useState([]);
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
   
@@ -1313,6 +1272,7 @@ function AdminDashboard({ user, onClose }) {
           <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
+          <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
         </div>
 
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
@@ -1350,10 +1310,7 @@ function AdminDashboard({ user, onClose }) {
 
         {tab === 'gallery' && (
           <div className="fade-in visible">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <h3 className="subcategory-title" style={{ margin: 0 }}>Gallery <em>Archive</em></h3>
-              <button onClick={updateRepublicDayPhotos} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>Update Republic Day Photos 🇮🇳</button>
-            </div>
+            <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
             <div className="gallery-grid">
               {gallery.map(g => (
                 <div key={g.id} className="gallery-item">
@@ -1483,6 +1440,130 @@ function AdminDashboard({ user, onClose }) {
               </table>
               {dynamicMembers.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No live members added via Admin yet.</div>}
             </div>
+          </div>
+        )}
+
+        {tab === 'events' && (
+          <div className="fade-in visible">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Events</em></h3>
+              <button onClick={() => {
+                setEditingEvent("new");
+                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "📅", comingSoon: false, order: liveEventsList.length + 1 });
+              }} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>➕ ADD NEW EVENT</button>
+            </div>
+
+            {editingEvent ? (
+              <div className="glass-form fade-in visible" style={{ padding: '2rem', marginBottom: '3rem' }}>
+                <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem' }}>{editingEvent === 'new' ? 'Add New' : 'Edit'} Event Details</h4>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                  <input className="form-input" placeholder="Event Slug (e.g. freshers-2026)" value={eventFormData.id} disabled={editingEvent !== 'new'} onChange={e => setEventFormData({...eventFormData, id: e.target.value.toLowerCase().replace(/ /g, '-')})} />
+                  <input className="form-input" placeholder="Event Name" value={eventFormData.name} onChange={e => setEventFormData({...eventFormData, name: e.target.value})} />
+                  <input className="form-input" placeholder="Sub-heading" value={eventFormData.subtitle} onChange={e => setEventFormData({...eventFormData, subtitle: e.target.value})} />
+                  <input className="form-input" placeholder="Date/Season" value={eventFormData.date} onChange={e => setEventFormData({...eventFormData, date: e.target.value})} />
+                  <input className="form-input" placeholder="Highlight Text" value={eventFormData.highlight} onChange={e => setEventFormData({...eventFormData, highlight: e.target.value})} />
+                  <input className="form-input" placeholder="Emoji (e.g. 📸)" value={eventFormData.emoji} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
+                  <input className="form-input" type="color" value={eventFormData.color} onChange={e => setEventFormData({...eventFormData, color: e.target.value})} title="Theme Color" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <input type="checkbox" checked={eventFormData.comingSoon} onChange={e => setEventFormData({...eventFormData, comingSoon: e.target.checked})} />
+                    <label style={{ fontSize: '0.8rem' }}>Coming Soon?</label>
+                  </div>
+                  <textarea className="form-input" style={{ gridColumn: '1 / -1', minHeight: '80px' }} placeholder="Description" value={eventFormData.desc} onChange={e => setEventFormData({...eventFormData, desc: e.target.value})} />
+                  
+                  <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem' }}>
+                    <button className="form-submit" style={{ flex: 1 }} onClick={async () => {
+                      if (!eventFormData.id || !eventFormData.name) return alert("Slug and Name are required.");
+                      try {
+                        await setDoc(doc(db, "events", eventFormData.id), eventFormData, { merge: true });
+                        setEditingEvent(null);
+                        alert("Event Saved!");
+                      } catch (err) { alert("Error: " + err.message); }
+                    }}>SAVE EVENT →</button>
+                    <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditingEvent(null)}>CANCEL</button>
+                  </div>
+                </div>
+
+                {editingEvent !== 'new' && (
+                  <div style={{ marginTop: '3rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+                    <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem' }}>Manage Event Photos</h4>
+                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                      <input className="form-input" style={{ flex: 1 }} placeholder="Paste Direct Image Link (https://...)" value={newEventPhoto} onChange={e => setNewEventPhoto(e.target.value)} />
+                      <button className="admin-nav-btn" onClick={async () => {
+                        if (!newEventPhoto) return;
+                        try {
+                          const currentPhotos = liveEvents[editingEvent] || [];
+                          await updateDoc(doc(db, "events", editingEvent), {
+                            photos: [newEventPhoto, ...currentPhotos]
+                          });
+                          setNewEventPhoto("");
+                          alert("Photo Added!");
+                        } catch (err) { alert(err.message); }
+                      }}>Add Photo +</button>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
+                      {(liveEvents[editingEvent] || []).map((url, idx) => (
+                        <div key={idx} style={{ position: 'relative' }}>
+                          <img src={url} alt="" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} referrerPolicy="no-referrer" />
+                          <button onClick={async () => {
+                            if (window.confirm("Remove this photo?")) {
+                              const updated = liveEvents[editingEvent].filter((_, i) => i !== idx);
+                              await updateDoc(doc(db, "events", editingEvent), { photos: updated });
+                            }
+                          }} style={{ position: 'absolute', top: 5, right: 5, background: '#ff4444', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}>×</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                      <th style={{ padding: '1rem' }}>Emoji</th>
+                      <th style={{ padding: '1rem' }}>Event Name</th>
+                      <th style={{ padding: '1rem' }}>Status</th>
+                      <th style={{ padding: '1rem' }}>Photos</th>
+                      <th style={{ padding: '1rem' }}>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {liveEventsList.map(ev => (
+                      <tr key={ev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                        <td style={{ padding: '1rem', fontSize: '1.2rem' }}>{ev.emoji}</td>
+                        <td style={{ padding: '1rem' }}>
+                          <div style={{ fontWeight: '600' }}>{ev.name}</div>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{ev.id}</div>
+                        </td>
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', background: ev.comingSoon ? 'rgba(255,153,51,0.1)' : 'rgba(168,216,168,0.1)', color: ev.comingSoon ? '#ff9933' : '#a8d8a8' }}>
+                            {ev.comingSoon ? 'Coming Soon' : 'Live'}
+                          </span>
+                        </td>
+                        <td style={{ padding: '1rem' }}>{(liveEvents[ev.id] || []).length} photos</td>
+                        <td style={{ padding: '1rem' }}>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button onClick={() => {
+                              setEditingEvent(ev.id);
+                              setEventFormData(ev);
+                            }} style={{ background: 'var(--gold)', border: 'none', color: 'var(--ink)', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Edit</button>
+                            <button onClick={async () => {
+                              if (window.confirm("Delete this event and ALL its photos?")) {
+                                try {
+                                  await deleteDoc(doc(db, "events", ev.id));
+                                  alert("Event deleted.");
+                                } catch (err) { alert(err.message); }
+                              }
+                            }} style={{ background: '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </div>
