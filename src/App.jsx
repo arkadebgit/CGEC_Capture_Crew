@@ -38,6 +38,31 @@ const TEAM_DATA = {
     { name: "Ankur Shit", role: "Content Writer & PR", dept: "1st Yr. CSE", img: "/team/Ankur.png", insta: "https://www.instagram.com/_ankur_shit/" },
     { name: "Priyanshu Dhara", role: "Authenticity Verifier", dept: "3rd Yr. ME", img: "/team/Priyanshu Dhara.png", insta: "https://www.instagram.com/iam_priyansu.12/" },
     { name: "Sabarno Mondal", role: "PR Manager", dept: "1st Yr. EE", img: "/team/Sabarno Mondal.png", insta: "https://www.instagram.com/culer_mariner_sabarno_10/" },
+  ],
+  members: [
+    { name: "Sagnik Das", role: "Member", dept: "1st Yr. ME" },
+    { name: "Nirvan Krishna Sarkar", role: "Member", dept: "1st Yr. CE" },
+    { name: "Sakhil Hossain", role: "Member", dept: "3rd Yr. ME" },
+    { name: "Nibadita Mitra", role: "Member", dept: "1st Yr. EE" },
+    { name: "Sanjib Giri", role: "Member", dept: "1st Yr. CE" },
+    { name: "Md Sahe Alam", role: "Member", dept: "1st Yr. CE" },
+    { name: "Farhana Parvin", role: "Member", dept: "1st Yr. EE" },
+    { name: "Hridashree Sinha", role: "Member", dept: "1st Yr. ME" },
+    { name: "Swastika Shaw", role: "Member", dept: "1st Yr. CSE" },
+    { name: "Aayushi Dutta", role: "Member", dept: "1st Yr. EE" },
+    { name: "Sk Irfan Ali", role: "Member", dept: "1st Yr. CE" },
+    { name: "Ahad Imam", role: "Member", dept: "1st Yr. CSE" },
+    { name: "Srinjoy Goswami", role: "Member", dept: "1st Yr. CE" },
+    { name: "Shritam Dutta", role: "Member", dept: "2nd Yr. ME" },
+    { name: "Rupam Barman", role: "Member", dept: "1st Yr. CE" },
+    { name: "Chayan Mukherjee", role: "Member", dept: "2nd Yr. CSE" },
+    { name: "Ayan Mandal", role: "Member", dept: "1st Yr. CE" },
+    { name: "Gourab Saha", role: "Member", dept: "1st Yr. ME" },
+    { name: "Poulami Roy", role: "Member", dept: "2nd Yr. ME" },
+    { name: "Bhaskaracharya Biswas", role: "Member", dept: "1st Yr. EE" },
+    { name: "Chanchal Barman", role: "Member", dept: "1st Yr. CSE" },
+    { name: "Istak Ahamed", role: "Member", dept: "1st Yr. CSE" },
+    { name: "Apajit Mahata", role: "Member", dept: "1st Yr. CE" },
   ]
 };
 
@@ -372,7 +397,9 @@ export default function App() {
   const [expandedGallery, setExpandedGallery] = useState(false);
   const [expandedEvents, setExpandedEvents] = useState(false);
   const [expandedTeam, setExpandedTeam] = useState(false);
+  const [expandedMembers, setExpandedMembers] = useState(false);
   const [shuffledCore, setShuffledCore] = useState([]);
+  const [shuffledMembers, setShuffledMembers] = useState([]);
   const [liveEvents, setLiveEvents] = useState({});
 
   useEffect(() => {
@@ -385,6 +412,7 @@ export default function App() {
       return s;
     };
     setShuffledCore(shuffle(TEAM_DATA.core));
+    setShuffledMembers(shuffle(TEAM_DATA.members));
   }, []);
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -455,7 +483,7 @@ export default function App() {
     );
     els.forEach(el => obs.observe(el));
     return () => obs.disconnect();
-  }, [galleryFilter, gallery, weekCapture, monthCapture, extraFrameCapture, expandedGallery, expandedEvents, expandedTeam]);
+  }, [galleryFilter, gallery, weekCapture, monthCapture, extraFrameCapture, expandedGallery, expandedEvents, expandedTeam, expandedMembers]);
 
   // Lightbox esc
   useEffect(() => {
@@ -838,6 +866,37 @@ export default function App() {
                     <div className="team-role">Become a Member</div>
                     <div className="team-dept">Apply for Core Team</div>
                     <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now →</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* MEMBERS */}
+            <div className="team-subcategory" style={{ marginTop: '4rem' }}>
+              <h3 className="subcategory-title"><em>Members</em></h3>
+              <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '2rem', fontStyle: 'italic', opacity: 0.8 }}>
+                *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.
+              </p>
+              <div className="team-grid">
+                {shuffledMembers.slice(0, (isMobile && !expandedMembers) ? 6 : undefined).map(m => (
+                  <div key={m.name} className="team-card fade-in" style={{ padding: '1.2rem' }}>
+                    <div className="team-avatar" style={{ width: '60px', height: '60px', fontSize: '1.2rem', background: 'rgba(255,255,255,0.05)' }}>
+                      📷
+                    </div>
+                    <div className="team-name" style={{ fontSize: '1rem' }}>{m.name}</div>
+                    <div className="team-role" style={{ fontSize: '0.7rem', color: 'var(--gold)' }}>{m.role}</div>
+                    <div className="team-dept" style={{ fontSize: '0.7rem' }}>{m.dept}</div>
+                  </div>
+                ))}
+
+                {isMobile && !expandedMembers && shuffledMembers.length > 6 && (
+                  <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedMembers(true)}>
+                    <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)', width: '60px', height: '60px' }}>
+                      📂
+                    </div>
+                    <div className="team-name" style={{ color: 'var(--gold)', fontSize: '1rem' }}>Show All</div>
+                    <div className="team-role" style={{ fontSize: '0.7rem' }}>Full Member List</div>
+                    <div className="team-dept" style={{ fontSize: '0.7rem' }}>{shuffledMembers.length} Members</div>
                   </div>
                 )}
               </div>
