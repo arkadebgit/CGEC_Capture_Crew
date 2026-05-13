@@ -346,6 +346,7 @@ export default function App() {
   }, [dynamicMembers]);
 
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminData, setAdminData] = useState(null);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
 
   // Parallel Real-time & Data Fetching
@@ -464,8 +465,10 @@ export default function App() {
           const adminDoc = await getDoc(doc(db, "admins", u.email));
           if (adminDoc.exists()) {
             setIsAdmin(true);
+            setAdminData(adminDoc.data());
           } else {
             setIsAdmin(false);
+            setAdminData(null);
             // Auto sign out if not in admin list to keep it clean
             // await signOut(auth); 
           }
@@ -476,6 +479,7 @@ export default function App() {
         setIsAuthChecking(false);
       } else {
         setIsAdmin(false);
+        setAdminData(null);
       }
     });
   }, []);
@@ -1100,7 +1104,7 @@ export default function App() {
         <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
       )}
       {showLogin && user && !isAuthChecking && isAdmin && (
-        <AdminDashboard user={user} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} ccEvents={ccEvents} />
+        <AdminDashboard user={user} adminData={adminData} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} ccEvents={ccEvents} />
       )}
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
@@ -1150,7 +1154,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
+function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
   const [tab, setTab] = useState("week");
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
@@ -1331,7 +1335,9 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
     try {
       await setDoc(doc(db, "admins", newAdminEmail.trim().toLowerCase()), {
         addedBy: user.email,
-        addedAt: new Date().toISOString()
+        addedAt: new Date().toISOString(),
+        role: "admin",
+        canManageAdmins: false
       });
       setNewAdminEmail("");
       fetchAdmins();
@@ -1339,6 +1345,14 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
     } catch (err) {
       alert("Failed to add admin: " + err.message);
     }
+  };
+  
+  const updateAdminPermissions = async (email, field, value) => {
+    if (adminData?.role !== 'lead') return alert("Only In-charges can modify permissions.");
+    try {
+      await updateDoc(doc(db, "admins", email), { [field]: value });
+      fetchAdmins();
+    } catch (err) { alert("Failed to update: " + err.message); }
   };
 
   const removeAdmin = async (email) => {
@@ -1423,7 +1437,9 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
           <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
-          <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
+          {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+            <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
+          )}
         </div>
 
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
@@ -1767,10 +1783,10 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
           </div>
         )}
         {tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
-        {tab === 'admins' && (
+        {tab === 'admins' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Manage <em>Admin Access</em></h3>
-            <p className="section-sub" style={{ marginBottom: '2rem' }}>Only authorized emails can access this console. Be careful when removing access.</p>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Only authorized emails can access this console. <strong>In-charges</strong> can manage permissions for others.</p>
             
             <form className="feedback-form" style={{ display: 'flex', gap: '1rem', marginBottom: '3rem' }} onSubmit={addAdmin}>
               <input 
@@ -1789,7 +1805,8 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
                     <th style={{ padding: '1rem' }}>Admin Email</th>
-                    <th style={{ padding: '1rem' }}>Added By</th>
+                    <th style={{ padding: '1rem' }}>Role</th>
+                    <th style={{ padding: '1rem' }}>Management</th>
                     <th style={{ padding: '1rem' }}>Added At</th>
                     <th style={{ padding: '1rem' }}>Action</th>
                   </tr>
@@ -1798,13 +1815,35 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
                   {admins.map(adm => (
                     <tr key={adm.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <td style={{ padding: '1rem', fontWeight: '600' }}>{adm.id}</td>
-                      <td style={{ padding: '1rem', opacity: 0.7 }}>{adm.addedBy || 'Original Admin'}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <select 
+                          className="form-input" 
+                          style={{ padding: '0.2rem', fontSize: '0.7rem', width: 'auto', height: 'auto', background: 'transparent' }}
+                          value={adm.role || 'admin'}
+                          onChange={(e) => updateAdminPermissions(adm.id, 'role', e.target.value)}
+                          disabled={adminData?.role !== 'lead' || adm.id === user.email}
+                        >
+                          <option value="admin" style={{ color: '#000' }}>Core Member</option>
+                          <option value="lead" style={{ color: '#000' }}>In-charge (Lead)</option>
+                        </select>
+                      </td>
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={adm.role === 'lead' || adm.canManageAdmins} 
+                            disabled={adminData?.role !== 'lead' || adm.role === 'lead' || adm.id === user.email}
+                            onChange={(e) => updateAdminPermissions(adm.id, 'canManageAdmins', e.target.checked)}
+                          />
+                          <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>Can Manage Admins</span>
+                        </div>
+                      </td>
                       <td style={{ padding: '1rem', opacity: 0.5 }}>{adm.addedAt ? new Date(adm.addedAt).toLocaleDateString() : 'N/A'}</td>
                       <td style={{ padding: '1rem' }}>
                         <button 
                           onClick={() => removeAdmin(adm.id)} 
                           style={{ background: adm.id === user.email ? 'rgba(255,255,255,0.1)' : '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: adm.id === user.email ? 'default' : 'pointer', fontSize: '0.7rem' }}
-                          disabled={adm.id === user.email}
+                          disabled={adm.id === user.email || (adm.role === 'lead' && adminData?.role !== 'lead')}
                         >
                           {adm.id === user.email ? 'You (Current)' : 'Revoke Access'}
                         </button>
