@@ -697,10 +697,10 @@ export default function App() {
             <p className="section-sub">Curated captures from our photographers — click any image to view full screen.</p>
           </div>
           <div className="gallery-filter fade-in">
-            {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event"].map(cat => (
+            {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event Winners"].map(cat => (
               <button 
                 key={cat} 
-                className={`filter-btn ${galleryFilter === cat ? "active" : ""} ${cat === "CC Event" ? "premium-btn" : ""}`} 
+                className={`filter-btn ${galleryFilter === cat ? "active" : ""} ${cat === "CC Event Winners" ? "premium-btn" : ""}`} 
                 onClick={() => setGalleryFilter(cat)}
               >
                 {cat}
@@ -708,7 +708,7 @@ export default function App() {
             ))}
           </div>
 
-          {galleryFilter === "CC Event" ? (
+          {galleryFilter === "CC Event Winners" ? (
             <div className="cc-events-container fade-in">
               {ccEvents.map(event => (
                 <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem' }}>
@@ -1779,12 +1779,22 @@ function AdminCCEvents({ ccEvents }) {
                   <input className="form-input" placeholder="Student Name" value={formData.winners[rank].name} onChange={e => {
                     const w = {...formData.winners}; w[rank].name = e.target.value; setFormData({...formData, winners: w});
                   }} />
-                  <input className="form-input" placeholder="Dept" value={formData.winners[rank].dept} onChange={e => {
+                  <select className="form-input" value={formData.winners[rank].dept} onChange={e => {
                     const w = {...formData.winners}; w[rank].dept = e.target.value; setFormData({...formData, winners: w});
-                  }} />
-                  <input className="form-input" placeholder="Year" value={formData.winners[rank].year} onChange={e => {
+                  }}>
+                    <option value="">Select Dept</option>
+                    {["Computer Science & Engineering", "Electronics & Communication Engineering", "Electrical Engineering", "Mechanical Engineering", "Civil Engineering"].map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  <select className="form-input" value={formData.winners[rank].year} onChange={e => {
                     const w = {...formData.winners}; w[rank].year = e.target.value; setFormData({...formData, winners: w});
-                  }} />
+                  }}>
+                    <option value="">Select Year</option>
+                    {["1st Year", "2nd Year", "3rd Year", "4th Year"].map(y => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
                   <input className="form-input" placeholder="Image Direct Link" value={formData.winners[rank].url} onChange={e => {
                     const w = {...formData.winners}; w[rank].url = e.target.value; setFormData({...formData, winners: w});
                   }} />
