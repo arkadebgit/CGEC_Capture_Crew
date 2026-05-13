@@ -1592,6 +1592,34 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
             <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
           )}
+        </div>        <div className="admin-guide-box fade-in visible" style={{ 
+          background: 'rgba(201,169,110,0.05)', 
+          border: '1px dashed var(--gold)', 
+          borderRadius: '16px', 
+          padding: '1.5rem', 
+          marginBottom: '2rem',
+          fontSize: '0.85rem'
+        }}>
+          <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            🛠️ Admin Deployment Guide
+          </h4>
+          <p style={{ opacity: 0.8, marginBottom: '1rem' }}>
+            For the best performance and consistency, follow this workflow before uploading any content:
+          </p>
+          <ol style={{ paddingLeft: '1.2rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', opacity: 0.9 }}>
+            <li>
+              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a> to bulk optimize your photos (reduces load times).
+            </li>
+            <li>
+              <strong>Upload:</strong> Host the compressed images on <a href="https://beeimg.com/upload" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>BeeImg</a> to get direct links.
+            </li>
+            <li>
+              <strong>Link:</strong> Copy the <strong>Direct Link</strong> (ending in .jpg/.png) and paste it into the forms below.
+            </li>
+          </ol>
+          <div style={{ fontSize: '0.75rem', opacity: 0.6, fontStyle: 'italic' }}>
+            *Note: Only Direct Links will work. If the link doesn't end with an image extension, the site might show a broken image.
+          </div>
         </div>
 
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
