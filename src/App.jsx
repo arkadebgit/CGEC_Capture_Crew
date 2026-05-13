@@ -454,7 +454,7 @@ export default function App() {
             namesSeen.add(m.name);
           }
         });
-      }, 5000); 
+      }, 1000); 
     });
 
     // 2. Fetch Gallery & Events (Independent of Members)
@@ -913,25 +913,26 @@ export default function App() {
                 *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.
               </p>
               <div className="team-grid">
-                {shuffledMembers.slice(0, (isMobile && !expandedMembers) ? 6 : undefined).map(m => (
-                  <div key={m.name} className="team-card fade-in" style={{ padding: '1.2rem' }}>
-                    <div className="team-avatar" style={{ width: '60px', height: '60px', fontSize: '1.2rem', background: 'rgba(255,255,255,0.05)' }}>
+                {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
+                  <div key={m.name} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
+                    <div className="team-avatar" style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem' }}>
                       📷
                     </div>
-                    <div className="team-name" style={{ fontSize: '1rem' }}>{m.name}</div>
-                    <div className="team-role" style={{ fontSize: '0.7rem', color: 'var(--gold)' }}>{m.role}</div>
-                    <div className="team-dept" style={{ fontSize: '0.7rem' }}>{m.dept}</div>
+                    <div className="team-name" style={{ fontSize: '0.95rem' }}>{m.name}</div>
+                    <div className="team-role" style={{ fontSize: '0.65rem', color: 'var(--gold)', marginBottom: '0.3rem' }}>{m.role || 'Member'}</div>
+                    <div className="team-dept" style={{ fontSize: '0.65rem', opacity: 0.8 }}>{m.dept}</div>
+                    <div className="team-dept" style={{ fontSize: '0.65rem', opacity: 0.6, marginTop: '2px' }}>{m.year}</div>
                   </div>
                 ))}
 
-                {isMobile && !expandedMembers && shuffledMembers.length > 6 && (
-                  <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedMembers(true)}>
-                    <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)', width: '60px', height: '60px' }}>
+                {!expandedMembers && shuffledMembers.length > (isMobile ? 6 : 8) && (
+                  <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', padding: '1.5rem 1rem' }} onClick={() => setExpandedMembers(true)}>
+                    <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)', width: '50px', height: '50px', fontSize: '1rem' }}>
                       📂
                     </div>
-                    <div className="team-name" style={{ color: 'var(--gold)', fontSize: '1rem' }}>Show All</div>
-                    <div className="team-role" style={{ fontSize: '0.7rem' }}>Full Member List</div>
-                    <div className="team-dept" style={{ fontSize: '0.7rem' }}>{shuffledMembers.length} Members</div>
+                    <div className="team-name" style={{ color: 'var(--gold)', fontSize: '0.95rem' }}>Show All</div>
+                    <div className="team-role" style={{ fontSize: '0.65rem' }}>Full Member List</div>
+                    <div className="team-dept" style={{ fontSize: '0.65rem' }}>{shuffledMembers.length} Members</div>
                   </div>
                 )}
               </div>
