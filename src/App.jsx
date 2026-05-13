@@ -12,32 +12,32 @@ const TEAM_DATA = {
     { name: "Arman Mia", role: "Founder", dept: "4th Yr. CSE", img: "/team/Arman.png", insta: "https://www.instagram.com/arman_ansari.13/" },
   ],
   incharge: [
-    { name: "Jyotirmoy Mondal", role: "Incharge", dept: "3rd Yr. EE", img: "/team/Jyotirmoy.png", insta: "https://www.instagram.com/flybyfifteen/" },
-    { name: "Saikat Saha", role: "Incharge", dept: "3rd Yr. CE", img: "/team/Saikat.png", insta: "https://www.instagram.com/_riz_saha_/" },
+    { name: "Jyotirmoy Mondal", role: "Incharge", dept: "3rd Yr. EE", img: "https://beeimg.com/images/b69604998711.png", insta: "https://www.instagram.com/flybyfifteen/" },
+    { name: "Saikat Saha", role: "Incharge", dept: "3rd Yr. CE", img: "https://beeimg.com/images/b93153899401.png", insta: "https://www.instagram.com/_riz_saha_/" },
   ],
   coordinators: [
-    { name: "Samprada Adhikari", role: "Co-Ordinator", dept: "2nd Yr. ME", img: "/team/Samprada.png" },
-    { name: "Nirupam Konar", role: "Co-Ordinator", dept: "2nd Yr. ECE", img: "/team/Nirupam konar.png", insta: "https://www.instagram.com/itsnirupam07_/" },
+    { name: "Samprada Adhikari", role: "Co-Ordinator", dept: "2nd Yr. ME", img: "https://beeimg.com/images/n41952554491.png" },
+    { name: "Nirupam Konar", role: "Co-Ordinator", dept: "2nd Yr. ECE", img: "https://beeimg.com/images/w57847418951.png", insta: "https://www.instagram.com/itsnirupam07_/" },
   ],
   core: [
-    { name: "Indrakshi Ghosh", role: "Moderator", dept: "1st Yr. CE", img: "/team/Indrakshi.png", insta: "https://www.instagram.com/indrakshi.______/" },
-    { name: "Nabanita Barman", role: "Photography Lead", dept: "1st Yr. CE", img: "/team/Nabanita.png", insta: "https://www.instagram.com/nabonitaaaaaaa/" },
-    { name: "Shreejan Roy", role: "Photographer & Editor", dept: "1st Yr. EE", img: "/team/Shreejan.png", insta: "https://www.instagram.com/snapbyjaan/" },
-    { name: "Arkadeb Thokdar", role: "Photographer & Editor", dept: "1st Yr. ME", img: "/team/Arkadeb.png", insta: "https://www.instagram.com/destructive_antagonist/" },
-    { name: "MD Kaif", role: "Photographer", dept: "1st Yr. ECE", img: "/team/MD Kaif.png", insta: "https://www.instagram.com/k4if_28/" },
-    { name: "Akash Ghara", role: "Photo Editor", dept: "1st Yr. ME", img: "/team/Akash.png", insta: "https://www.instagram.com/akash_ghara_/" },
-    { name: "Ramanath Hansda", role: "Videography Lead", dept: "1st Yr. CSE", img: "/team/Ramanath.png", insta: "https://www.instagram.com/_jubatus._09/" },
-    { name: "Irfan Ahmed", role: "Videographer", dept: "3rd Yr. CE", img: "/team/Irfan.png", insta: "https://www.instagram.com/irfan.a.verse/" },
-    { name: "Biswajyoti Deb", role: "Videographer & PR", dept: "1st Yr. CSE", img: "/team/Biswajyoti.png", insta: "https://www.instagram.com/kami.oni_/" },
-    { name: "Priyanshu Mondal", role: "Videographer", dept: "1st Yr. ME", img: "/team/Priyanshu Mondal.png" },
-    { name: "Snehashis Ghosh", role: "Video Editor", dept: "2nd Yr. EE", img: "/team/Snehashish.png", insta: "https://www.instagram.com/mr_shinchan_editzs/" },
-    { name: "Harasundar Patra", role: "Video Editor & Designer", dept: "2nd Yr. ME", img: "/team/Harasundar.png", insta: "https://www.instagram.com/harasundar_/" },
-    { name: "Balaram Mardi", role: "Video Editor", dept: "3rd Yr. EE", img: "/team/Balaram Mardi.png", insta: "https://www.instagram.com/balaram_mardi1/" },
-    { name: "Dibyendu Kumar Kundu", role: "Video Editor & Designer", dept: "1st Yr. ECE", img: "/team/Dibyendu.png", insta: "https://www.instagram.com/_dibyen.du_k_/" },
-    { name: "Sampreety Swarnakar", role: "Content Writer", dept: "2nd Yr. ECE", img: "/team/Sampreety.png", insta: "https://www.instagram.com/koli.forever/" },
-    { name: "Ankur Shit", role: "Content Writer & PR", dept: "1st Yr. CSE", img: "/team/Ankur.png", insta: "https://www.instagram.com/_ankur_shit/" },
-    { name: "Priyanshu Dhara", role: "Authenticity Verifier", dept: "3rd Yr. ME", img: "/team/Priyanshu Dhara.png", insta: "https://www.instagram.com/iam_priyansu.12/" },
-    { name: "Sabarno Mondal", role: "PR Manager", dept: "1st Yr. EE", img: "/team/Sabarno Mondal.png", insta: "https://www.instagram.com/culer_mariner_sabarno_10/" },
+    { name: "Indrakshi Ghosh", role: "Moderator", dept: "1st Yr. CE", img: "https://beeimg.com/images/f26043735174.png", insta: "https://www.instagram.com/indrakshi.______/" },
+    { name: "Nabanita Barman", role: "Photography Lead", dept: "1st Yr. CE", img: "https://beeimg.com/images/f45858083874.png", insta: "https://www.instagram.com/nabonitaaaaaaa/" },
+    { name: "Shreejan Roy", role: "Photographer & Editor", dept: "1st Yr. EE", img: "https://beeimg.com/images/a00498169822.png", insta: "https://www.instagram.com/snapbyjaan/" },
+    { name: "Arkadeb Thokdar", role: "Photographer & Editor", dept: "1st Yr. ME", img: "https://beeimg.com/images/u60184176212.png", insta: "https://www.instagram.com/destructive_antagonist/" },
+    { name: "MD Kaif", role: "Photographer", dept: "1st Yr. ECE", img: "https://beeimg.com/images/z64013800204.png", insta: "https://www.instagram.com/k4if_28/" },
+    { name: "Akash Ghara", role: "Photo Editor", dept: "1st Yr. ME", img: "https://beeimg.com/images/x01975698091.png", insta: "https://www.instagram.com/akash_ghara_/" },
+    { name: "Ramanath Hansda", role: "Videography Lead", dept: "1st Yr. CSE", img: "https://beeimg.com/images/j40407354383.png", insta: "https://www.instagram.com/_jubatus._09/" },
+    { name: "Irfan Ahmed", role: "Videographer", dept: "3rd Yr. CE", img: "https://beeimg.com/images/t53505068661.png", insta: "https://www.instagram.com/irfan.a.verse/" },
+    { name: "Biswajyoti Deb", role: "Videographer & PR", dept: "1st Yr. CSE", img: "https://beeimg.com/images/k52178779054.png", insta: "https://www.instagram.com/kami.oni_/" },
+    { name: "Priyanshu Mondal", role: "Videographer", dept: "1st Yr. ME", img: "https://beeimg.com/images/n43306411192.png" },
+    { name: "Snehashis Ghosh", role: "Video Editor", dept: "2nd Yr. EE", img: "https://beeimg.com/images/e19762527764.png", insta: "https://www.instagram.com/mr_shinchan_editzs/" },
+    { name: "Harasundar Patra", role: "Video Editor & Designer", dept: "2nd Yr. ME", img: "https://beeimg.com/images/e77593279463.png", insta: "https://www.instagram.com/harasundar_/" },
+    { name: "Balaram Mardi", role: "Video Editor", dept: "3rd Yr. EE", img: "https://beeimg.com/images/h64107582483.png", insta: "https://www.instagram.com/balaram_mardi1/" },
+    { name: "Dibyendu Kumar Kundu", role: "Video Editor & Designer", dept: "1st Yr. ECE", img: "https://beeimg.com/images/x58925079154.png", insta: "https://www.instagram.com/_dibyen.du_k_/" },
+    { name: "Sampreety Swarnakar", role: "Content Writer", dept: "2nd Yr. ECE", img: "https://beeimg.com/images/v08825476523.png", insta: "https://www.instagram.com/koli.forever/" },
+    { name: "Ankur Shit", role: "Content Writer & PR", dept: "1st Yr. CSE", img: "https://beeimg.com/images/q71563764654.png", insta: "https://www.instagram.com/_ankur_shit/" },
+    { name: "Priyanshu Dhara", role: "Authenticity Verifier", dept: "3rd Yr. ME", img: "https://beeimg.com/images/t37555738064.png", insta: "https://www.instagram.com/iam_priyansu.12/" },
+    { name: "Sabarno Mondal", role: "PR Manager", dept: "1st Yr. EE", img: "https://beeimg.com/images/w97506474033.png", insta: "https://www.instagram.com/culer_mariner_sabarno_10/" },
   ],
   members: []
 };
@@ -313,6 +313,7 @@ export default function App() {
   const [shuffledCore, setShuffledCore] = useState([]);
   const [shuffledMembers, setShuffledMembers] = useState([]);
   const [dynamicMembers, setDynamicMembers] = useState([]);
+  const [teamMembers, setTeamMembers] = useState({ founders: [], incharge: [], coordinators: [], core: [] });
   const [liveEvents, setLiveEvents] = useState({});
   const [liveEventsList, setLiveEventsList] = useState([]);
   const [ccEvents, setCcEvents] = useState([]);
@@ -329,8 +330,8 @@ export default function App() {
       }
       return s;
     };
-    setShuffledCore(shuffle(TEAM_DATA.core));
-  }, []);
+    setShuffledCore(shuffle(teamMembers.core || []));
+  }, [teamMembers.core]);
 
   useEffect(() => {
     const shuffle = (array) => {
@@ -359,6 +360,23 @@ export default function App() {
     const unsubMembers = onSnapshot(qMembers, (snap) => {
       const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setDynamicMembers(fetched);
+    });
+
+    // 1b. Team Members Snapshot
+    const unsubTeam = onSnapshot(collection(db, "team_members"), (snap) => {
+      const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const grouped = {
+        founders: fetched.filter(m => m.category === 'founders').sort((a,b) => (a.order || 0) - (b.order || 0)),
+        incharge: fetched.filter(m => m.category === 'incharge').sort((a,b) => (a.order || 0) - (b.order || 0)),
+        coordinators: fetched.filter(m => m.category === 'coordinators').sort((a,b) => (a.order || 0) - (b.order || 0)),
+        core: fetched.filter(m => m.category === 'core').sort((a,b) => (a.order || 0) - (b.order || 0)),
+      };
+      // Fallback to static if empty (for initial migration)
+      if (fetched.length === 0) {
+        setTeamMembers(TEAM_DATA);
+      } else {
+        setTeamMembers(grouped);
+      }
     });
 
     // 2. Fetch Gallery
@@ -436,6 +454,7 @@ export default function App() {
 
     return () => {
       unsubMembers();
+      unsubTeam();
       unsubEvents();
       unsubCCEvents();
       unsubConfig();
@@ -867,100 +886,111 @@ export default function App() {
           </div>
           <div className="team-container">
             {/* FOUNDERS */}
-            <div className="team-subcategory">
-              <h3 className="subcategory-title"><em>Founders</em></h3>
-              <div className="team-grid">
-                {TEAM_DATA.founders.map(m => (
-                  <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                    <div className="team-avatar">
-                      <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            {teamMembers.founders?.length > 0 && (
+              <div className="team-subcategory">
+                <h3 className="subcategory-title"><em>Founders</em></h3>
+                <div className="team-grid">
+                  {teamMembers.founders.map(m => (
+                    <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
+                      <div className="team-avatar">
+                        <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      </div>
+                      <div className="team-name">{m.name}</div>
+                      <div className="team-role">{m.role}</div>
+                      <div className="team-dept">{m.dept}</div>
                     </div>
-                    <div className="team-name">{m.name}</div>
-                    <div className="team-role">{m.role}</div>
-                    <div className="team-dept">{m.dept}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* INCHARGE */}
-            <div className="team-subcategory">
-              <h3 className="subcategory-title"><em>Incharge</em></h3>
-              <div className="team-grid incharge-grid">
-                {TEAM_DATA.incharge.map(m => (
-                  <div key={m.name} className="team-card incharge-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                    <div className="team-avatar highlight-silver">
-                      <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            {teamMembers.incharge?.length > 0 && (
+              <div className="team-subcategory">
+                <h3 className="subcategory-title"><em>Incharge</em></h3>
+                <div className="team-grid incharge-grid">
+                  {teamMembers.incharge.map(m => (
+                    <div key={m.id || m.name} className="team-card incharge-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
+                      <div className="team-avatar highlight-silver">
+                        <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      </div>
+                      <div className="team-name">{m.name}</div>
+                      <div className="team-role">{m.role}</div>
+                      <div className="team-dept">{m.dept}</div>
                     </div>
-                    <div className="team-name">{m.name}</div>
-                    <div className="team-role">{m.role}</div>
-                    <div className="team-dept">{m.dept}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* COORDINATORS */}
-            <div className="team-subcategory">
-              <h3 className="subcategory-title"><em>Co-Ordinators</em></h3>
-              <div className="team-grid">
-                {TEAM_DATA.coordinators.map(m => (
-                  <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                    <div className="team-avatar">
-                      <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            {teamMembers.coordinators?.length > 0 && (
+              <div className="team-subcategory">
+                <h3 className="subcategory-title"><em>Co-Ordinators</em></h3>
+                <div className="team-grid">
+                  {teamMembers.coordinators.map(m => (
+                    <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
+                      <div className="team-avatar">
+                        <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      </div>
+                      <div className="team-name">{m.name}</div>
+                      <div className="team-role">{m.role}</div>
+                      <div className="team-dept">{m.dept}</div>
                     </div>
-                    <div className="team-name">{m.name}</div>
-                    <div className="team-role">{m.role}</div>
-                    <div className="team-dept">{m.dept}</div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* CORE TEAM */}
-            <div className="team-subcategory">
-              <h3 className="subcategory-title">Core <em>Team</em></h3>
-              <div className="team-grid">
-                {shuffledCore.slice(0, (isMobile && !expandedTeam) ? 3 : undefined).map(m => (
-                  <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                    <div className="team-avatar">
-                      {m.img ? (
-                        <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                      ) : (
-                        m.emoji
-                      )}
+            {teamMembers.core?.length > 0 && (
+              <div className="team-subcategory">
+                <h3 className="subcategory-title">Core <em>Team</em></h3>
+                <div className="team-grid">
+                  {(isMobile && !expandedTeam ? teamMembers.core.slice(0, 3) : teamMembers.core).map(m => (
+                    <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
+                      <div className="team-avatar">
+                        {m.img ? (
+                          <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                        ) : (
+                          m.emoji || "📷"
+                        )}
+                      </div>
+                      <div className="team-name">{m.name}</div>
+                      <div className="team-role">{m.role}</div>
+                      <div className="team-dept">{m.dept}</div>
                     </div>
-                    <div className="team-name">{m.name}</div>
-                    <div className="team-role">{m.role}</div>
-                    <div className="team-dept">{m.dept}</div>
-                  </div>
-                ))}
-                
-                {isMobile && !expandedTeam && shuffledCore.length > 3 && (
-                  <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedTeam(true)}>
-                    <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)' }}>
-                      📂
+                  ))}
+                  
+                  {isMobile && !expandedTeam && teamMembers.core.length > 3 && (
+                    <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedTeam(true)}>
+                      <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)' }}>
+                        📂
+                      </div>
+                      <div className="team-name" style={{ color: 'var(--gold)' }}>Show All</div>
+                      <div className="team-role">Full Core Team</div>
+                      <div className="team-dept">{teamMembers.core.length} Members Total</div>
                     </div>
-                    <div className="team-name" style={{ color: 'var(--gold)' }}>Show All</div>
-                    <div className="team-role">Full Core Team</div>
-                    <div className="team-dept">{shuffledCore.length} Members Total</div>
-                  </div>
-                )}
-                
-                {/* RECRUITMENT CARD - Always show or show after expansion? Let's always show it or show it at end */}
-                {(expandedTeam || !isMobile) && (
-                  <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
-                    <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
-                      ➕
+                  )}
+                  
+                  {/* RECRUITMENT CARD */}
+                  {(expandedTeam || !isMobile) && (
+                    <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
+                      <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
+                        ➕
+                      </div>
+                      <div className="team-name" style={{ color: 'var(--gold)' }}>Join Our Crew</div>
+                      <div className="team-role">Become a Member</div>
+                      <div className="team-dept">Apply for Core Team</div>
+                      <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now →</button>
                     </div>
-                    <div className="team-name" style={{ color: 'var(--gold)' }}>Join Our Crew</div>
-                    <div className="team-role">Become a Member</div>
-                    <div className="team-dept">Apply for Core Team</div>
-                    <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now →</button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+          </div>
+        </div>
+      </section>
 
             {/* MEMBERS */}
             <div className="team-subcategory" style={{ marginTop: '4rem' }}>
@@ -1553,6 +1583,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
+          <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
           <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
           <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
@@ -1757,6 +1788,14 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
               </table>
               {dynamicMembers.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No live members added via Admin yet.</div>}
             </div>
+          </div>
+        )}
+
+        {tab === 'team_mgmt' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Manage <em>Core Team & Incharges</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Add, remove, or promote members within the Core Team, Incharge, and Coordinator sections.</p>
+            <AdminTeamMgmt teamMembers={teamMembers} DEPTS={DEPTS} YEARS={YEARS} />
           </div>
         )}
 
@@ -2268,6 +2307,151 @@ function AdminCCEvents({ ccEvents }) {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+    </div>
+  );
+}
+
+function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
+  const [editing, setEditing] = useState(null);
+  const [formData, setFormData] = useState({
+    name: "", role: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99
+  });
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const save = async () => {
+    if (!formData.name || !formData.img) return alert("Name and Image URL are required");
+    try {
+      const id = editing === 'new' ? formData.name.toLowerCase().replace(/ /g, '-') + '-' + Date.now() : editing;
+      await setDoc(doc(db, "team_members", id), formData, { merge: true });
+      setEditing(null);
+      alert("Member Saved!");
+    } catch (err) { alert(err.message); }
+  };
+
+  const deleteMember = async (id) => {
+    if (window.confirm("Remove this member from the team?")) {
+      try {
+        await deleteDoc(doc(db, "team_members", id));
+        alert("Member removed.");
+      } catch (err) { alert(err.message); }
+    }
+  };
+
+  const seedData = async () => {
+    if (!window.confirm("This will initialize the database with current hardcoded team data. Continue?")) return;
+    setIsSeeding(true);
+    try {
+      const batch = writeBatch(db);
+      const categories = ['founders', 'incharge', 'coordinators', 'core'];
+      
+      for (const cat of categories) {
+        TEAM_DATA[cat].forEach((m, idx) => {
+          const docRef = doc(collection(db, "team_members"));
+          batch.set(docRef, { ...m, category: cat, order: idx, createdAt: serverTimestamp() });
+        });
+      }
+      await batch.commit();
+      alert("Team data initialized successfully!");
+    } catch (err) { alert("Seed failed: " + err.message); }
+    finally { setIsSeeding(false); }
+  };
+
+  const categories = [
+    { id: 'founders', label: 'Founders' },
+    { id: 'incharge', label: 'Incharges' },
+    { id: 'coordinators', label: 'Coordinators' },
+    { id: 'core', label: 'Core Team' }
+  ];
+
+  return (
+    <div className="admin-team-mgmt">
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+        <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)' }} onClick={() => {
+          setEditing('new');
+          setFormData({ name: "", role: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99 });
+        }}>➕ ADD TEAM MEMBER</button>
+        <button className="admin-nav-btn" style={{ opacity: 0.5 }} onClick={seedData} disabled={isSeeding}>
+          {isSeeding ? "Initializing..." : "🚀 INITIALIZE FROM CODE (Run Once)"}
+        </button>
+      </div>
+
+      {editing ? (
+        <div className="glass-form fade-in visible" style={{ padding: '2rem', marginBottom: '3rem' }}>
+          <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem' }}>{editing === 'new' ? 'Add' : 'Edit'} Team Member</h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
+            <input className="form-input" placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            <input className="form-input" placeholder="Role (e.g. Photographer)" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} />
+            
+            <select className="form-input" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+              {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+            </select>
+
+            <select className="form-input" value={formData.dept} onChange={e => setFormData({...formData, dept: e.target.value})}>
+              {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+              <option value="Passout">Passout</option>
+            </select>
+
+            <select className="form-input" value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
+              {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+              <option value="Alumni">Alumni</option>
+            </select>
+
+            <input className="form-input" placeholder="Image Direct Link (BeeImg/PostImg)" value={formData.img} onChange={e => setFormData({...formData, img: e.target.value})} />
+            <input className="form-input" placeholder="Instagram URL (Optional)" value={formData.insta} onChange={e => setFormData({...formData, insta: e.target.value})} />
+            <input className="form-input" type="number" placeholder="Display Order" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value)})} />
+
+            <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE MEMBER →</button>
+              <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditing(null)}>CANCEL</button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          {categories.map(cat => (
+            <div key={cat.id} style={{ marginBottom: '3rem' }}>
+              <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>{cat.label}</h4>
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.8rem' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', opacity: 0.6 }}>
+                    <th style={{ padding: '0.8rem' }}>Name</th>
+                    <th style={{ padding: '0.8rem' }}>Role</th>
+                    <th style={{ padding: '0.8rem' }}>Dept/Year</th>
+                    <th style={{ padding: '0.8rem' }}>Order</th>
+                    <th style={{ padding: '0.8rem' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(teamMembers[cat.id] || []).map(m => (
+                    <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                        <img src={m.img} alt="" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                        <span style={{ fontWeight: '600' }}>{m.name}</span>
+                      </td>
+                      <td style={{ padding: '0.8rem' }}>{m.role}</td>
+                      <td style={{ padding: '0.8rem', opacity: 0.7 }}>{m.dept} <br/> {m.year}</td>
+                      <td style={{ padding: '0.8rem' }}>{m.order}</td>
+                      <td style={{ padding: '0.8rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button className="admin-nav-btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem' }} onClick={() => { setEditing(m.id); setFormData(m); }}>Edit</button>
+                          <button className="admin-nav-btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem', background: '#ff4444' }} onClick={() => deleteMember(m.id)}>Delete</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {(!teamMembers[cat.id] || teamMembers[cat.id].length === 0) && (
+                    <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center', opacity: 0.3 }}>No members in this category.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          ))}
         </div>
       )}
     </div>
