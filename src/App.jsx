@@ -439,51 +439,50 @@ export default function App() {
           const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
           setDynamicMembers(fetched);
 
-          // CLEANUP & MIGRATION Logic
-          const staticList = [
-            { name: "Sagnik Das", dept: "Mechanical Engineering", year: "1st Year" },
-            { name: "Nirvan Krishna Sarkar", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Sakhil Hossain", dept: "Mechanical Engineering", year: "3rd Year" },
-            { name: "Nibadita Mitra", dept: "Electrical Engineering", year: "1st Year" },
-            { name: "Sanjib Giri", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Md Sahe Alam", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Farhana Parvin", dept: "Electrical Engineering", year: "1st Year" },
-            { name: "Hridashree Sinha", dept: "Mechanical Engineering", year: "1st Year" },
-            { name: "Swastika Shaw", dept: "Computer Science & Engineering", year: "1st Year" },
-            { name: "Aayushi Dutta", dept: "Electrical Engineering", year: "1st Year" },
-            { name: "Sk Irfan Ali", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Ahad Imam", dept: "Computer Science & Engineering", year: "1st Year" },
-            { name: "Srinjoy Goswami", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Shritam Dutta", dept: "Mechanical Engineering", year: "2nd Year" },
-            { name: "Rupam Barman", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Chayan Mukherjee", dept: "Computer Science & Engineering", year: "2nd Year" },
-            { name: "Ayan Mandal", dept: "Civil Engineering", year: "1st Year" },
-            { name: "Gourab Saha", dept: "Mechanical Engineering", year: "1st Year" },
-            { name: "Poulami Roy", dept: "Mechanical Engineering", year: "2nd Year" },
-            { name: "Bhaskaracharya Biswas", dept: "Electrical Engineering", year: "1st Year" },
-            { name: "Chanchal Barman", dept: "Computer Science & Engineering", year: "1st Year" },
-            { name: "Istak Ahamed", dept: "Computer Science & Engineering", year: "1st Year" },
-            { name: "Apajit Mahata", dept: "Civil Engineering", year: "1st Year" }
-          ];
+          // CLEANUP & MIGRATION Logic (Deferred for performance)
+          setTimeout(() => {
+            const staticList = [
+              { name: "Sagnik Das", dept: "Mechanical Engineering", year: "1st Year" },
+              { name: "Nirvan Krishna Sarkar", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Sakhil Hossain", dept: "Mechanical Engineering", year: "3rd Year" },
+              { name: "Nibadita Mitra", dept: "Electrical Engineering", year: "1st Year" },
+              { name: "Sanjib Giri", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Md Sahe Alam", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Farhana Parvin", dept: "Electrical Engineering", year: "1st Year" },
+              { name: "Hridashree Sinha", dept: "Mechanical Engineering", year: "1st Year" },
+              { name: "Swastika Shaw", dept: "Computer Science & Engineering", year: "1st Year" },
+              { name: "Aayushi Dutta", dept: "Electrical Engineering", year: "1st Year" },
+              { name: "Sk Irfan Ali", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Ahad Imam", dept: "Computer Science & Engineering", year: "1st Year" },
+              { name: "Srinjoy Goswami", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Shritam Dutta", dept: "Mechanical Engineering", year: "2nd Year" },
+              { name: "Rupam Barman", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Chayan Mukherjee", dept: "Computer Science & Engineering", year: "2nd Year" },
+              { name: "Ayan Mandal", dept: "Civil Engineering", year: "1st Year" },
+              { name: "Gourab Saha", dept: "Mechanical Engineering", year: "1st Year" },
+              { name: "Poulami Roy", dept: "Mechanical Engineering", year: "2nd Year" },
+              { name: "Bhaskaracharya Biswas", dept: "Electrical Engineering", year: "1st Year" },
+              { name: "Chanchal Barman", dept: "Computer Science & Engineering", year: "1st Year" },
+              { name: "Istak Ahamed", dept: "Computer Science & Engineering", year: "1st Year" },
+              { name: "Apajit Mahata", dept: "Civil Engineering", year: "1st Year" }
+            ];
 
-          // 1. Cleanup duplicates and bad data
-          const namesSeen = new Set();
-          fetched.forEach(m => {
-            // Delete if duplicate OR if it's missing the 'year' field (bad data from previous migration)
-            if (namesSeen.has(m.name) || !m.year) {
-              deleteDoc(doc(db, "members", m.id));
-            } else {
-              namesSeen.add(m.name);
-            }
-          });
+            const namesSeen = new Set();
+            fetched.forEach(m => {
+              if (namesSeen.has(m.name) || !m.year) {
+                deleteDoc(doc(db, "members", m.id));
+              } else {
+                namesSeen.add(m.name);
+              }
+            });
 
-          // 2. Auto-migrate if anyone is missing
-          staticList.forEach(m => {
-            if (!namesSeen.has(m.name)) {
-              addDoc(collection(db, "members"), { ...m, role: "Member", createdAt: serverTimestamp() });
-              namesSeen.add(m.name); // Avoid multiple adds in same loop
-            }
-          });
+            staticList.forEach(m => {
+              if (!namesSeen.has(m.name)) {
+                addDoc(collection(db, "members"), { ...m, role: "Member", createdAt: serverTimestamp() });
+                namesSeen.add(m.name);
+              }
+            });
+          }, 3000); // Defer migration logic by 3 seconds to prioritize initial render
         });
         
         return () => unsubMembers();
@@ -618,11 +617,13 @@ export default function App() {
       <section id="home" className="hero">
         <div className="hero-bg">
           {HERO_COVERS.map((img, idx) => (
-            <div
-              key={idx}
-              className={`hero-slide ${idx === currentHeroIndex ? "active" : ""}`}
-              style={{ backgroundImage: `url("${img}")`, backgroundColor: '#111' }}
-            />
+            (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % HERO_COVERS.length) && (
+              <div
+                key={idx}
+                className={`hero-slide ${idx === currentHeroIndex ? "active" : ""}`}
+                style={{ backgroundImage: `url("${img}")`, backgroundColor: '#111' }}
+              />
+            )
           ))}
           <div className="hero-overlay" />
         </div>
@@ -731,7 +732,7 @@ export default function App() {
             ))}
           </div>
           <div className="gallery-masonry fade-in">
-            {filteredGallery.slice(0, (isMobile && !expandedGallery) ? 3 : undefined).map(item => (
+            {filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
               <div
                 key={item.id}
                 className="gallery-item"
@@ -753,7 +754,7 @@ export default function App() {
               </div>
             ))}
           </div>
-          {isMobile && !expandedGallery && filteredGallery.length > 3 && (
+          {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
               <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures →</button>
             </div>
@@ -815,7 +816,7 @@ export default function App() {
                 {TEAM_DATA.founders.map(m => (
                   <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
                     <div className="team-avatar">
-                      <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
                     <div className="team-name">{m.name}</div>
                     <div className="team-role">{m.role}</div>
@@ -832,7 +833,7 @@ export default function App() {
                 {TEAM_DATA.incharge.map(m => (
                   <div key={m.name} className="team-card incharge-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
                     <div className="team-avatar highlight-silver">
-                      <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
                     <div className="team-name">{m.name}</div>
                     <div className="team-role">{m.role}</div>
@@ -849,7 +850,7 @@ export default function App() {
                 {TEAM_DATA.coordinators.map(m => (
                   <div key={m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
                     <div className="team-avatar">
-                      <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                     </div>
                     <div className="team-name">{m.name}</div>
                     <div className="team-role">{m.role}</div>
@@ -1271,7 +1272,7 @@ function AdminDashboard({ user, onClose }) {
             <div className="gallery-grid">
               {gallery.map(g => (
                 <div key={g.id} className="gallery-item">
-                  <img src={g.url} alt="" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} referrerPolicy="no-referrer" />
+                  <img src={g.url} alt="" loading="lazy" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} referrerPolicy="no-referrer" />
                   <div style={{ padding: '0.5rem' }}>
                     <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--white)' }}>{g.title}</div>
                     <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
