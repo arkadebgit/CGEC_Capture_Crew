@@ -1119,6 +1119,7 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
   });
   const [newEventPhoto, setNewEventPhoto] = useState("");
   const [bulkInput, setBulkInput] = useState("");
+  const [draggedItemIndex, setDraggedItemIndex] = useState(null);
   const [certs, setCerts] = useState([]);
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
   
@@ -1182,6 +1183,38 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
     "Civil Engineering"
   ];
   const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+
+  const handleDragStart = (e, index) => {
+    setDraggedItemIndex(index);
+    e.dataTransfer.effectAllowed = "move";
+    // Set a ghost image or just styling
+    e.target.style.opacity = "0.5";
+  };
+
+  const handleDragEnd = (e) => {
+    e.target.style.opacity = "1";
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = async (e, targetIndex) => {
+    e.preventDefault();
+    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+
+    const photos = [...(liveEvents[editingEvent] || [])];
+    const draggedItem = photos[draggedItemIndex];
+    photos.splice(draggedItemIndex, 1);
+    photos.splice(targetIndex, 0, draggedItem);
+
+    try {
+      await updateDoc(doc(db, "events", editingEvent), { photos });
+      setDraggedItemIndex(null);
+    } catch (err) {
+      alert("Reorder failed: " + err.message);
+    }
+  };
 
   const [gallery, setGallery] = useState([]);
   const updateRepublicDayPhotos = async () => {
@@ -1559,16 +1592,29 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
                       }}>DUMP BULK PHOTOS →</button>
                     </div>
 
+                    <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                      Gallery Preview 
+                      <span style={{ fontSize: '0.6rem', opacity: 0.5, fontWeight: 'normal' }}>🖱️ Drag photos to reorder</span>
+                    </h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
                       {(liveEvents[editingEvent] || []).map((url, idx) => (
-                        <div key={idx} style={{ position: 'relative' }}>
-                          <img src={url} alt="" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px' }} referrerPolicy="no-referrer" />
+                        <div 
+                          key={idx} 
+                          style={{ position: 'relative', cursor: 'move', transition: 'transform 0.2s' }}
+                          draggable="true"
+                          onDragStart={(e) => handleDragStart(e, idx)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={handleDragOver}
+                          onDrop={(e) => handleDrop(e, idx)}
+                        >
+                          <img src={url} alt="" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', border: draggedItemIndex === idx ? '2px solid var(--gold)' : '1px solid var(--border)' }} referrerPolicy="no-referrer" />
                           <button onClick={async () => {
                             if (window.confirm("Remove this photo?")) {
                               const updated = liveEvents[editingEvent].filter((_, i) => i !== idx);
                               await updateDoc(doc(db, "events", editingEvent), { photos: updated });
                             }
-                          }} style={{ position: 'absolute', top: 5, right: 5, background: '#ff4444', border: 'none', color: '#fff', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer' }}>×</button>
+                          }} style={{ position: 'absolute', top: 5, right: 5, background: '#ff4444', border: 'none', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>×</button>
+                          <div style={{ position: 'absolute', bottom: 5, left: 5, background: 'rgba(0,0,0,0.5)', padding: '2px 5px', borderRadius: '4px', fontSize: '8px', pointerEvents: 'none' }}>#{idx + 1}</div>
                         </div>
                       ))}
                     </div>
