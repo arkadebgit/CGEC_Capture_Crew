@@ -2340,17 +2340,33 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
     if (direction === 'up' && index > 0) {
       const itemA = list[index];
       const itemB = list[index - 1];
-      const orderA = itemA.order ?? index;
-      const orderB = itemB.order ?? (index - 1);
-      await updateDoc(doc(db, "team_members", itemA.id), { order: orderB });
-      await updateDoc(doc(db, "team_members", itemB.id), { order: orderA });
+      
+      const batch = writeBatch(db);
+      // Ensure we swap actual values, fallback to index if missing
+      const posA = itemA.order ?? index;
+      const posB = itemB.order ?? (index - 1);
+      
+      // If positions are same, force posA to be posB + 1
+      const finalPosA = posA === posB ? posB + 1 : posB;
+      const finalPosB = posA === posB ? posB : posA;
+
+      batch.update(doc(db, "team_members", itemA.id), { order: finalPosB });
+      batch.update(doc(db, "team_members", itemB.id), { order: finalPosA });
+      await batch.commit();
     } else if (direction === 'down' && index < list.length - 1) {
       const itemA = list[index];
       const itemB = list[index + 1];
-      const orderA = itemA.order ?? index;
-      const orderB = itemB.order ?? (index + 1);
-      await updateDoc(doc(db, "team_members", itemA.id), { order: orderB });
-      await updateDoc(doc(db, "team_members", itemB.id), { order: orderA });
+      
+      const batch = writeBatch(db);
+      const posA = itemA.order ?? index;
+      const posB = itemB.order ?? (index + 1);
+      
+      const finalPosA = posA === posB ? posB - 1 : posB;
+      const finalPosB = posA === posB ? posB : posA;
+
+      batch.update(doc(db, "team_members", itemA.id), { order: finalPosA });
+      batch.update(doc(db, "team_members", itemB.id), { order: finalPosB });
+      await batch.commit();
     }
   };
 
