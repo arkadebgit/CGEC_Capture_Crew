@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
-import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
@@ -1175,6 +1175,8 @@ function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, 
   const [isUpdating, setIsUpdating] = useState(false);
   const [admins, setAdmins] = useState([]);
   const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [bulkCertInput, setBulkCertInput] = useState("");
+  const [showBulkCert, setShowBulkCert] = useState(false);
 
   useEffect(() => {
     if (editingEvent && editingEvent !== 'new') {
@@ -1416,6 +1418,43 @@ function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, 
     }
   };
 
+  const issueBulkCerts = async () => {
+    if (!bulkCertInput.trim()) return;
+    const lines = bulkCertInput.split('\n').filter(l => l.trim());
+    const batch = writeBatch(db);
+    let count = 0;
+    
+    try {
+      lines.forEach(line => {
+        const parts = line.split(',').map(s => s.trim());
+        if (parts.length >= 4) {
+          const [name, serialNo, date, event] = parts;
+          const newDocRef = doc(collection(db, "certificates"));
+          batch.set(newDocRef, { 
+            name, 
+            serialNo, 
+            date, 
+            event, 
+            createdAt: new Date().toISOString() 
+          });
+          count++;
+        }
+      });
+      
+      if (count > 0) {
+        await batch.commit();
+        setBulkCertInput("");
+        setShowBulkCert(false);
+        fetchCerts();
+        alert(`Successfully issued ${count} certificates!`);
+      } else {
+        alert("No valid certificate lines found. Format: Name, SerialNo, Date, Event");
+      }
+    } catch (err) {
+      alert("Bulk Issue Error: " + err.message);
+    }
+  };
+
   return (
     <div className="event-page-overlay">
       <div className="container" style={{ paddingBottom: '5rem' }}>
@@ -1526,14 +1565,43 @@ function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, 
 
         {tab === 'certs' && (
           <div className="fade-in visible">
-            <h3 className="subcategory-title">Issue <em>Certificate</em></h3>
-            <form className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '3rem' }} onSubmit={addCert}>
-              <input className="form-input" placeholder="Student Name" value={newCert.name} onChange={e => setNewCert({...newCert, name: e.target.value})} required />
-              <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
-              <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
-              <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
-              <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate →</button>
-            </form>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h3 className="subcategory-title">Issue <em>Certificates</em></h3>
+              <button 
+                onClick={() => setShowBulkCert(!showBulkCert)} 
+                style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                {showBulkCert ? "SWITCH TO SINGLE" : "🚀 SWITCH TO BULK ISSUE"}
+              </button>
+            </div>
+
+            {showBulkCert ? (
+              <div className="glass-form fade-in visible" style={{ padding: '2rem', marginBottom: '3rem' }}>
+                <h4 style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Bulk Certificate Issuance</h4>
+                <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '1.5rem' }}>
+                  Paste student details line by line from your Excel/Sheet. <br/>
+                  <strong>Format:</strong> Student Name, Serial No, Date, Event
+                </p>
+                <textarea 
+                  className="form-input" 
+                  style={{ minHeight: '200px', fontSize: '0.8rem', fontFamily: 'monospace' }} 
+                  placeholder="John Doe, CC-VAR-001, 15 Feb 2026, Varnakriti&#10;Jane Smith, CC-VAR-002, 15 Feb 2026, Varnakriti"
+                  value={bulkCertInput}
+                  onChange={e => setBulkCertInput(e.target.value)}
+                />
+                <button className="form-submit" style={{ marginTop: '1.5rem' }} onClick={issueBulkCerts}>
+                  ISSUE ALL CERTIFICATES →
+                </button>
+              </div>
+            ) : (
+              <form className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '3rem' }} onSubmit={addCert}>
+                <input className="form-input" placeholder="Student Name" value={newCert.name} onChange={e => setNewCert({...newCert, name: e.target.value})} required />
+                <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
+                <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
+                <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
+                <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate →</button>
+              </form>
+            )}
 
             <h3 className="subcategory-title">Issued <em>Certificates</em></h3>
             <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
