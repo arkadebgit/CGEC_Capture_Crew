@@ -517,6 +517,30 @@ export default function App() {
       }
     });
   }, []);
+  // Intersection Observer for fade-in animations
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const elements = document.querySelectorAll('.fade-in');
+    elements.forEach(el => observer.observe(el));
+
+    // Re-observe when components might re-render or expand
+    const timer = setInterval(() => {
+      const newElements = document.querySelectorAll('.fade-in:not(.visible)');
+      newElements.forEach(el => observer.observe(el));
+    }, 1000);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(timer);
+    };
+  }, [gallery, liveEvents, shuffledMembers, isInitializing]);
 
   const handleVerify = async (e) => {
     e.preventDefault();
