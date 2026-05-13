@@ -1849,9 +1849,7 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
       <div className="winner-rank">{rank}</div>
       <div className="winner-image-wrap" onClick={() => setLightboxItem({ url: data.url, title: `${rank} Place - ${data.name}`, photographer: data.name, dept: data.dept, year: data.year })}>
         <img src={data.url} alt={data.name} className="winner-img" referrerPolicy="no-referrer" />
-        <div className="winner-overlay">
-          <span className="view-icon">👁️</span>
-        </div>
+        <div className="winner-overlay"></div>
       </div>
       <div className="winner-info">
         <h4 className="winner-name">{data.name}</h4>
