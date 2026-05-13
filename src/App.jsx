@@ -585,20 +585,7 @@ export default function App() {
       <div className="splash-screen">
         <div className="splash-content">
           <div className="shutter-icon">
-            <svg viewBox="0 0 100 100" width="80" height="80">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="var(--gold)" strokeWidth="1" />
-              <circle cx="50" cy="50" r="20" fill="var(--gold)" opacity="0.2" />
-              {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => (
-                <line 
-                  key={deg}
-                  x1="50" y1="50" 
-                  x2={50 + 35 * Math.cos(deg * Math.PI / 180)} 
-                  y2={50 + 35 * Math.sin(deg * Math.PI / 180)} 
-                  stroke="var(--gold)" strokeWidth="1.5"
-                  className="shutter-blade"
-                />
-              ))}
-            </svg>
+            <img src="/logo.jpg" alt="Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', border: '2px solid var(--gold)', padding: '5px' }} />
           </div>
           <h1 className="splash-logo">CAPTURE <span>CREW</span></h1>
           <div className="splash-loader">
