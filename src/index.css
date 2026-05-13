@@ -768,6 +768,16 @@ section { padding: 7rem 0; }
 }
 @media(max-width: 900px) { .feedback-inner { grid-template-columns: 1fr; gap: 4rem; text-align: center; } }
 
+.glass-form {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+}
+
 .feedback-form { 
   display: flex; flex-direction: column; gap: 1.5rem; 
   background: rgba(255,255,255,0.02); 

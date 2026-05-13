@@ -423,7 +423,11 @@ export default function App() {
     });
     
     const unsubTheme = onSnapshot(doc(db, "config", "theme"), (doc) => {
-      if (doc.exists() && doc.data().primaryColor) setThemeColor(doc.data().primaryColor);
+      if (doc.exists() && doc.data().primaryColor) {
+        setThemeColor(doc.data().primaryColor);
+      } else {
+        setThemeColor("#C9A96E");
+      }
     });
 
     const unsubCovers = onSnapshot(doc(db, "config", "covers"), (doc) => {
@@ -1489,6 +1493,9 @@ function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, l
   };
 
   const updateTheme = async (color) => {
+    if (color === '#000000') {
+      if (!window.confirm("Setting theme to black might make some elements invisible. Continue?")) return;
+    }
     try {
       await setDoc(doc(db, "config", "theme"), { primaryColor: color });
     } catch (err) { alert(err.message); }
@@ -1501,7 +1508,7 @@ function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, l
   };
 
   return (
-    <div className="event-page-overlay">
+    <div className="event-page-overlay" style={{ color: 'var(--white)' }}>
       <div className="container" style={{ paddingBottom: '5rem' }}>
         <header className="event-page-header">
           <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
@@ -1980,34 +1987,36 @@ function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, l
             <h3 className="subcategory-title">Manage <em>Hero Covers</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Add or remove background images for the home page. Use direct image links.</p>
             
-            <form className="feedback-form" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }} onSubmit={(e) => {
-              e.preventDefault();
-              const url = e.target.coverUrl.value.trim();
-              if (url) {
-                updateCovers([...coverPhotos, url]);
-                e.target.coverUrl.value = "";
-              }
-            }}>
-              <input name="coverUrl" className="form-input" style={{ flex: 1 }} placeholder="Image Direct Link (https://...)" required />
-              <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover →</button>
-            </form>
+            <div className="glass-form" style={{ padding: '2rem' }}>
+              <form className="feedback-form" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', padding: '1.5rem', borderRadius: '16px' }} onSubmit={(e) => {
+                e.preventDefault();
+                const url = e.target.coverUrl.value.trim();
+                if (url) {
+                  updateCovers([...coverPhotos, url]);
+                  e.target.coverUrl.value = "";
+                }
+              }}>
+                <input name="coverUrl" className="form-input" style={{ flex: 1 }} placeholder="Image Direct Link (https://...)" required />
+                <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover →</button>
+              </form>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-              {coverPhotos.map((url, idx) => (
-                <div key={idx} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '150px', border: '1px solid var(--border)' }}>
-                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
-                  <button 
-                    onClick={() => {
-                      if (window.confirm("Remove this cover?")) {
-                        const newCovers = coverPhotos.filter((_, i) => i !== idx);
-                        updateCovers(newCovers);
-                      }
-                    }}
-                    style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#ff4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', fontSize: '0.6rem' }}
-                  >✕ DELETE</button>
-                </div>
-              ))}
-              {coverPhotos.length === 0 && <div style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '12px' }}>Using default covers. Add some to customize!</div>}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+                {coverPhotos.map((url, idx) => (
+                  <div key={idx} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '150px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)' }}>
+                    <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                    <button 
+                      onClick={() => {
+                        if (window.confirm("Remove this cover?")) {
+                          const newCovers = coverPhotos.filter((_, i) => i !== idx);
+                          updateCovers(newCovers);
+                        }
+                      }}
+                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#ff4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', fontSize: '0.6rem' }}
+                    >✕ DELETE</button>
+                  </div>
+                ))}
+                {coverPhotos.length === 0 && <div style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '12px' }}>Using default covers. Add some to customize!</div>}
+              </div>
             </div>
           </div>
         )}
