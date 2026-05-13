@@ -1111,6 +1111,7 @@ function AdminDashboard({ user, onClose }) {
   const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
 
   const [gallery, setGallery] = useState([]);
+  const [dynamicMembers, setDynamicMembers] = useState([]);
 
   useEffect(() => {
     fetchCerts();
@@ -1155,7 +1156,6 @@ function AdminDashboard({ user, onClose }) {
 
       setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
       fetchGallery(); 
-      fetchLiveData(); // Refresh featured calculation
     } catch (err) {
       alert("Error: " + err.message);
     } finally {
