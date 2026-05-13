@@ -433,45 +433,57 @@ export default function App() {
         });
         setLiveEvents(eventsMap);
 
-        // 4. Fetch Dynamic Members (Live)
+          // 4. Fetch Dynamic Members (Live)
         const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
         const unsubMembers = onSnapshot(qMembers, (snap) => {
           const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
           setDynamicMembers(fetched);
 
-          // One-time Migration logic (if collection is empty/small)
-          if (snap.size < 5) {
-            const staticList = [
-              { name: "Sagnik Das", role: "Member", dept: "1st Yr. ME" },
-              { name: "Nirvan Krishna Sarkar", role: "Member", dept: "1st Yr. CE" },
-              { name: "Sakhil Hossain", role: "Member", dept: "3rd Yr. ME" },
-              { name: "Nibadita Mitra", role: "Member", dept: "1st Yr. EE" },
-              { name: "Sanjib Giri", role: "Member", dept: "1st Yr. CE" },
-              { name: "Md Sahe Alam", role: "Member", dept: "1st Yr. CE" },
-              { name: "Farhana Parvin", role: "Member", dept: "1st Yr. EE" },
-              { name: "Hridashree Sinha", role: "Member", dept: "1st Yr. ME" },
-              { name: "Swastika Shaw", role: "Member", dept: "1st Yr. CSE" },
-              { name: "Aayushi Dutta", role: "Member", dept: "1st Yr. EE" },
-              { name: "Sk Irfan Ali", role: "Member", dept: "1st Yr. CE" },
-              { name: "Ahad Imam", role: "Member", dept: "1st Yr. CSE" },
-              { name: "Srinjoy Goswami", role: "Member", dept: "1st Yr. CE" },
-              { name: "Shritam Dutta", role: "Member", dept: "2nd Yr. ME" },
-              { name: "Rupam Barman", role: "Member", dept: "1st Yr. CE" },
-              { name: "Chayan Mukherjee", role: "Member", dept: "2nd Yr. CSE" },
-              { name: "Ayan Mandal", role: "Member", dept: "1st Yr. CE" },
-              { name: "Gourab Saha", role: "Member", dept: "1st Yr. ME" },
-              { name: "Poulami Roy", role: "Member", dept: "2nd Yr. ME" },
-              { name: "Bhaskaracharya Biswas", role: "Member", dept: "1st Yr. EE" },
-              { name: "Chanchal Barman", role: "Member", dept: "1st Yr. CSE" },
-              { name: "Istak Ahamed", role: "Member", dept: "1st Yr. CSE" },
-              { name: "Apajit Mahata", role: "Member", dept: "1st Yr. CE" }
-            ];
-            staticList.forEach(m => {
-              if (!fetched.find(f => f.name === m.name)) {
-                addDoc(collection(db, "members"), { ...m, createdAt: serverTimestamp() });
-              }
-            });
-          }
+          // CLEANUP & MIGRATION Logic
+          const staticList = [
+            { name: "Sagnik Das", dept: "Mechanical Engineering", year: "1st Year" },
+            { name: "Nirvan Krishna Sarkar", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Sakhil Hossain", dept: "Mechanical Engineering", year: "3rd Year" },
+            { name: "Nibadita Mitra", dept: "Electrical Engineering", year: "1st Year" },
+            { name: "Sanjib Giri", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Md Sahe Alam", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Farhana Parvin", dept: "Electrical Engineering", year: "1st Year" },
+            { name: "Hridashree Sinha", dept: "Mechanical Engineering", year: "1st Year" },
+            { name: "Swastika Shaw", dept: "Computer Science & Engineering", year: "1st Year" },
+            { name: "Aayushi Dutta", dept: "Electrical Engineering", year: "1st Year" },
+            { name: "Sk Irfan Ali", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Ahad Imam", dept: "Computer Science & Engineering", year: "1st Year" },
+            { name: "Srinjoy Goswami", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Shritam Dutta", dept: "Mechanical Engineering", year: "2nd Year" },
+            { name: "Rupam Barman", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Chayan Mukherjee", dept: "Computer Science & Engineering", year: "2nd Year" },
+            { name: "Ayan Mandal", dept: "Civil Engineering", year: "1st Year" },
+            { name: "Gourab Saha", dept: "Mechanical Engineering", year: "1st Year" },
+            { name: "Poulami Roy", dept: "Mechanical Engineering", year: "2nd Year" },
+            { name: "Bhaskaracharya Biswas", dept: "Electrical Engineering", year: "1st Year" },
+            { name: "Chanchal Barman", dept: "Computer Science & Engineering", year: "1st Year" },
+            { name: "Istak Ahamed", dept: "Computer Science & Engineering", year: "1st Year" },
+            { name: "Apajit Mahata", dept: "Civil Engineering", year: "1st Year" }
+          ];
+
+          // 1. Cleanup duplicates and bad data
+          const namesSeen = new Set();
+          fetched.forEach(m => {
+            // Delete if duplicate OR if it's missing the 'year' field (bad data from previous migration)
+            if (namesSeen.has(m.name) || !m.year) {
+              deleteDoc(doc(db, "members", m.id));
+            } else {
+              namesSeen.add(m.name);
+            }
+          });
+
+          // 2. Auto-migrate if anyone is missing
+          staticList.forEach(m => {
+            if (!namesSeen.has(m.name)) {
+              addDoc(collection(db, "members"), { ...m, role: "Member", createdAt: serverTimestamp() });
+              namesSeen.add(m.name); // Avoid multiple adds in same loop
+            }
+          });
         });
         
         return () => unsubMembers();
