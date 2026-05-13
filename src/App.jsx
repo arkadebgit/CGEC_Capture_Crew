@@ -378,6 +378,8 @@ export default function App() {
         if (latestMonth) setMonthCapture(latestMonth);
         if (latestExtra) setExtraFrameCapture(latestExtra);
         
+        }
+        
         // Finalize initialization
         setTimeout(() => setIsInitializing(false), 800);
       } catch (err) { 
