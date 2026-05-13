@@ -348,6 +348,7 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminData, setAdminData] = useState(null);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
+  const [archiveConfig, setArchiveConfig] = useState({ order: [], hidden: [] });
 
   // Parallel Real-time & Data Fetching
   useEffect(() => {
@@ -415,10 +416,15 @@ export default function App() {
     });
 
     fetchData();
+    const unsubConfig = onSnapshot(doc(db, "config", "archive"), (doc) => {
+      if (doc.exists()) setArchiveConfig(doc.data());
+    });
+
     return () => {
       unsubMembers();
       unsubEvents();
       unsubCCEvents();
+      unsubConfig();
     };
   }, []);
 
@@ -1092,6 +1098,8 @@ export default function App() {
           onClose={() => setShowGlobalGallery(false)}
           setLightboxItem={setLightboxItem}
           liveEvents={liveEvents}
+          archiveConfig={archiveConfig}
+          liveEventsList={liveEventsList}
         />
       )}
       {showLogin && !user && (
@@ -1104,7 +1112,7 @@ export default function App() {
         <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
       )}
       {showLogin && user && !isAuthChecking && isAdmin && (
-        <AdminDashboard user={user} adminData={adminData} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} ccEvents={ccEvents} />
+        <AdminDashboard user={user} adminData={adminData} archiveConfig={archiveConfig} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} ccEvents={ccEvents} />
       )}
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
@@ -1154,7 +1162,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
+function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
   const [tab, setTab] = useState("week");
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
@@ -1455,6 +1463,12 @@ function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, 
     }
   };
 
+  const updateArchiveConfig = async (newOrder, newHidden) => {
+    try {
+      await setDoc(doc(db, "config", "archive"), { order: newOrder, hidden: newHidden });
+    } catch (err) { alert(err.message); }
+  };
+
   return (
     <div className="event-page-overlay">
       <div className="container" style={{ paddingBottom: '5rem' }}>
@@ -1475,6 +1489,7 @@ function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, 
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
+          <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
           <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
           {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
             <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
@@ -1851,6 +1866,81 @@ function AdminDashboard({ user, adminData, onClose, liveEvents, liveEventsList, 
           </div>
         )}
         {tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
+        {tab === 'archive' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Manage <em>Archive Timeline</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Reorder how events appear in the Universal Gallery. Use 'Hide' to remove them from the archive without deleting the event itself.</p>
+            
+            <div className="admin-table-wrap" style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                {[...liveEventsList]
+                  .filter(ev => !archiveConfig.hidden?.includes(ev.id))
+                  .sort((a, b) => {
+                    const idxA = archiveConfig.order?.indexOf(a.id);
+                    const idxB = archiveConfig.order?.indexOf(b.id);
+                    if (idxA === -1 && idxB === -1) return (a.order || 99) - (b.order || 99);
+                    if (idxA === -1 || idxA === undefined) return 1;
+                    if (idxB === -1 || idxB === undefined) return -1;
+                    return idxA - idxB;
+                  })
+                  .map((ev, idx, arr) => (
+                    <div key={ev.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--gold)', color: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 'bold' }}>{idx + 1}</div>
+                        <div>
+                          <div style={{ fontWeight: '600' }}>{ev.name}</div>
+                          <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{ev.date}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          disabled={idx === 0}
+                          onClick={() => {
+                            const newOrder = arr.map(e => e.id);
+                            [newOrder[idx], newOrder[idx-1]] = [newOrder[idx-1], newOrder[idx]];
+                            updateArchiveConfig(newOrder, archiveConfig.hidden || []);
+                          }}
+                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer', fontSize: '0.7rem', opacity: idx === 0 ? 0.3 : 1 }}>▲</button>
+                        <button 
+                          disabled={idx === arr.length - 1}
+                          onClick={() => {
+                            const newOrder = arr.map(e => e.id);
+                            [newOrder[idx], newOrder[idx+1]] = [newOrder[idx+1], newOrder[idx]];
+                            updateArchiveConfig(newOrder, archiveConfig.hidden || []);
+                          }}
+                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer', fontSize: '0.7rem', opacity: idx === arr.length - 1 ? 0.3 : 1 }}>▼</button>
+                        <button 
+                          onClick={() => {
+                            const hidden = [...(archiveConfig.hidden || []), ev.id];
+                            updateArchiveConfig(archiveConfig.order || arr.map(e => e.id), hidden);
+                          }}
+                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', background: '#ff4444', border: 'none', color: '#fff', cursor: 'pointer', fontSize: '0.7rem' }}>Hide from Archive</button>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+
+              {archiveConfig.hidden?.length > 0 && (
+                <div style={{ marginTop: '3rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Hidden from Archive</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.8rem' }}>
+                    {archiveConfig.hidden.map(hid => (
+                      <div key={hid} style={{ padding: '0.5rem 1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <span>{hid}</span>
+                        <button 
+                          onClick={() => {
+                            const hidden = archiveConfig.hidden.filter(h => h !== hid);
+                            updateArchiveConfig(archiveConfig.order || [], hidden);
+                          }}
+                          style={{ background: 'none', border: 'none', color: 'var(--gold)', cursor: 'pointer', fontWeight: 'bold' }}>Restore</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {tab === 'admins' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Manage <em>Admin Access</em></h3>
@@ -2057,29 +2147,41 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
 
 // ─── EVENT PAGE COMPONENT ───────────────────────────────────────────────────
 
-function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal }) {
+function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, archiveConfig, liveEventsList }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
   const isVarnakriti = event.id === "varnakriti";
 
-  // Get photos based on mode
-  const getPhotos = () => {
-    if (isGlobal) {
-      // Flatten all photos from all events
-      return Object.values(liveEvents).flat().reverse(); // Reverse to show newest first (assuming newest are added last)
+  // Get grouped events for global archive
+  const getGroupedEvents = () => {
+    if (!isGlobal) return [];
+    
+    // Use custom order if exists, otherwise use liveEventsList order
+    let sortedList = [...liveEventsList];
+    if (archiveConfig.order && archiveConfig.order.length > 0) {
+      sortedList.sort((a, b) => {
+        const indexA = archiveConfig.order.indexOf(a.id);
+        const indexB = archiveConfig.order.indexOf(b.id);
+        if (indexA === -1 && indexB === -1) return (a.order || 99) - (b.order || 99);
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+      });
+    } else {
+      sortedList.sort((a, b) => (a.order || 99) - (b.order || 99));
     }
-    const p = liveEvents[event.id] || [];
-    if (Array.isArray(p)) return p;
-    return [...(p.general || []), ...(p.prize || []), ...(p.winners || [])];
+
+    // Filter out hidden events
+    return sortedList.filter(ev => !archiveConfig.hidden?.includes(ev.id));
   };
 
-  const photos = getPhotos();
+  const groupedEvents = getGroupedEvents();
 
   return (
     <div className="event-page-overlay">
-      <div className="container">
+      <div className="container" style={{ paddingBottom: '8rem' }}>
         <header className="event-page-header">
           <button className="back-btn" onClick={onClose}>← Back to Home</button>
           <div className="section-label">{isGlobal ? "Universal Archive" : "Event Showcase"}</div>
@@ -2087,14 +2189,39 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal }) {
           <p className="section-sub">{event.desc}</p>
         </header>
 
-        {isVarnakriti && !Array.isArray(liveEvents[event.id]) && !isGlobal ? (
-          <div className="varnakriti-sections">
-            <EventSection title="Exhibition" subtitle="General" photos={liveEvents[event.id].general} setLightboxItem={setLightboxItem} onClose={onClose} />
-            <EventSection title="Awards" subtitle="Prize Distribution" photos={liveEvents[event.id].prize} setLightboxItem={setLightboxItem} onClose={onClose} />
-            <EventSection title="Winners" subtitle="Photography Excellence" photos={liveEvents[event.id].winners} setLightboxItem={setLightboxItem} onClose={onClose} />
+        {isGlobal ? (
+          <div className="archive-timeline">
+            {groupedEvents.map((ev, idx) => (
+              <div key={ev.id} className="archive-group" style={{ marginBottom: '5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                  <div className="section-label" style={{ margin: 0 }}>Step {idx + 1}</div>
+                  <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>{ev.name} <em>{ev.date}</em></h2>
+                </div>
+                <EventSection 
+                  title={ev.name} 
+                  subtitle={ev.date} 
+                  photos={liveEvents[ev.id] || []} 
+                  setLightboxItem={setLightboxItem} 
+                  onClose={onClose} 
+                />
+              </div>
+            ))}
+            {groupedEvents.length === 0 && (
+              <div className="no-results">The archive is currently empty.</div>
+            )}
           </div>
         ) : (
-          <EventSection title={isGlobal ? "All Memories" : "Gallery"} subtitle={isGlobal ? "Timeline" : "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} />
+          <>
+            {isVarnakriti && !Array.isArray(liveEvents[event.id]) ? (
+              <div className="varnakriti-sections">
+                <EventSection title="Exhibition" subtitle="General" photos={liveEvents[event.id].general} setLightboxItem={setLightboxItem} onClose={onClose} />
+                <EventSection title="Awards" subtitle="Prize Distribution" photos={liveEvents[event.id].prize} setLightboxItem={setLightboxItem} onClose={onClose} />
+                <EventSection title="Winners" subtitle="Photography Excellence" photos={liveEvents[event.id].winners} setLightboxItem={setLightboxItem} onClose={onClose} />
+              </div>
+            ) : (
+              <EventSection title="Gallery" subtitle="Highlights" photos={liveEvents[event.id] || []} setLightboxItem={setLightboxItem} onClose={onClose} />
+            )}
+          </>
         )}
       </div>
     </div>
