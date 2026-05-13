@@ -596,8 +596,37 @@ export default function App() {
     ? sortedGallery
     : sortedGallery.filter(g => g.category === galleryFilter);
 
+  if (isInitializing) {
+    return (
+      <div className="splash-screen">
+        <div className="splash-content">
+          <div className="shutter-icon">
+            <svg viewBox="0 0 100 100" width="80" height="80">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="var(--gold)" strokeWidth="1" />
+              <circle cx="50" cy="50" r="20" fill="var(--gold)" opacity="0.2" />
+              {[0, 45, 90, 135, 180, 225, 270, 315].map(deg => (
+                <line 
+                  key={deg}
+                  x1="50" y1="50" 
+                  x2={50 + 35 * Math.cos(deg * Math.PI / 180)} 
+                  y2={50 + 35 * Math.sin(deg * Math.PI / 180)} 
+                  stroke="var(--gold)" strokeWidth="1.5"
+                  className="shutter-blade"
+                />
+              ))}
+            </svg>
+          </div>
+          <h1 className="splash-logo">CAPTURE <span>CREW</span></h1>
+          <div className="splash-loader">
+            <div className="loader-bar"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <>
+    <div className="app-container">
       {/* NAV */}
       <nav className={`nav ${navScrolled ? "scrolled" : ""}`}>
         <div className="nav-brand" onClick={() => scrollTo("home")}>
@@ -1080,7 +1109,7 @@ export default function App() {
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
       )}
-    </>
+    </div>
   );
 }
 
