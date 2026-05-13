@@ -2310,9 +2310,6 @@ function AdminCCEvents({ ccEvents }) {
   );
 }
 
-    </div>
-  );
-}
 
 function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
   const [editing, setEditing] = useState(null);
