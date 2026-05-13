@@ -1172,6 +1172,7 @@ export default function App() {
           liveEvents={liveEvents} 
           liveEventsList={liveEventsList} 
           dynamicMembers={dynamicMembers} 
+          teamMembers={teamMembers}
           ccEvents={ccEvents} 
         />
       )}
@@ -1223,7 +1224,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
+function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents }) {
   const [tab, setTab] = useState("week");
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
@@ -1580,7 +1581,9 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
-          <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
+          {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+            <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
+          )}
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
           <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
           <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
@@ -1788,7 +1791,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           </div>
         )}
 
-        {tab === 'team_mgmt' && (
+        {tab === 'team_mgmt' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Manage <em>Core Team & Incharges</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Add, remove, or promote members within the Core Team, Incharge, and Coordinator sections.</p>
