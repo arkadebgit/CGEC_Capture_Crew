@@ -1094,7 +1094,7 @@ export default function App() {
         <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
       )}
       {showLogin && user && !isAuthChecking && isAdmin && (
-        <AdminDashboard user={user} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} />
+        <AdminDashboard user={user} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} ccEvents={ccEvents} />
       )}
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
