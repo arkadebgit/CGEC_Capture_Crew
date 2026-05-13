@@ -316,6 +316,7 @@ export default function App() {
   const [liveEvents, setLiveEvents] = useState({});
   const [liveEventsList, setLiveEventsList] = useState([]);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [showGlobalGallery, setShowGlobalGallery] = useState(false);
 
   // Initial Shuffles
   useEffect(() => {
@@ -757,6 +758,23 @@ export default function App() {
                 </button>
               </div>
             ))}
+            
+            {/* Global Gallery Card */}
+            <div 
+              className="event-card global-gallery-card fade-in" 
+              onClick={() => setShowGlobalGallery(true)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="global-card-content">
+                <span className="event-emoji">📂</span>
+                <div className="event-name">Dive into Event <em>Archive</em></div>
+                <div className="event-subtitle" style={{ color: 'var(--gold)' }}>Universal Gallery</div>
+                <div className="event-desc">Explore every capture from every event we've ever hosted, all in one immersive timeline.</div>
+                <div className="global-card-badge">✨ IMMERSIVE VIEW</div>
+                <button className="event-dive-btn" style={{ marginTop: 'auto' }}>Open Archive →</button>
+              </div>
+              <div className="global-card-bg"></div>
+            </div>
           </div>
           {isMobile && !expandedEvents && liveEventsList.length > 3 && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
@@ -1020,6 +1038,15 @@ export default function App() {
             setTimeout(() => scrollTo("events"), 50);
           }}
           setLightboxItem={setLightboxItem} 
+          liveEvents={liveEvents}
+        />
+      )}
+      {showGlobalGallery && (
+        <EventPage 
+          isGlobal={true}
+          event={{ id: 'global', name: 'Event Archive', desc: 'A universal journey through all our club milestones and collective memories.' }}
+          onClose={() => setShowGlobalGallery(false)}
+          setLightboxItem={setLightboxItem}
           liveEvents={liveEvents}
         />
       )}
@@ -1605,37 +1632,44 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
 
 // ─── EVENT PAGE COMPONENT ───────────────────────────────────────────────────
 
-function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
+function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const photos = liveEvents[event.id] || [];
   const isVarnakriti = event.id === "varnakriti";
 
-  const getPhotos = (p) => {
+  // Get photos based on mode
+  const getPhotos = () => {
+    if (isGlobal) {
+      // Flatten all photos from all events
+      return Object.values(liveEvents).flat().reverse(); // Reverse to show newest first (assuming newest are added last)
+    }
+    const p = liveEvents[event.id] || [];
     if (Array.isArray(p)) return p;
     return [...(p.general || []), ...(p.prize || []), ...(p.winners || [])];
   };
+
+  const photos = getPhotos();
 
   return (
     <div className="event-page-overlay">
       <div className="container">
         <header className="event-page-header">
           <button className="back-btn" onClick={onClose}>← Back to Home</button>
-          <div className="section-label">Event Showcase</div>
+          <div className="section-label">{isGlobal ? "Universal Archive" : "Event Showcase"}</div>
           <h1 className="section-title">{event.name} <em>Glimpse</em></h1>
           <p className="section-sub">{event.desc}</p>
         </header>
 
-        {isVarnakriti && !Array.isArray(photos) ? (
+        {isVarnakriti && !Array.isArray(liveEvents[event.id]) && !isGlobal ? (
           <div className="varnakriti-sections">
-            <EventSection title="Exhibition" subtitle="General" photos={photos.general} setLightboxItem={setLightboxItem} onClose={onClose} />
-            <EventSection title="Awards" subtitle="Prize Distribution" photos={photos.prize} setLightboxItem={setLightboxItem} onClose={onClose} />
-            <EventSection title="Winners" subtitle="Photography Excellence" photos={photos.winners} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Exhibition" subtitle="General" photos={liveEvents[event.id].general} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Awards" subtitle="Prize Distribution" photos={liveEvents[event.id].prize} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Winners" subtitle="Photography Excellence" photos={liveEvents[event.id].winners} setLightboxItem={setLightboxItem} onClose={onClose} />
           </div>
         ) : (
-          <EventSection title="Gallery" subtitle="Highlights" photos={getPhotos(photos)} setLightboxItem={setLightboxItem} onClose={onClose} />
+          <EventSection title={isGlobal ? "All Memories" : "Gallery"} subtitle={isGlobal ? "Timeline" : "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} />
         )}
       </div>
     </div>
