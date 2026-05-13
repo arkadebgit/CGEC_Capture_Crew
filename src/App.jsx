@@ -350,14 +350,14 @@ export default function App() {
 
   // Parallel Real-time & Data Fetching
   useEffect(() => {
-    // 1. Members Snapshot (Start immediately)
+    // 1. Members Snapshot
     const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
     const unsubMembers = onSnapshot(qMembers, (snap) => {
       const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setDynamicMembers(fetched);
     });
 
-    // 2. Fetch Gallery & Events (Independent of Members)
+    // 2. Fetch Gallery
     const fetchData = async () => {
       try {
         const [gallerySnap] = await Promise.all([
@@ -372,29 +372,22 @@ export default function App() {
             if (dateB !== dateA) return dateB.localeCompare(dateA);
             return (b.createdAt || "").localeCompare(a.createdAt || "");
           });
-        setGallery(liveGallery);
-        const latestWeek = sorted.find(g => g.category === "Weekly Captures");
-        const latestMonth = sorted.find(g => g.category === "Monthly Captures");
-        const latestExtra = sorted.find(g => g.category === "The Extra Frame");
-        if (latestWeek) setWeekCapture(latestWeek);
-        if (latestMonth) setMonthCapture(latestMonth);
-        if (latestExtra) setExtraFrameCapture(latestExtra);
-        
+          setGallery(liveGallery);
+          const latestWeek = sorted.find(g => g.category === "Weekly Captures");
+          const latestMonth = sorted.find(g => g.category === "Monthly Captures");
+          const latestExtra = sorted.find(g => g.category === "The Extra Frame");
+          if (latestWeek) setWeekCapture(latestWeek);
+          if (latestMonth) setMonthCapture(latestMonth);
+          if (latestExtra) setExtraFrameCapture(latestExtra);
         }
-        
-        // Finalize initialization
         setTimeout(() => setIsInitializing(false), 800);
       } catch (err) { 
         console.error("Fetch error:", err);
         setIsInitializing(false); 
       }
     };
-    
-      setLiveEvents(eventsMap);
-      setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
-    });
 
-    // 3. Events Snapshot (Real-time Management)
+    // 3. Events Snapshot
     const unsubEvents = onSnapshot(collection(db, "events"), async (snap) => {
       const eventsMap = {};
       const eventList = [];
@@ -404,7 +397,7 @@ export default function App() {
         eventList.push({ id: d.id, ...data });
       });
 
-      // Seeding: ensure all static events exist in DB
+      // Seeding for static events
       for (const ev of STATIC_EVENTS) {
         if (!eventList.find(e => e.id === ev.id)) {
           await setDoc(doc(db, "events", ev.id), ev);
@@ -415,7 +408,7 @@ export default function App() {
       setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
     });
 
-    // 4. CC Events Snapshot (Real-time)
+    // 4. CC Events Snapshot
     const unsubCCEvents = onSnapshot(collection(db, "cc_events"), (snap) => {
       setCcEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.order || 99) - (b.order || 99)));
     });
