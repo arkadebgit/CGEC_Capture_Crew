@@ -1518,6 +1518,22 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
     } catch (err) { alert(err.message); }
   };
 
+  const reorderEvents = async (index, direction) => {
+    const newList = [...liveEventsList];
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= newList.length) return;
+
+    [newList[index], newList[targetIndex]] = [newList[targetIndex], newList[index]];
+
+    try {
+      const batch = writeBatch(db);
+      newList.forEach((ev, idx) => {
+        batch.update(doc(db, "events", ev.id), { order: idx + 1 });
+      });
+      await batch.commit();
+    } catch (err) { alert(err.message); }
+  };
+
   return (
     <div className="event-page-overlay" style={{ color: 'var(--white)' }}>
       <div className="container" style={{ paddingBottom: '5rem' }}>
@@ -1874,12 +1890,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
                       <th style={{ padding: '1rem' }}>Emoji</th>
                       <th style={{ padding: '1rem' }}>Event Name</th>
                       <th style={{ padding: '1rem' }}>Status</th>
+                      <th style={{ padding: '1rem' }}>Sequence</th>
                       <th style={{ padding: '1rem' }}>Photos</th>
                       <th style={{ padding: '1rem' }}>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {liveEventsList.map(ev => (
+                    {liveEventsList.map((ev, idx) => (
                       <tr key={ev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                         <td style={{ padding: '1rem', fontSize: '1.2rem' }}>{ev.emoji}</td>
                         <td style={{ padding: '1rem' }}>
@@ -1890,6 +1907,18 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
                           <span style={{ padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', background: ev.comingSoon ? 'rgba(255,153,51,0.1)' : 'rgba(168,216,168,0.1)', color: ev.comingSoon ? '#ff9933' : '#a8d8a8' }}>
                             {ev.comingSoon ? 'Coming Soon' : 'Live'}
                           </span>
+                        </td>
+                        <td style={{ padding: '1rem' }}>
+                          <div style={{ display: 'flex', gap: '0.4rem' }}>
+                            <button 
+                              disabled={idx === 0}
+                              onClick={() => reorderEvents(idx, -1)}
+                              style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === 0 ? 0.3 : 1 }}>▲</button>
+                            <button 
+                              disabled={idx === liveEventsList.length - 1}
+                              onClick={() => reorderEvents(idx, 1)}
+                              style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === liveEventsList.length - 1 ? 0.3 : 1 }}>▼</button>
+                          </div>
                         </td>
                         <td style={{ padding: '1rem' }}>{(liveEvents[ev.id] || []).length} photos</td>
                         <td style={{ padding: '1rem' }}>
