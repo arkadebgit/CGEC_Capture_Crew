@@ -379,6 +379,7 @@ export default function App() {
   const [dynamicMembers, setDynamicMembers] = useState([]);
   const [liveEvents, setLiveEvents] = useState({});
 
+  // Initial Shuffles
   useEffect(() => {
     const shuffle = (array) => {
       const s = [...array];
@@ -389,6 +390,17 @@ export default function App() {
       return s;
     };
     setShuffledCore(shuffle(TEAM_DATA.core));
+  }, []);
+
+  useEffect(() => {
+    const shuffle = (array) => {
+      const s = [...array];
+      for (let i = s.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s[i], s[j]] = [s[j], s[i]];
+      }
+      return s;
+    };
     const combinedMembers = [...dynamicMembers];
     setShuffledMembers(shuffle(combinedMembers));
   }, [dynamicMembers]);
@@ -396,100 +408,89 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
 
-  // Fetch All Live Data
+  // Parallel Real-time & Data Fetching
   useEffect(() => {
-    const fetchLiveData = async () => {
+    // 1. Members Snapshot (Start immediately)
+    const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
+    const unsubMembers = onSnapshot(qMembers, (snap) => {
+      const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setDynamicMembers(fetched);
+
+      // Defer heavy migration/cleanup logic
+      setTimeout(() => {
+        const staticList = [
+          { name: "Sagnik Das", dept: "Mechanical Engineering", year: "1st Year" },
+          { name: "Nirvan Krishna Sarkar", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Sakhil Hossain", dept: "Mechanical Engineering", year: "3rd Year" },
+          { name: "Nibadita Mitra", dept: "Electrical Engineering", year: "1st Year" },
+          { name: "Sanjib Giri", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Md Sahe Alam", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Farhana Parvin", dept: "Electrical Engineering", year: "1st Year" },
+          { name: "Hridashree Sinha", dept: "Mechanical Engineering", year: "1st Year" },
+          { name: "Swastika Shaw", dept: "Computer Science & Engineering", year: "1st Year" },
+          { name: "Aayushi Dutta", dept: "Electrical Engineering", year: "1st Year" },
+          { name: "Sk Irfan Ali", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Ahad Imam", dept: "Computer Science & Engineering", year: "1st Year" },
+          { name: "Srinjoy Goswami", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Shritam Dutta", dept: "Mechanical Engineering", year: "2nd Year" },
+          { name: "Rupam Barman", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Chayan Mukherjee", dept: "Computer Science & Engineering", year: "2nd Year" },
+          { name: "Ayan Mandal", dept: "Civil Engineering", year: "1st Year" },
+          { name: "Gourab Saha", dept: "Mechanical Engineering", year: "1st Year" },
+          { name: "Poulami Roy", dept: "Mechanical Engineering", year: "2nd Year" },
+          { name: "Bhaskaracharya Biswas", dept: "Electrical Engineering", year: "1st Year" },
+          { name: "Chanchal Barman", dept: "Computer Science & Engineering", year: "1st Year" },
+          { name: "Istak Ahamed", dept: "Computer Science & Engineering", year: "1st Year" },
+          { name: "Apajit Mahata", dept: "Civil Engineering", year: "1st Year" }
+        ];
+        const namesSeen = new Set();
+        fetched.forEach(m => {
+          if (namesSeen.has(m.name) || !m.year) { deleteDoc(doc(db, "members", m.id)); }
+          else { namesSeen.add(m.name); }
+        });
+        staticList.forEach(m => {
+          if (!namesSeen.has(m.name)) {
+            addDoc(collection(db, "members"), { ...m, role: "Member", createdAt: serverTimestamp() });
+            namesSeen.add(m.name);
+          }
+        });
+      }, 5000); 
+    });
+
+    // 2. Fetch Gallery & Events (Independent of Members)
+    const fetchData = async () => {
       try {
-        // 2. Fetch Public Gallery
-        const gallerySnap = await getDocs(collection(db, "gallery"));
+        const [gallerySnap, eventsSnap] = await Promise.all([
+          getDocs(collection(db, "gallery")),
+          getDocs(collection(db, "events"))
+        ]);
+
         if (!gallerySnap.empty) {
           const liveGallery = gallerySnap.docs.map(d => ({ id: d.id, ...d.data() }));
-          
-          // Sort by captureDate primarily, then createdAt
           const sorted = [...liveGallery].sort((a, b) => {
             const dateA = a.captureDate || "";
             const dateB = b.captureDate || "";
             if (dateB !== dateA) return dateB.localeCompare(dateA);
             return (b.createdAt || "").localeCompare(a.createdAt || "");
           });
-
           setGallery(liveGallery);
-
-          // AUTO-DETECTION: Always take the latest available for each category
           const latestWeek = sorted.find(g => g.category === "Weekly Captures");
           const latestMonth = sorted.find(g => g.category === "Monthly Captures");
           const latestExtra = sorted.find(g => g.category === "The Extra Frame");
-
           if (latestWeek) setWeekCapture(latestWeek);
           if (latestMonth) setMonthCapture(latestMonth);
           if (latestExtra) setExtraFrameCapture(latestExtra);
         }
 
-        // 3. Fetch Live Events
-        const eventsSnap = await getDocs(collection(db, "events"));
         const eventsMap = {};
-        eventsSnap.forEach(d => {
-          eventsMap[d.id] = d.data().photos || [];
-        });
+        eventsSnap.forEach(d => { eventsMap[d.id] = d.data().photos || []; });
         setLiveEvents(eventsMap);
-
-          // 4. Fetch Dynamic Members (Live)
-        const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
-        const unsubMembers = onSnapshot(qMembers, (snap) => {
-          const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          setDynamicMembers(fetched);
-
-          // CLEANUP & MIGRATION Logic (Deferred for performance)
-          setTimeout(() => {
-            const staticList = [
-              { name: "Sagnik Das", dept: "Mechanical Engineering", year: "1st Year" },
-              { name: "Nirvan Krishna Sarkar", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Sakhil Hossain", dept: "Mechanical Engineering", year: "3rd Year" },
-              { name: "Nibadita Mitra", dept: "Electrical Engineering", year: "1st Year" },
-              { name: "Sanjib Giri", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Md Sahe Alam", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Farhana Parvin", dept: "Electrical Engineering", year: "1st Year" },
-              { name: "Hridashree Sinha", dept: "Mechanical Engineering", year: "1st Year" },
-              { name: "Swastika Shaw", dept: "Computer Science & Engineering", year: "1st Year" },
-              { name: "Aayushi Dutta", dept: "Electrical Engineering", year: "1st Year" },
-              { name: "Sk Irfan Ali", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Ahad Imam", dept: "Computer Science & Engineering", year: "1st Year" },
-              { name: "Srinjoy Goswami", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Shritam Dutta", dept: "Mechanical Engineering", year: "2nd Year" },
-              { name: "Rupam Barman", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Chayan Mukherjee", dept: "Computer Science & Engineering", year: "2nd Year" },
-              { name: "Ayan Mandal", dept: "Civil Engineering", year: "1st Year" },
-              { name: "Gourab Saha", dept: "Mechanical Engineering", year: "1st Year" },
-              { name: "Poulami Roy", dept: "Mechanical Engineering", year: "2nd Year" },
-              { name: "Bhaskaracharya Biswas", dept: "Electrical Engineering", year: "1st Year" },
-              { name: "Chanchal Barman", dept: "Computer Science & Engineering", year: "1st Year" },
-              { name: "Istak Ahamed", dept: "Computer Science & Engineering", year: "1st Year" },
-              { name: "Apajit Mahata", dept: "Civil Engineering", year: "1st Year" }
-            ];
-
-            const namesSeen = new Set();
-            fetched.forEach(m => {
-              if (namesSeen.has(m.name) || !m.year) {
-                deleteDoc(doc(db, "members", m.id));
-              } else {
-                namesSeen.add(m.name);
-              }
-            });
-
-            staticList.forEach(m => {
-              if (!namesSeen.has(m.name)) {
-                addDoc(collection(db, "members"), { ...m, role: "Member", createdAt: serverTimestamp() });
-                namesSeen.add(m.name);
-              }
-            });
-          }, 3000); // Defer migration logic by 3 seconds to prioritize initial render
-        });
-        
-        return () => unsubMembers();
-      } catch (err) { console.error("Data fetch error:", err); }
+      } catch (err) { console.error("Fetch error:", err); }
     };
-    fetchLiveData();
-  }, [showLogin]);
+    
+    fetchData();
+    return () => unsubMembers();
+  }, []);
 
 
   // Nav scroll & Mobile detection
