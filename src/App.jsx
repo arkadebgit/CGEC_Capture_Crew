@@ -2325,10 +2325,33 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
     if (!formData.name || !formData.img) return alert("Name and Image URL are required");
     try {
       const id = editing === 'new' ? formData.name.toLowerCase().replace(/ /g, '-') + '-' + Date.now() : editing;
-      await setDoc(doc(db, "team_members", id), formData, { merge: true });
+      // If new, set order to end of category
+      const currentList = teamMembers[formData.category] || [];
+      const newOrder = editing === 'new' ? currentList.length : formData.order;
+      
+      await setDoc(doc(db, "team_members", id), { ...formData, order: newOrder }, { merge: true });
       setEditing(null);
       alert("Member Saved!");
     } catch (err) { alert(err.message); }
+  };
+
+  const reorder = async (category, index, direction) => {
+    const list = teamMembers[category] || [];
+    if (direction === 'up' && index > 0) {
+      const itemA = list[index];
+      const itemB = list[index - 1];
+      const orderA = itemA.order ?? index;
+      const orderB = itemB.order ?? (index - 1);
+      await updateDoc(doc(db, "team_members", itemA.id), { order: orderB });
+      await updateDoc(doc(db, "team_members", itemB.id), { order: orderA });
+    } else if (direction === 'down' && index < list.length - 1) {
+      const itemA = list[index];
+      const itemB = list[index + 1];
+      const orderA = itemA.order ?? index;
+      const orderB = itemB.order ?? (index + 1);
+      await updateDoc(doc(db, "team_members", itemA.id), { order: orderB });
+      await updateDoc(doc(db, "team_members", itemB.id), { order: orderA });
+    }
   };
 
   const deleteMember = async (id) => {
@@ -2401,7 +2424,6 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
 
             <input className="form-input" placeholder="Image Direct Link (BeeImg/PostImg)" value={formData.img} onChange={e => setFormData({...formData, img: e.target.value})} />
             <input className="form-input" placeholder="Instagram URL (Optional)" value={formData.insta} onChange={e => setFormData({...formData, insta: e.target.value})} />
-            <input className="form-input" type="number" placeholder="Display Order" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value)})} />
 
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
               <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE MEMBER →</button>
@@ -2417,23 +2439,38 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
               <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.8rem' }}>
                 <thead>
                   <tr style={{ textAlign: 'left', opacity: 0.6 }}>
+                    <th style={{ padding: '0.8rem' }}>Reorder</th>
                     <th style={{ padding: '0.8rem' }}>Name</th>
                     <th style={{ padding: '0.8rem' }}>Role</th>
                     <th style={{ padding: '0.8rem' }}>Dept/Year</th>
-                    <th style={{ padding: '0.8rem' }}>Order</th>
                     <th style={{ padding: '0.8rem' }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(teamMembers[cat.id] || []).map(m => (
+                  {(teamMembers[cat.id] || []).map((m, idx) => (
                     <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '0.8rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                          <button 
+                            className="admin-nav-btn" 
+                            style={{ padding: '0 4px', fontSize: '10px', opacity: idx === 0 ? 0.2 : 1 }} 
+                            onClick={() => reorder(cat.id, idx, 'up')}
+                            disabled={idx === 0}
+                          >▲</button>
+                          <button 
+                            className="admin-nav-btn" 
+                            style={{ padding: '0 4px', fontSize: '10px', opacity: idx === (teamMembers[cat.id].length - 1) ? 0.2 : 1 }} 
+                            onClick={() => reorder(cat.id, idx, 'down')}
+                            disabled={idx === (teamMembers[cat.id].length - 1)}
+                          >▼</button>
+                        </div>
+                      </td>
                       <td style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
                         <img src={m.img} alt="" style={{ width: '30px', height: '30px', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
                         <span style={{ fontWeight: '600' }}>{m.name}</span>
                       </td>
                       <td style={{ padding: '0.8rem' }}>{m.role}</td>
                       <td style={{ padding: '0.8rem', opacity: 0.7 }}>{m.dept} <br/> {m.year}</td>
-                      <td style={{ padding: '0.8rem' }}>{m.order}</td>
                       <td style={{ padding: '0.8rem' }}>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <button className="admin-nav-btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem' }} onClick={() => { setEditing(m.id); setFormData(m); }}>Edit</button>
