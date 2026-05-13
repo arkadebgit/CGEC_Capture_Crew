@@ -1193,6 +1193,33 @@ function AdminDashboard({ user, onClose }) {
 
   const [gallery, setGallery] = useState([]);
   const [dynamicMembers, setDynamicMembers] = useState([]);
+  const updateRepublicDayPhotos = async () => {
+    const setA = [
+      "https://beeimg.com/images/c58546952951.jpg", "https://beeimg.com/images/h17773436031.jpg",
+      "https://beeimg.com/images/h24306429703.jpg", "https://beeimg.com/images/h76457001124.jpg",
+      "https://beeimg.com/images/h92001462694.jpg", "https://beeimg.com/images/i26770832012.jpg",
+      "https://beeimg.com/images/i74985926181.jpg", "https://beeimg.com/images/l04924985234.jpg",
+      "https://beeimg.com/images/l85960008731.jpg", "https://beeimg.com/images/m22098630431.jpg",
+      "https://beeimg.com/images/o94080227041.jpg", "https://beeimg.com/images/p18742122001.jpg",
+      "https://beeimg.com/images/s29365005831.jpg", "https://beeimg.com/images/t36116439454.jpg",
+      "https://beeimg.com/images/u19710983213.jpg", "https://beeimg.com/images/v33738435441.jpg",
+      "https://beeimg.com/images/y92907525492.jpg"
+    ];
+    const setB = [
+      "https://beeimg.com/images/a67512667801.jpg", "https://beeimg.com/images/b34039500352.jpg",
+      "https://beeimg.com/images/e53889717241.jpg", "https://beeimg.com/images/e63150308074.jpg",
+      "https://beeimg.com/images/f87714856584.jpg", "https://beeimg.com/images/i77784487892.jpg",
+      "https://beeimg.com/images/j01977566252.jpg", "https://beeimg.com/images/l98281316032.jpg",
+      "https://beeimg.com/images/m42901990783.jpg", "https://beeimg.com/images/n54912540972.jpg",
+      "https://beeimg.com/images/o56420603291.jpg", "https://beeimg.com/images/s13252935251.jpg",
+      "https://beeimg.com/images/t36126096752.jpg", "https://beeimg.com/images/v97906815254.jpg",
+      "https://beeimg.com/images/y44644881521.jpg", "https://beeimg.com/images/y52550178933.jpg"
+    ];
+    try {
+      await setDoc(doc(db, "events", "republic"), { photos: [...setA, ...setB] }, { merge: true });
+      alert("Republic Day gallery updated successfully!");
+    } catch (err) { alert("Update failed: " + err.message); }
+  };
 
   useEffect(() => {
     fetchCerts();
@@ -1323,7 +1350,10 @@ function AdminDashboard({ user, onClose }) {
 
         {tab === 'gallery' && (
           <div className="fade-in visible">
-            <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h3 className="subcategory-title" style={{ margin: 0 }}>Gallery <em>Archive</em></h3>
+              <button onClick={updateRepublicDayPhotos} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>Update Republic Day Photos 🇮🇳</button>
+            </div>
             <div className="gallery-grid">
               {gallery.map(g => (
                 <div key={g.id} className="gallery-item">
