@@ -698,7 +698,13 @@ export default function App() {
           </div>
           <div className="gallery-filter fade-in">
             {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event"].map(cat => (
-              <button key={cat} className={`filter-btn ${galleryFilter === cat ? "active" : ""}`} onClick={() => setGalleryFilter(cat)}>{cat}</button>
+              <button 
+                key={cat} 
+                className={`filter-btn ${galleryFilter === cat ? "active" : ""} ${cat === "CC Event" ? "premium-btn" : ""}`} 
+                onClick={() => setGalleryFilter(cat)}
+              >
+                {cat}
+              </button>
             ))}
           </div>
 
@@ -706,10 +712,10 @@ export default function App() {
             <div className="cc-events-container fade-in">
               {ccEvents.map(event => (
                 <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem' }}>
-                  <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
-                    <div className="section-label" style={{ margin: '0 auto 1rem' }}>✦ Competition Results</div>
-                    <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.5rem' }}>{event.title} <em>Winners</em></h3>
-                    <p className="section-sub">{event.subtitle}</p>
+                  <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div className="section-label" style={{ margin: '0 0 1rem' }}>✦ Competition Results</div>
+                    <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.5rem', margin: '0' }}>{event.title} <em>Winners</em></h3>
+                    <p className="section-sub" style={{ margin: '1rem 0 0', opacity: 0.8 }}>{event.subtitle}</p>
                   </div>
                   
                   <div className="podium-grid">

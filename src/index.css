@@ -1223,3 +1223,41 @@ section { padding: 7rem 0; }
   z-index: 1;
   pointer-events: none;
 }
+
+/* Premium Button & Shimmer */
+.premium-btn {
+  background: linear-gradient(135deg, rgba(201, 169, 110, 0.1), transparent) !important;
+  border-color: var(--gold) !important;
+  color: var(--gold) !important;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(201, 169, 110, 0.1);
+}
+
+.premium-btn.active {
+  background: var(--gold) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 0 25px rgba(201, 169, 110, 0.4);
+}
+
+.premium-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+  transform: rotate(45deg);
+  animation: shimmerBtn 3s infinite;
+}
+
+@keyframes shimmerBtn {
+  0% { transform: translate(-100%, -100%) rotate(45deg); }
+  100% { transform: translate(100%, 100%) rotate(45deg); }
+}
+
+.premium-btn:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 0 20px rgba(201, 169, 110, 0.3) !important;
+}
