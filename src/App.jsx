@@ -1607,33 +1607,6 @@ function AdminDashboard({ user, onClose }) {
 // ─── EVENT PAGE COMPONENT ───────────────────────────────────────────────────
 
 function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
-  const [activeSlide, setActiveSlide] = useState(0);
-
-      "https://beeimg.com/images/x32436404014.jpg",
-      "https://beeimg.com/images/z04396847642.jpg"
-    ],
-    holi: [
-      "https://beeimg.com/images/f75985559851.jpg",
-      "https://beeimg.com/images/j35091568733.jpg",
-      "https://beeimg.com/images/k16558572102.jpg",
-      "https://beeimg.com/images/l71712377343.jpg",
-      "https://beeimg.com/images/p71510405482.jpg",
-      "https://beeimg.com/images/p72936648931.jpg",
-      "https://beeimg.com/images/s41771946862.jpg",
-      "https://beeimg.com/images/t50602691533.jpg",
-      "https://beeimg.com/images/w78816169124.jpg",
-      "https://beeimg.com/images/x33353119143.jpg"
-    ],
-    saraswati: [
-      "https://i.postimg.cc/qMb9T5CS/image.png",
-      "https://i.postimg.cc/0yr1Kss1/image-(1).png",
-      "https://i.postimg.cc/Y965B21f/image-(2).png",
-      "https://i.postimg.cc/JnNfC7bK/image-(3).png",
-      "https://i.postimg.cc/XJfR6Nwh/image-(4).png",
-      "https://i.postimg.cc/KjmdGXN0/image-(5).png"
-    ],
-    republic: [
-      "https://i.ibb.co/cKvTd26Z/image-1.png", "https://i.ibb.co/WN2RhJ8w/image-2.png", "https://i.ibb.co/hRZJQsjB/image-3.png",
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -1641,8 +1614,6 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
   const photos = liveEvents[event.id] || [];
   const isVarnakriti = event.id === "varnakriti";
 
-  // If photos is an object (for backward compatibility or complex events), flatten it for general view
-  // or handle sections
   const getPhotos = (p) => {
     if (Array.isArray(p)) return p;
     return [...(p.general || []), ...(p.prize || []), ...(p.winners || [])];
