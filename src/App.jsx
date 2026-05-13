@@ -358,9 +358,8 @@ export default function App() {
     // 2. Fetch Gallery & Events (Independent of Members)
     const fetchData = async () => {
       try {
-        const [gallerySnap, eventsSnap] = await Promise.all([
-          getDocs(collection(db, "gallery")),
-          getDocs(collection(db, "events"))
+        const [gallerySnap] = await Promise.all([
+          getDocs(collection(db, "gallery"))
         ]);
 
         if (!gallerySnap.empty) {
@@ -371,34 +370,13 @@ export default function App() {
             if (dateB !== dateA) return dateB.localeCompare(dateA);
             return (b.createdAt || "").localeCompare(a.createdAt || "");
           });
-          setGallery(liveGallery);
-          const latestWeek = sorted.find(g => g.category === "Weekly Captures");
-          const latestMonth = sorted.find(g => g.category === "Monthly Captures");
-          const latestExtra = sorted.find(g => g.category === "The Extra Frame");
-          if (latestWeek) setWeekCapture(latestWeek);
-          if (latestMonth) setMonthCapture(latestMonth);
-          if (latestExtra) setExtraFrameCapture(latestExtra);
-        }
-
-        const eventsMap = {};
-        const eventList = [];
-        eventsSnap.forEach(d => { 
-          const data = d.data();
-          eventsMap[d.id] = data.photos || []; 
-          eventList.push({ id: d.id, ...data });
-        });
-
-        // Migration logic: If no events found in DB, seed them from static list
-        if (eventsSnap.empty) {
-          for (const ev of STATIC_EVENTS) {
-            await setDoc(doc(db, "events", ev.id), ev);
-            eventList.push(ev);
-            eventsMap[ev.id] = [];
-          }
-        }
-
-        setLiveEvents(eventsMap);
-        setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
+        setGallery(liveGallery);
+        const latestWeek = sorted.find(g => g.category === "Weekly Captures");
+        const latestMonth = sorted.find(g => g.category === "Monthly Captures");
+        const latestExtra = sorted.find(g => g.category === "The Extra Frame");
+        if (latestWeek) setWeekCapture(latestWeek);
+        if (latestMonth) setMonthCapture(latestMonth);
+        if (latestExtra) setExtraFrameCapture(latestExtra);
         
         // Finalize initialization
         setTimeout(() => setIsInitializing(false), 800);
@@ -408,8 +386,33 @@ export default function App() {
       }
     };
     
+    // 3. Events Snapshot (Real-time Management)
+    const unsubEvents = onSnapshot(collection(db, "events"), async (snap) => {
+      const eventsMap = {};
+      const eventList = [];
+      snap.forEach(d => {
+        const data = d.data();
+        eventsMap[d.id] = data.photos || [];
+        eventList.push({ id: d.id, ...data });
+      });
+
+      // Seeding: ensure all static events exist in DB
+      for (const ev of STATIC_EVENTS) {
+        if (!eventList.find(e => e.id === ev.id)) {
+          await setDoc(doc(db, "events", ev.id), ev);
+          // snap will fire again due to this write
+        }
+      }
+
+      setLiveEvents(eventsMap);
+      setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
+    });
+
     fetchData();
-    return () => unsubMembers();
+    return () => {
+      unsubMembers();
+      unsubEvents();
+    };
   }, []);
 
 
@@ -1086,6 +1089,7 @@ function AdminDashboard({ user, onClose }) {
     desc: "", highlight: "", emoji: "📅", comingSoon: false, order: 99
   });
   const [newEventPhoto, setNewEventPhoto] = useState("");
+  const [bulkInput, setBulkInput] = useState("");
   const [certs, setCerts] = useState([]);
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
   
@@ -1496,10 +1500,37 @@ function AdminDashboard({ user, onClose }) {
                             photos: [newEventPhoto, ...currentPhotos]
                           });
                           setNewEventPhoto("");
-                          alert("Photo Added!");
                         } catch (err) { alert(err.message); }
-                      }}>Add Photo +</button>
+                      }}>Add Single +</button>
                     </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)', marginBottom: '2rem' }}>
+                      <h5 style={{ fontSize: '0.8rem', color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        🚀 Bulk Image Uploader 
+                        <a href="https://beeimg.com/upload" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Open BeeImg →</a>
+                      </h5>
+                      <p style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '1rem' }}>Upload your images to BeeImg, copy the <strong>Direct Links</strong>, and paste them all below (separated by spaces or lines).</p>
+                      <textarea 
+                        className="form-input" 
+                        style={{ minHeight: '120px', fontSize: '0.75rem', fontFamily: 'monospace' }} 
+                        placeholder="Paste multiple links here... https://beeimg.com/images/1.jpg https://beeimg.com/images/2.jpg"
+                        value={bulkInput}
+                        onChange={e => setBulkInput(e.target.value)}
+                      />
+                      <button className="form-submit" style={{ marginTop: '1rem', width: '100%', fontSize: '0.75rem' }} onClick={async () => {
+                        const urls = bulkInput.split(/\s+/).filter(u => u.startsWith("http"));
+                        if (urls.length === 0) return alert("No valid links found. Make sure they start with http");
+                        try {
+                          const current = liveEvents[editingEvent] || [];
+                          await updateDoc(doc(db, "events", editingEvent), {
+                            photos: [...urls, ...current]
+                          });
+                          setBulkInput("");
+                          alert(`${urls.length} photos added successfully!`);
+                        } catch (err) { alert(err.message); }
+                      }}>DUMP BULK PHOTOS →</button>
+                    </div>
+
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '1rem' }}>
                       {(liveEvents[editingEvent] || []).map((url, idx) => (
                         <div key={idx} style={{ position: 'relative' }}>
@@ -1576,70 +1607,6 @@ function AdminDashboard({ user, onClose }) {
 function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
   const [activeSlide, setActiveSlide] = useState(0);
 
-  const eventPhotos = {
-    varnakriti: {
-      general: [
-        "https://i.postimg.cc/L8vk7cYh/image.png",
-        "https://i.postimg.cc/TwsDGGf6/image-(1).png",
-        "https://i.postimg.cc/htKb2DGy/image-(2).png",
-        "https://i.postimg.cc/sgKP8kQY/image-(6).png"
-      ],
-      prize: [
-        "https://i.ibb.co/x8mCpzhG/image-1.png",
-        "https://i.ibb.co/prkJ404d/image-2.png",
-        "https://i.ibb.co/ks6RMH47/image.png",
-        "https://i.ibb.co/tTC5cXJS/image-3.png",
-        "https://i.ibb.co/m5Ytyz7G/image-4.png",
-        "https://i.ibb.co/C3tQGv04/image-5.png",
-        "https://i.ibb.co/Ld1zYbQG/image-6.png",
-        "https://i.ibb.co/bfqmG7y/image-7.png",
-        "https://i.ibb.co/DgS4vV95/image-8.png",
-        "https://i.ibb.co/rfQhYd6g/image-9.png",
-        "https://i.ibb.co/bjGwBCKK/image-10.png",
-        "https://i.ibb.co/YF4j8xgf/image-11.png",
-        "https://i.ibb.co/Rp47r97x/image-12.png"
-      ],
-      winners: [
-        "https://i.ibb.co/chHd6DHN/Save-Clip-App-640415008-17960191587051405-6590193589515239244-n.webp",
-        "https://i.ibb.co/JwRqhtNY/Save-Clip-App-640302939-17960191608051405-7355162228165538329-n.webp",
-        "https://i.ibb.co/gLvWSgwg/Save-Clip-App-640396337-17960191617051405-8629856469985778477-n.webp"
-      ]
-    },
-    croeso: [
-      "https://beeimg.com/images/f71146629184.jpg",
-      "https://beeimg.com/images/l47998229344.jpg",
-      "https://beeimg.com/images/n24824257304.jpg",
-      "https://beeimg.com/images/q93188851933.jpg",
-      "https://beeimg.com/images/r91292539541.jpg",
-      "https://beeimg.com/images/x20155724941.jpg",
-      "https://beeimg.com/images/x23383924771.jpg",
-      "https://beeimg.com/images/x73769304612.jpg",
-      "https://beeimg.com/images/y62496017094.jpg",
-      "https://beeimg.com/images/a25556321863.jpg",
-      "https://beeimg.com/images/b39663900133.jpg",
-      "https://beeimg.com/images/c21748683172.jpg",
-      "https://beeimg.com/images/d58030431093.jpg",
-      "https://beeimg.com/images/h88597606713.jpg",
-      "https://beeimg.com/images/k29338883731.jpg",
-      "https://beeimg.com/images/n31951678352.jpg",
-      "https://beeimg.com/images/p69582261691.jpg",
-      "https://beeimg.com/images/r78837175024.jpg",
-      "https://beeimg.com/images/v89278518803.jpg",
-      "https://beeimg.com/images/z28264988233.jpg",
-      "https://beeimg.com/images/c27463136962.jpg",
-      "https://beeimg.com/images/d08638118101.jpg",
-      "https://beeimg.com/images/d15194866933.jpg",
-      "https://beeimg.com/images/d18041157133.jpg",
-      "https://beeimg.com/images/d71612626812.jpg",
-      "https://beeimg.com/images/e14782336543.jpg",
-      "https://beeimg.com/images/f26638798452.jpg",
-      "https://beeimg.com/images/h25380475622.jpg",
-      "https://beeimg.com/images/k91069796581.jpg",
-      "https://beeimg.com/images/n95307700531.jpg",
-      "https://beeimg.com/images/p84284224211.jpg",
-      "https://beeimg.com/images/s26490847693.jpg",
-      "https://beeimg.com/images/s85119807424.jpg",
-      "https://beeimg.com/images/v60993801282.jpg",
       "https://beeimg.com/images/x32436404014.jpg",
       "https://beeimg.com/images/z04396847642.jpg"
     ],
@@ -1665,28 +1632,19 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
     ],
     republic: [
       "https://i.ibb.co/cKvTd26Z/image-1.png", "https://i.ibb.co/WN2RhJ8w/image-2.png", "https://i.ibb.co/hRZJQsjB/image-3.png",
-      "https://i.ibb.co/gM9kRmK3/image-4.png", "https://i.ibb.co/v4vvwFbs/image-5.png", "https://i.ibb.co/KxcKwsDc/image-6.png",
-      "https://i.ibb.co/Z16J13cX/image-7.png", "https://i.ibb.co/k69Vt6Gk/image-8.png", "https://i.ibb.co/Z43DjX7/image-9.png",
-      "https://i.ibb.co/MJ0k1t6/image-10.png", "https://i.ibb.co/rG1r3Q6r/image-11.png", "https://i.ibb.co/jk6vQfSm/image-12.png",
-      "https://i.ibb.co/HDcYS9Ff/image-13.png", "https://i.ibb.co/xK5j6t3b/image-14.png", "https://i.ibb.co/v4K6JpBD/image-15.png",
-      "https://i.ibb.co/Wmbq5Fp/image-16.png", "https://i.ibb.co/1tS00rPx/image-17.png", "https://i.ibb.co/svLXkpFx/image-18.png",
-      "https://i.ibb.co/ZRmcRm87/image-19.png", "https://i.ibb.co/Vcdz97bb/image-20.png", "https://i.ibb.co/NdVv1Y6S/image-21.png",
-      "https://i.ibb.co/YFY0swYk/image-22.png", "https://i.ibb.co/WNcvvKjR/image-23.png", "https://i.ibb.co/0VvY79kB/image-24.png",
-      "https://i.ibb.co/7dPMQ5Bb/image-25.png", "https://i.ibb.co/K8g7MBk/image-27.png", "https://i.ibb.co/LDc9Sqwv/image-28.png",
-      "https://i.ibb.co/4RBCCYSp/image-29.png", "https://i.ibb.co/KzV78YZC/image-30.png", "https://i.ibb.co/rR94SJ9T/image-31.png",
-      "https://i.ibb.co/MkqdRZ5W/image-32.png", "https://i.ibb.co/hx5N1zQv/image-33.png", "https://i.ibb.co/LdRW1b3n/image-34.png",
-      "https://i.ibb.co/21qSZTTv/image.png"
-    ]
-  };
-
-  const livePhotos = liveEvents[event.id] || [];
-  const hardcodedPhotos = eventPhotos[event.id] || [];
-  const photos = livePhotos.length > 0 ? livePhotos : hardcodedPhotos;
-  const isVarnakriti = event.id === "varnakriti";
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const photos = liveEvents[event.id] || [];
+  const isVarnakriti = event.id === "varnakriti";
+
+  // If photos is an object (for backward compatibility or complex events), flatten it for general view
+  // or handle sections
+  const getPhotos = (p) => {
+    if (Array.isArray(p)) return p;
+    return [...(p.general || []), ...(p.prize || []), ...(p.winners || [])];
+  };
 
   return (
     <div className="event-page-overlay">
@@ -1698,14 +1656,14 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem }) {
           <p className="section-sub">{event.desc}</p>
         </header>
 
-        {isVarnakriti ? (
+        {isVarnakriti && !Array.isArray(photos) ? (
           <div className="varnakriti-sections">
-            <EventSection title="Exhibition" subtitle="General" photos={eventPhotos.varnakriti.general} setLightboxItem={setLightboxItem} onClose={onClose} />
-            <EventSection title="Awards" subtitle="Prize Distribution" photos={eventPhotos.varnakriti.prize} setLightboxItem={setLightboxItem} onClose={onClose} />
-            <EventSection title="Winners" subtitle="Photography Excellence" photos={eventPhotos.varnakriti.winners} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Exhibition" subtitle="General" photos={photos.general} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Awards" subtitle="Prize Distribution" photos={photos.prize} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Winners" subtitle="Photography Excellence" photos={photos.winners} setLightboxItem={setLightboxItem} onClose={onClose} />
           </div>
         ) : (
-          <EventSection title="Gallery" subtitle="Highlights" photos={Array.isArray(photos) ? photos : []} setLightboxItem={setLightboxItem} onClose={onClose} />
+          <EventSection title="Gallery" subtitle="Highlights" photos={getPhotos(photos)} setLightboxItem={setLightboxItem} onClose={onClose} />
         )}
       </div>
     </div>
