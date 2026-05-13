@@ -1033,7 +1033,7 @@ export default function App() {
         <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
       )}
       {showLogin && user && !isAuthChecking && isAdmin && (
-        <AdminDashboard user={user} onClose={() => setShowLogin(false)} />
+        <AdminDashboard user={user} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} />
       )}
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
@@ -1083,7 +1083,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, onClose }) {
+function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMembers }) {
   const [tab, setTab] = useState("week");
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
