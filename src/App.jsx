@@ -378,6 +378,7 @@ export default function App() {
   const [shuffledMembers, setShuffledMembers] = useState([]);
   const [dynamicMembers, setDynamicMembers] = useState([]);
   const [liveEvents, setLiveEvents] = useState({});
+  const [isInitializing, setIsInitializing] = useState(true);
 
   // Initial Shuffles
   useEffect(() => {
@@ -485,7 +486,13 @@ export default function App() {
         const eventsMap = {};
         eventsSnap.forEach(d => { eventsMap[d.id] = d.data().photos || []; });
         setLiveEvents(eventsMap);
-      } catch (err) { console.error("Fetch error:", err); }
+        
+        // Finalize initialization
+        setTimeout(() => setIsInitializing(false), 800);
+      } catch (err) { 
+        console.error("Fetch error:", err);
+        setIsInitializing(false); 
+      }
     };
     
     fetchData();
