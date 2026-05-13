@@ -988,9 +988,6 @@ export default function App() {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-      </section>
 
             {/* MEMBERS */}
             <div className="team-subcategory" style={{ marginTop: '4rem' }}>
