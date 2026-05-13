@@ -1169,6 +1169,8 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
     dept: "Computer Science & Engineering", year: "1st Year" 
   });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [admins, setAdmins] = useState([]);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
 
   useEffect(() => {
     if (editingEvent && editingEvent !== 'new') {
@@ -1293,6 +1295,7 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
   useEffect(() => {
     fetchCerts();
     fetchGallery();
+    fetchAdmins();
     
     const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
     const unsubMembers = onSnapshot(qMembers, (snap) => {
@@ -1313,6 +1316,42 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
       const snap = await getDocs(collection(db, "gallery"));
       setGallery(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) { console.error(e); }
+  };
+
+  const fetchAdmins = async () => {
+    try {
+      const snap = await getDocs(collection(db, "admins"));
+      setAdmins(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
+
+  const addAdmin = async (e) => {
+    e.preventDefault();
+    if (!newAdminEmail) return;
+    try {
+      await setDoc(doc(db, "admins", newAdminEmail.trim().toLowerCase()), {
+        addedBy: user.email,
+        addedAt: new Date().toISOString()
+      });
+      setNewAdminEmail("");
+      fetchAdmins();
+      alert("Admin access granted!");
+    } catch (err) {
+      alert("Failed to add admin: " + err.message);
+    }
+  };
+
+  const removeAdmin = async (email) => {
+    if (email === user.email) return alert("You cannot remove your own admin access!");
+    if (window.confirm(`Revoke admin access for ${email}?`)) {
+      try {
+        await deleteDoc(doc(db, "admins", email));
+        fetchAdmins();
+        alert("Access revoked.");
+      } catch (err) {
+        alert("Failed to revoke: " + err.message);
+      }
+    }
   };
 
 
@@ -1384,6 +1423,7 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
           <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
+          <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
         </div>
 
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
@@ -1727,6 +1767,55 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
           </div>
         )}
         {tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
+        {tab === 'admins' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Manage <em>Admin Access</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Only authorized emails can access this console. Be careful when removing access.</p>
+            
+            <form className="feedback-form" style={{ display: 'flex', gap: '1rem', marginBottom: '3rem' }} onSubmit={addAdmin}>
+              <input 
+                className="form-input" 
+                style={{ flex: 1 }} 
+                placeholder="New Admin Email (e.g. name@gmail.com)" 
+                value={newAdminEmail} 
+                onChange={e => setNewAdminEmail(e.target.value)} 
+                required 
+              />
+              <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Authorize Access →</button>
+            </form>
+
+            <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem' }}>Admin Email</th>
+                    <th style={{ padding: '1rem' }}>Added By</th>
+                    <th style={{ padding: '1rem' }}>Added At</th>
+                    <th style={{ padding: '1rem' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {admins.map(adm => (
+                    <tr key={adm.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '1rem', fontWeight: '600' }}>{adm.id}</td>
+                      <td style={{ padding: '1rem', opacity: 0.7 }}>{adm.addedBy || 'Original Admin'}</td>
+                      <td style={{ padding: '1rem', opacity: 0.5 }}>{adm.addedAt ? new Date(adm.addedAt).toLocaleDateString() : 'N/A'}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <button 
+                          onClick={() => removeAdmin(adm.id)} 
+                          style={{ background: adm.id === user.email ? 'rgba(255,255,255,0.1)' : '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: adm.id === user.email ? 'default' : 'pointer', fontSize: '0.7rem' }}
+                          disabled={adm.id === user.email}
+                        >
+                          {adm.id === user.email ? 'You (Current)' : 'Revoke Access'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
