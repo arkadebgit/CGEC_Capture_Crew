@@ -39,31 +39,7 @@ const TEAM_DATA = {
     { name: "Priyanshu Dhara", role: "Authenticity Verifier", dept: "3rd Yr. ME", img: "/team/Priyanshu Dhara.png", insta: "https://www.instagram.com/iam_priyansu.12/" },
     { name: "Sabarno Mondal", role: "PR Manager", dept: "1st Yr. EE", img: "/team/Sabarno Mondal.png", insta: "https://www.instagram.com/culer_mariner_sabarno_10/" },
   ],
-  members: [
-    { name: "Sagnik Das", role: "Member", dept: "1st Yr. ME" },
-    { name: "Nirvan Krishna Sarkar", role: "Member", dept: "1st Yr. CE" },
-    { name: "Sakhil Hossain", role: "Member", dept: "3rd Yr. ME" },
-    { name: "Nibadita Mitra", role: "Member", dept: "1st Yr. EE" },
-    { name: "Sanjib Giri", role: "Member", dept: "1st Yr. CE" },
-    { name: "Md Sahe Alam", role: "Member", dept: "1st Yr. CE" },
-    { name: "Farhana Parvin", role: "Member", dept: "1st Yr. EE" },
-    { name: "Hridashree Sinha", role: "Member", dept: "1st Yr. ME" },
-    { name: "Swastika Shaw", role: "Member", dept: "1st Yr. CSE" },
-    { name: "Aayushi Dutta", role: "Member", dept: "1st Yr. EE" },
-    { name: "Sk Irfan Ali", role: "Member", dept: "1st Yr. CE" },
-    { name: "Ahad Imam", role: "Member", dept: "1st Yr. CSE" },
-    { name: "Srinjoy Goswami", role: "Member", dept: "1st Yr. CE" },
-    { name: "Shritam Dutta", role: "Member", dept: "2nd Yr. ME" },
-    { name: "Rupam Barman", role: "Member", dept: "1st Yr. CE" },
-    { name: "Chayan Mukherjee", role: "Member", dept: "2nd Yr. CSE" },
-    { name: "Ayan Mandal", role: "Member", dept: "1st Yr. CE" },
-    { name: "Gourab Saha", role: "Member", dept: "1st Yr. ME" },
-    { name: "Poulami Roy", role: "Member", dept: "2nd Yr. ME" },
-    { name: "Bhaskaracharya Biswas", role: "Member", dept: "1st Yr. EE" },
-    { name: "Chanchal Barman", role: "Member", dept: "1st Yr. CSE" },
-    { name: "Istak Ahamed", role: "Member", dept: "1st Yr. CSE" },
-    { name: "Apajit Mahata", role: "Member", dept: "1st Yr. CE" },
-  ]
+  members: []
 };
 
 const EVENTS = [
@@ -413,7 +389,7 @@ export default function App() {
       return s;
     };
     setShuffledCore(shuffle(TEAM_DATA.core));
-    const combinedMembers = [...TEAM_DATA.members, ...dynamicMembers];
+    const combinedMembers = [...dynamicMembers];
     setShuffledMembers(shuffle(combinedMembers));
   }, [dynamicMembers]);
 
@@ -457,11 +433,48 @@ export default function App() {
         });
         setLiveEvents(eventsMap);
 
-        // 4. Fetch Dynamic Members
-        const membersSnap = await getDocs(collection(db, "members"));
-        if (!membersSnap.empty) {
-          setDynamicMembers(membersSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-        }
+        // 4. Fetch Dynamic Members (Live)
+        const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
+        const unsubMembers = onSnapshot(qMembers, (snap) => {
+          const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          setDynamicMembers(fetched);
+
+          // One-time Migration logic (if collection is empty/small)
+          if (snap.size < 5) {
+            const staticList = [
+              { name: "Sagnik Das", role: "Member", dept: "1st Yr. ME" },
+              { name: "Nirvan Krishna Sarkar", role: "Member", dept: "1st Yr. CE" },
+              { name: "Sakhil Hossain", role: "Member", dept: "3rd Yr. ME" },
+              { name: "Nibadita Mitra", role: "Member", dept: "1st Yr. EE" },
+              { name: "Sanjib Giri", role: "Member", dept: "1st Yr. CE" },
+              { name: "Md Sahe Alam", role: "Member", dept: "1st Yr. CE" },
+              { name: "Farhana Parvin", role: "Member", dept: "1st Yr. EE" },
+              { name: "Hridashree Sinha", role: "Member", dept: "1st Yr. ME" },
+              { name: "Swastika Shaw", role: "Member", dept: "1st Yr. CSE" },
+              { name: "Aayushi Dutta", role: "Member", dept: "1st Yr. EE" },
+              { name: "Sk Irfan Ali", role: "Member", dept: "1st Yr. CE" },
+              { name: "Ahad Imam", role: "Member", dept: "1st Yr. CSE" },
+              { name: "Srinjoy Goswami", role: "Member", dept: "1st Yr. CE" },
+              { name: "Shritam Dutta", role: "Member", dept: "2nd Yr. ME" },
+              { name: "Rupam Barman", role: "Member", dept: "1st Yr. CE" },
+              { name: "Chayan Mukherjee", role: "Member", dept: "2nd Yr. CSE" },
+              { name: "Ayan Mandal", role: "Member", dept: "1st Yr. CE" },
+              { name: "Gourab Saha", role: "Member", dept: "1st Yr. ME" },
+              { name: "Poulami Roy", role: "Member", dept: "2nd Yr. ME" },
+              { name: "Bhaskaracharya Biswas", role: "Member", dept: "1st Yr. EE" },
+              { name: "Chanchal Barman", role: "Member", dept: "1st Yr. CSE" },
+              { name: "Istak Ahamed", role: "Member", dept: "1st Yr. CSE" },
+              { name: "Apajit Mahata", role: "Member", dept: "1st Yr. CE" }
+            ];
+            staticList.forEach(m => {
+              if (!fetched.find(f => f.name === m.name)) {
+                addDoc(collection(db, "members"), { ...m, createdAt: serverTimestamp() });
+              }
+            });
+          }
+        });
+        
+        return () => unsubMembers();
       } catch (err) { console.error("Data fetch error:", err); }
     };
     fetchLiveData();
@@ -1116,7 +1129,12 @@ function AdminDashboard({ user, onClose }) {
   useEffect(() => {
     fetchCerts();
     fetchGallery();
-    fetchMembers();
+    
+    const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
+    const unsubMembers = onSnapshot(qMembers, (snap) => {
+      setDynamicMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsubMembers();
   }, []);
 
   const fetchCerts = async () => {
@@ -1133,12 +1151,6 @@ function AdminDashboard({ user, onClose }) {
     } catch (e) { console.error(e); }
   };
 
-  const fetchMembers = async () => {
-    try {
-      const snap = await getDocs(collection(db, "members"));
-      setDynamicMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (e) { console.error(e); }
-  };
 
   const updateFeatured = async (type) => {
     setIsUpdating(true);
@@ -1335,7 +1347,7 @@ function AdminDashboard({ user, onClose }) {
         {tab === 'members' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Add New <em>Member</em></h3>
-            <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={fetchMembers} />
+            <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={() => {}} />
             
             <h3 className="subcategory-title" style={{ marginTop: '4rem' }}>Manage <em>Live Members</em></h3>
             <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
@@ -1359,7 +1371,6 @@ function AdminDashboard({ user, onClose }) {
                           if (window.confirm("Remove this member?")) {
                             try {
                               await deleteDoc(doc(db, "members", m.id));
-                              fetchMembers();
                               alert("Member removed.");
                             } catch (err) { alert("Failed: " + err.message); }
                           }
