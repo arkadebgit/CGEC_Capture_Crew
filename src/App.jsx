@@ -315,6 +315,7 @@ export default function App() {
   const [dynamicMembers, setDynamicMembers] = useState([]);
   const [liveEvents, setLiveEvents] = useState({});
   const [liveEventsList, setLiveEventsList] = useState([]);
+  const [ccEvents, setCcEvents] = useState([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [showGlobalGallery, setShowGlobalGallery] = useState(false);
 
@@ -389,6 +390,10 @@ export default function App() {
       }
     };
     
+      setLiveEvents(eventsMap);
+      setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
+    });
+
     // 3. Events Snapshot (Real-time Management)
     const unsubEvents = onSnapshot(collection(db, "events"), async (snap) => {
       const eventsMap = {};
@@ -403,7 +408,6 @@ export default function App() {
       for (const ev of STATIC_EVENTS) {
         if (!eventList.find(e => e.id === ev.id)) {
           await setDoc(doc(db, "events", ev.id), ev);
-          // snap will fire again due to this write
         }
       }
 
@@ -411,10 +415,16 @@ export default function App() {
       setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
     });
 
+    // 4. CC Events Snapshot (Real-time)
+    const unsubCCEvents = onSnapshot(collection(db, "cc_events"), (snap) => {
+      setCcEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.order || 99) - (b.order || 99)));
+    });
+
     fetchData();
     return () => {
       unsubMembers();
       unsubEvents();
+      unsubCCEvents();
     };
   }, []);
 
@@ -694,37 +704,64 @@ export default function App() {
             <p className="section-sub">Curated captures from our photographers — click any image to view full screen.</p>
           </div>
           <div className="gallery-filter fade-in">
-            {GALLERY_CATEGORIES.map(cat => (
+            {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event"].map(cat => (
               <button key={cat} className={`filter-btn ${galleryFilter === cat ? "active" : ""}`} onClick={() => setGalleryFilter(cat)}>{cat}</button>
             ))}
           </div>
-          <div className="gallery-masonry fade-in">
-            {filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
-              <div
-                key={item.id}
-                className="gallery-item"
-                onClick={() => setLightboxItem(item)}
-              >
-                <img 
-                  src={item.url} 
-                  alt={item.title} 
-                  className="gallery-thumb" 
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="gallery-overlay">
-                  <div>
-                    <div className="gallery-item-title">{item.title}</div>
-                    <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
+
+          {galleryFilter === "CC Event" ? (
+            <div className="cc-events-container fade-in">
+              {ccEvents.map(event => (
+                <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem' }}>
+                  <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                    <div className="section-label" style={{ margin: '0 auto 1rem' }}>✦ Competition Results</div>
+                    <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.5rem' }}>{event.title} <em>Winners</em></h3>
+                    <p className="section-sub">{event.subtitle}</p>
+                  </div>
+                  
+                  <div className="podium-grid">
+                    {/* 2nd Place */}
+                    <WinnerCard rank="2nd" data={event.winners?.["2nd"]} color="#A8A8A8" setLightboxItem={setLightboxItem} />
+                    {/* 1st Place */}
+                    <WinnerCard rank="1st" data={event.winners?.["1st"]} color="var(--gold)" isFeatured={true} setLightboxItem={setLightboxItem} />
+                    {/* 3rd Place */}
+                    <WinnerCard rank="3rd" data={event.winners?.["3rd"]} color="#CD7F32" setLightboxItem={setLightboxItem} />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
-            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-              <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures →</button>
+              ))}
+              {ccEvents.length === 0 && <div className="no-results">No CC Event winners posted yet. Check back soon!</div>}
             </div>
+          ) : (
+            <>
+              <div className="gallery-masonry fade-in">
+                {filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
+                  <div
+                    key={item.id}
+                    className="gallery-item"
+                    onClick={() => setLightboxItem(item)}
+                  >
+                    <img 
+                      src={item.url} 
+                      alt={item.title} 
+                      className="gallery-thumb" 
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="gallery-overlay">
+                      <div>
+                        <div className="gallery-item-title">{item.title}</div>
+                        <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
+                <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+                  <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures →</button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </section>
@@ -1114,7 +1151,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMembers }) {
+function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
   const [tab, setTab] = useState("week");
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
@@ -1347,6 +1384,7 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
+          <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
         </div>
 
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
@@ -1689,6 +1727,126 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
             )}
           </div>
         )}
+        {tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
+      </div>
+    </div>
+  );
+}
+
+function AdminCCEvents({ ccEvents }) {
+  const [editing, setEditing] = useState(null);
+  const [formData, setFormData] = useState({
+    title: "", subtitle: "", order: 1,
+    winners: {
+      "1st": { name: "", dept: "", year: "1st Year", url: "" },
+      "2nd": { name: "", dept: "", year: "1st Year", url: "" },
+      "3rd": { name: "", dept: "", year: "1st Year", url: "" }
+    }
+  });
+
+  const save = async () => {
+    if (!formData.title) return alert("Title required");
+    try {
+      const id = editing === 'new' ? formData.title.toLowerCase().replace(/ /g, '-') : editing;
+      await setDoc(doc(db, "cc_events", id), formData, { merge: true });
+      setEditing(null);
+      alert("CC Event Winners Saved!");
+    } catch (err) { alert(err.message); }
+  };
+
+  return (
+    <div className="fade-in visible">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <h3 className="subcategory-title" style={{ margin: 0 }}>CC Event <em>Winners Panel</em></h3>
+        <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)' }} onClick={() => {
+          setEditing('new');
+          setFormData({ title: "", subtitle: "", order: ccEvents.length + 1, winners: { "1st": { name: "", dept: "", year: "1st Year", url: "" }, "2nd": { name: "", dept: "", year: "1st Year", url: "" }, "3rd": { name: "", dept: "", year: "1st Year", url: "" } } });
+        }}>➕ ADD EVENT WINNERS</button>
+      </div>
+
+      {editing ? (
+        <div className="glass-form fade-in visible" style={{ padding: '2rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+            <input className="form-input" placeholder="Event Title (e.g. Varnakriti 2026)" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+            <input className="form-input" placeholder="Subtitle" value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
+            <input className="form-input" type="number" placeholder="Order" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value)})} />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+            {["1st", "2nd", "3rd"].map(rank => (
+              <div key={rank} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                <h4 style={{ color: rank === '1st' ? 'var(--gold)' : '#fff', marginBottom: '1rem' }}>{rank} Place Winner</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                  <input className="form-input" placeholder="Student Name" value={formData.winners[rank].name} onChange={e => {
+                    const w = {...formData.winners}; w[rank].name = e.target.value; setFormData({...formData, winners: w});
+                  }} />
+                  <input className="form-input" placeholder="Dept" value={formData.winners[rank].dept} onChange={e => {
+                    const w = {...formData.winners}; w[rank].dept = e.target.value; setFormData({...formData, winners: w});
+                  }} />
+                  <input className="form-input" placeholder="Year" value={formData.winners[rank].year} onChange={e => {
+                    const w = {...formData.winners}; w[rank].year = e.target.value; setFormData({...formData, winners: w});
+                  }} />
+                  <input className="form-input" placeholder="Image Direct Link" value={formData.winners[rank].url} onChange={e => {
+                    const w = {...formData.winners}; w[rank].url = e.target.value; setFormData({...formData, winners: w});
+                  }} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+            <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE WINNERS →</button>
+            <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditing(null)}>CANCEL</button>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-table-wrap">
+          <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                <th style={{ padding: '1rem' }}>Event Title</th>
+                <th style={{ padding: '1rem' }}>1st Place</th>
+                <th style={{ padding: '1rem' }}>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ccEvents.map(ev => (
+                <tr key={ev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <td style={{ padding: '1rem' }}>{ev.title}</td>
+                  <td style={{ padding: '1rem' }}>{ev.winners?.["1st"]?.name || "N/A"}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button className="admin-nav-btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem' }} onClick={() => { setEditing(ev.id); setFormData(ev); }}>Edit</button>
+                      <button className="admin-nav-btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', background: '#ff4444' }} onClick={async () => {
+                        if (window.confirm("Delete this event result?")) await deleteDoc(doc(db, "cc_events", ev.id));
+                      }}>Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
+  if (!data || !data.url) return <div className="winner-card empty" style={{ border: '1px dashed var(--border)', borderRadius: '24px', minHeight: '300px' }}></div>;
+  
+  return (
+    <div className={`winner-card ${isFeatured ? 'featured' : ''} fade-in`} style={{ "--rank-color": color }}>
+      <div className="winner-rank">{rank}</div>
+      <div className="winner-image-wrap" onClick={() => setLightboxItem({ url: data.url, title: `${rank} Place - ${data.name}`, photographer: data.name, dept: data.dept, year: data.year })}>
+        <img src={data.url} alt={data.name} className="winner-img" referrerPolicy="no-referrer" />
+        <div className="winner-overlay">
+          <span className="view-icon">👁️</span>
+        </div>
+      </div>
+      <div className="winner-info">
+        <h4 className="winner-name">{data.name}</h4>
+        <p className="winner-dept">{data.dept} · {data.year}</p>
       </div>
     </div>
   );
