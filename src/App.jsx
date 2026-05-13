@@ -1149,6 +1149,52 @@ function AdminDashboard({ user, onClose }) {
   });
   const [isUpdating, setIsUpdating] = useState(false);
 
+  const handleGlobalCleanup = async () => {
+    if (!window.confirm("This will deduplicate and format ALL members. Proceed?")) return;
+    try {
+      const q = query(collection(db, "members"));
+      const snap = await getDocs(q);
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const namesSeen = new Set();
+      const deptMap = {
+        "CE": "Civil Engineering", "ME": "Mechanical Engineering", "EE": "Electrical Engineering",
+        "ECE": "Electronics & Communication Engineering", "CSE": "Computer Science & Engineering"
+      };
+      for (const m of all) {
+        const cleanName = m.name?.trim();
+        if (namesSeen.has(cleanName)) {
+          await deleteDoc(doc(db, "members", m.id));
+          continue;
+        }
+        let fixedDept = m.dept || "";
+        let fixedYear = m.year || "";
+        if (!fixedYear && fixedDept.includes("Yr.")) {
+          const parts = fixedDept.split("Yr.");
+          fixedYear = parts[0].trim() + " Year";
+          fixedDept = parts[1].trim().replace(".", "").replace(",", "");
+        }
+        const upperDept = fixedDept.toUpperCase();
+        if (deptMap[upperDept]) fixedDept = deptMap[upperDept];
+        else {
+          if (upperDept.includes("CIVIL")) fixedDept = "Civil Engineering";
+          if (upperDept.includes("MECHANICAL")) fixedDept = "Mechanical Engineering";
+          if (upperDept.includes("ELECTRICAL")) fixedDept = "Electrical Engineering";
+          if (upperDept.includes("ELECTRONICS")) fixedDept = "Electronics & Communication Engineering";
+          if (upperDept.includes("COMPUTER")) fixedDept = "Computer Science & Engineering";
+        }
+        if (fixedYear.includes("1st")) fixedYear = "1st Year";
+        if (fixedYear.includes("2nd")) fixedYear = "2nd Year";
+        if (fixedYear.includes("3rd")) fixedYear = "3rd Year";
+        if (fixedYear.includes("4th")) fixedYear = "4th Year";
+        if (fixedDept !== m.dept || fixedYear !== m.year || cleanName !== m.name) {
+          await updateDoc(doc(db, "members", m.id), { dept: fixedDept, year: fixedYear, name: cleanName });
+        }
+        namesSeen.add(cleanName);
+      }
+      alert("System Cleanup Complete!");
+    } catch (err) { alert("Cleanup Failed: " + err.message); }
+  };
+
   const DEPTS = [
     "Computer Science & Engineering",
     "Electronics & Communication Engineering",
@@ -1384,7 +1430,10 @@ function AdminDashboard({ user, onClose }) {
             <h3 className="subcategory-title">Add New <em>Member</em></h3>
             <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={() => {}} />
             
-            <h3 className="subcategory-title" style={{ marginTop: '4rem' }}>Manage <em>Live Members</em></h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4rem', marginBottom: '1.5rem' }}>
+              <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Live Members</em></h3>
+              <button onClick={handleGlobalCleanup} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>🛠️ SYSTEM CLEANUP & DEDUPLICATE</button>
+            </div>
             <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
                 <thead>
