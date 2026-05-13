@@ -416,46 +416,6 @@ export default function App() {
     const unsubMembers = onSnapshot(qMembers, (snap) => {
       const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setDynamicMembers(fetched);
-
-      // Defer heavy migration/cleanup logic
-      setTimeout(() => {
-        const staticList = [
-          { name: "Sagnik Das", dept: "Mechanical Engineering", year: "1st Year" },
-          { name: "Nirvan Krishna Sarkar", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Sakhil Hossain", dept: "Mechanical Engineering", year: "3rd Year" },
-          { name: "Nibadita Mitra", dept: "Electrical Engineering", year: "1st Year" },
-          { name: "Sanjib Giri", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Md Sahe Alam", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Farhana Parvin", dept: "Electrical Engineering", year: "1st Year" },
-          { name: "Hridashree Sinha", dept: "Mechanical Engineering", year: "1st Year" },
-          { name: "Swastika Shaw", dept: "Computer Science & Engineering", year: "1st Year" },
-          { name: "Aayushi Dutta", dept: "Electrical Engineering", year: "1st Year" },
-          { name: "Sk Irfan Ali", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Ahad Imam", dept: "Computer Science & Engineering", year: "1st Year" },
-          { name: "Srinjoy Goswami", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Shritam Dutta", dept: "Mechanical Engineering", year: "2nd Year" },
-          { name: "Rupam Barman", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Chayan Mukherjee", dept: "Computer Science & Engineering", year: "2nd Year" },
-          { name: "Ayan Mandal", dept: "Civil Engineering", year: "1st Year" },
-          { name: "Gourab Saha", dept: "Mechanical Engineering", year: "1st Year" },
-          { name: "Poulami Roy", dept: "Mechanical Engineering", year: "2nd Year" },
-          { name: "Bhaskaracharya Biswas", dept: "Electrical Engineering", year: "1st Year" },
-          { name: "Chanchal Barman", dept: "Computer Science & Engineering", year: "1st Year" },
-          { name: "Istak Ahamed", dept: "Computer Science & Engineering", year: "1st Year" },
-          { name: "Apajit Mahata", dept: "Civil Engineering", year: "1st Year" }
-        ];
-        const namesSeen = new Set();
-        fetched.forEach(m => {
-          if (namesSeen.has(m.name) || !m.year) { deleteDoc(doc(db, "members", m.id)); }
-          else { namesSeen.add(m.name); }
-        });
-        staticList.forEach(m => {
-          if (!namesSeen.has(m.name)) {
-            addDoc(collection(db, "members"), { ...m, role: "Member", createdAt: serverTimestamp() });
-            namesSeen.add(m.name);
-          }
-        });
-      }, 1000); 
     });
 
     // 2. Fetch Gallery & Events (Independent of Members)
