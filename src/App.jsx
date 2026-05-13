@@ -1135,7 +1135,18 @@ export default function App() {
         <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
       )}
       {showLogin && user && !isAuthChecking && isAdmin && (
-        <AdminDashboard user={user} adminData={adminData} archiveConfig={archiveConfig} onClose={() => setShowLogin(false)} liveEvents={liveEvents} liveEventsList={liveEventsList} dynamicMembers={dynamicMembers} ccEvents={ccEvents} />
+        <AdminDashboard 
+          user={user} 
+          adminData={adminData} 
+          archiveConfig={archiveConfig} 
+          themeColor={themeColor}
+          coverPhotos={coverPhotos}
+          onClose={() => setShowLogin(false)} 
+          liveEvents={liveEvents} 
+          liveEventsList={liveEventsList} 
+          dynamicMembers={dynamicMembers} 
+          ccEvents={ccEvents} 
+        />
       )}
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
@@ -1185,7 +1196,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
+function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, ccEvents }) {
   const [tab, setTab] = useState("week");
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
