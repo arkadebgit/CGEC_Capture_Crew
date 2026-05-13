@@ -400,6 +400,7 @@ export default function App() {
   const [expandedMembers, setExpandedMembers] = useState(false);
   const [shuffledCore, setShuffledCore] = useState([]);
   const [shuffledMembers, setShuffledMembers] = useState([]);
+  const [dynamicMembers, setDynamicMembers] = useState([]);
   const [liveEvents, setLiveEvents] = useState({});
 
   useEffect(() => {
@@ -412,8 +413,9 @@ export default function App() {
       return s;
     };
     setShuffledCore(shuffle(TEAM_DATA.core));
-    setShuffledMembers(shuffle(TEAM_DATA.members));
-  }, []);
+    const combinedMembers = [...TEAM_DATA.members, ...dynamicMembers];
+    setShuffledMembers(shuffle(combinedMembers));
+  }, [dynamicMembers]);
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
@@ -454,6 +456,12 @@ export default function App() {
           eventsMap[d.id] = d.data().photos || [];
         });
         setLiveEvents(eventsMap);
+
+        // 4. Fetch Dynamic Members
+        const membersSnap = await getDocs(collection(db, "members"));
+        if (!membersSnap.empty) {
+          setDynamicMembers(membersSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        }
       } catch (err) { console.error("Data fetch error:", err); }
     };
     fetchLiveData();
@@ -1107,6 +1115,7 @@ function AdminDashboard({ user, onClose }) {
   useEffect(() => {
     fetchCerts();
     fetchGallery();
+    fetchMembers();
   }, []);
 
   const fetchCerts = async () => {
@@ -1120,6 +1129,13 @@ function AdminDashboard({ user, onClose }) {
     try {
       const snap = await getDocs(collection(db, "gallery"));
       setGallery(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    } catch (e) { console.error(e); }
+  };
+
+  const fetchMembers = async () => {
+    try {
+      const snap = await getDocs(collection(db, "members"));
+      setDynamicMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) { console.error(e); }
   };
 
@@ -1189,6 +1205,7 @@ function AdminDashboard({ user, onClose }) {
           <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
           <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
           <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
+          <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
         </div>
 
         {(tab === 'week' || tab === 'month' || tab === 'extra') && (
@@ -1311,6 +1328,48 @@ function AdminDashboard({ user, onClose }) {
                 </tbody>
               </table>
               {certs.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No certificates issued yet.</div>}
+            </div>
+          </div>
+        )}
+
+        {tab === 'members' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Add New <em>Member</em></h3>
+            <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={fetchMembers} />
+            
+            <h3 className="subcategory-title" style={{ marginTop: '4rem' }}>Manage <em>Live Members</em></h3>
+            <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem' }}>Member Name</th>
+                    <th style={{ padding: '1rem' }}>Dept</th>
+                    <th style={{ padding: '1rem' }}>Year</th>
+                    <th style={{ padding: '1rem' }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dynamicMembers.map(m => (
+                    <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '1rem', fontWeight: '600' }}>{m.name}</td>
+                      <td style={{ padding: '1rem' }}>{m.dept}</td>
+                      <td style={{ padding: '1rem', color: 'var(--gold)' }}>{m.year}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <button onClick={async () => {
+                          if (window.confirm("Remove this member?")) {
+                            try {
+                              await deleteDoc(doc(db, "members", m.id));
+                              fetchMembers();
+                              alert("Member removed.");
+                            } catch (err) { alert("Failed: " + err.message); }
+                          }
+                        }} style={{ background: '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {dynamicMembers.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No live members added via Admin yet.</div>}
             </div>
           </div>
         )}
@@ -1573,6 +1632,46 @@ function AdminApplications() {
         {apps.length === 0 && <div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>No applications yet.</div>}
       </div>
     </div>
+  );
+}
+
+function MemberForm({ DEPTS, YEARS, onAdded }) {
+  const [data, setData] = useState({ name: "", dept: DEPTS[0], year: YEARS[0] });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!data.name.trim()) return;
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "members"), {
+        ...data,
+        role: "Member",
+        createdAt: serverTimestamp()
+      });
+      setData({ name: "", dept: DEPTS[0], year: YEARS[0] });
+      onAdded();
+      alert("Member Added Successfully!");
+    } catch (err) {
+      alert("Error adding member: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} onSubmit={handleSubmit}>
+      <input className="form-input" placeholder="Student Name" value={data.name} onChange={e => setData({...data, name: e.target.value})} required />
+      <select className="form-input" value={data.dept} onChange={e => setData({...data, dept: e.target.value})}>
+        {DEPTS.map(d => <option key={d} value={d}>{d}</option>)}
+      </select>
+      <select className="form-input" value={data.year} onChange={e => setData({...data, year: e.target.value})}>
+        {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+      </select>
+      <button className="form-submit" type="submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
+        {loading ? "Adding..." : "Add Member →"}
+      </button>
+    </form>
   );
 }
 
