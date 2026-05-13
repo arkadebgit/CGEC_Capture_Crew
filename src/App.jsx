@@ -349,6 +349,8 @@ export default function App() {
   const [adminData, setAdminData] = useState(null);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
   const [archiveConfig, setArchiveConfig] = useState({ order: [], hidden: [] });
+  const [themeColor, setThemeColor] = useState("#C9A96E");
+  const [coverPhotos, setCoverPhotos] = useState([]);
 
   // Parallel Real-time & Data Fetching
   useEffect(() => {
@@ -419,12 +421,22 @@ export default function App() {
     const unsubConfig = onSnapshot(doc(db, "config", "archive"), (doc) => {
       if (doc.exists()) setArchiveConfig(doc.data());
     });
+    
+    const unsubTheme = onSnapshot(doc(db, "config", "theme"), (doc) => {
+      if (doc.exists() && doc.data().primaryColor) setThemeColor(doc.data().primaryColor);
+    });
+
+    const unsubCovers = onSnapshot(doc(db, "config", "covers"), (doc) => {
+      if (doc.exists() && doc.data().urls) setCoverPhotos(doc.data().urls);
+    });
 
     return () => {
       unsubMembers();
       unsubEvents();
       unsubCCEvents();
       unsubConfig();
+      unsubTheme();
+      unsubCovers();
     };
   }, []);
 
@@ -514,6 +526,13 @@ export default function App() {
     };
   }, [gallery, liveEvents, shuffledMembers, isInitializing]);
 
+  // Apply Dynamic Theme
+  useEffect(() => {
+    document.documentElement.style.setProperty('--gold', themeColor);
+    // Derive a slightly brighter/darker version for gradients if needed
+    // document.documentElement.style.setProperty('--gold2', themeColor + 'CC'); 
+  }, [themeColor]);
+
   const handleVerify = async (e) => {
     e.preventDefault();
     if (!certId.trim()) return;
@@ -596,8 +615,8 @@ export default function App() {
       {/* HERO */}
       <section id="home" className="hero">
         <div className="hero-bg">
-          {HERO_COVERS.map((img, idx) => (
-            (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % HERO_COVERS.length) && (
+          {(coverPhotos.length > 0 ? coverPhotos : ["/COVER/C1.jpg", "/COVER/C2.jpg", "/COVER/C3.jpg"]).map((img, idx) => (
+            (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % (coverPhotos.length || 3)) && (
               <div
                 key={idx}
                 className={`hero-slide ${idx === currentHeroIndex ? "active" : ""}`}
@@ -1463,6 +1482,18 @@ function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, l
     }
   };
 
+  const updateCovers = async (newUrls) => {
+    try {
+      await setDoc(doc(db, "config", "covers"), { urls: newUrls });
+    } catch (err) { alert(err.message); }
+  };
+
+  const updateTheme = async (color) => {
+    try {
+      await setDoc(doc(db, "config", "theme"), { primaryColor: color });
+    } catch (err) { alert(err.message); }
+  };
+
   const updateArchiveConfig = async (newOrder, newHidden) => {
     try {
       await setDoc(doc(db, "config", "archive"), { order: newOrder, hidden: newHidden });
@@ -1490,6 +1521,8 @@ function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, l
           <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
           <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
           <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
+          <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
+          <button className={`filter-btn ${tab === 'theme' ? 'active' : ''}`} onClick={() => setTab('theme')}>Theme Settings</button>
           <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
           {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
             <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
@@ -1938,6 +1971,71 @@ function AdminDashboard({ user, adminData, archiveConfig, onClose, liveEvents, l
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {tab === 'covers' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Manage <em>Hero Covers</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Add or remove background images for the home page. Use direct image links.</p>
+            
+            <form className="feedback-form" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }} onSubmit={(e) => {
+              e.preventDefault();
+              const url = e.target.coverUrl.value.trim();
+              if (url) {
+                updateCovers([...coverPhotos, url]);
+                e.target.coverUrl.value = "";
+              }
+            }}>
+              <input name="coverUrl" className="form-input" style={{ flex: 1 }} placeholder="Image Direct Link (https://...)" required />
+              <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover →</button>
+            </form>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
+              {coverPhotos.map((url, idx) => (
+                <div key={idx} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '150px', border: '1px solid var(--border)' }}>
+                  <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                  <button 
+                    onClick={() => {
+                      if (window.confirm("Remove this cover?")) {
+                        const newCovers = coverPhotos.filter((_, i) => i !== idx);
+                        updateCovers(newCovers);
+                      }
+                    }}
+                    style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#ff4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', fontSize: '0.6rem' }}
+                  >✕ DELETE</button>
+                </div>
+              ))}
+              {coverPhotos.length === 0 && <div style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '12px' }}>Using default covers. Add some to customize!</div>}
+            </div>
+          </div>
+        )}
+
+        {tab === 'theme' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Webpage <em>Theme Settings</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Change the primary accent color of the entire platform. This affects buttons, labels, and highlights.</p>
+            <div className="glass-form" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '2rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Pick Primary Theme Color</label>
+                <input 
+                  type="color" 
+                  value={themeColor} 
+                  onChange={(e) => updateTheme(e.target.value)}
+                  style={{ width: '100px', height: '100px', border: 'none', background: 'transparent', cursor: 'pointer' }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--gold)', fontFamily: 'var(--font-display)' }}>Theme Preview <em>Style</em></div>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button className="form-submit" style={{ flex: 1 }}>Action Button</button>
+                    <button className="admin-nav-btn" style={{ flex: 1 }}>Nav Button</button>
+                  </div>
+                  <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>The color code is: <code style={{ color: 'var(--gold)' }}>{themeColor}</code></p>
+                </div>
+              </div>
             </div>
           </div>
         )}
