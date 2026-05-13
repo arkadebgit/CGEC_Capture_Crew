@@ -486,7 +486,19 @@ section { padding: 7rem 0; }
 }
 .event-card:hover::before { opacity: 0.06; }
 .event-card:hover { border-color: var(--c, var(--gold)); transform: translateY(-3px); }
-.event-emoji { font-size: 2.5rem; margin-bottom: 1.5rem; display: block; }
+.event-emoji, .event-card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  display: block;
+}
+
+.event-card-icon {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--c, var(--gold));
+}
 .event-name {
   font-family: var(--font-display);
   font-size: 1.8rem; font-weight: 600; color: var(--white);

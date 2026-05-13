@@ -744,7 +744,11 @@ export default function App() {
                 className="event-card fade-in"
                 style={{ "--c": ev.color }}
               >
-                <span className="event-emoji">{ev.emoji}</span>
+                {ev.iconUrl ? (
+                  <img src={ev.iconUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
+                ) : (
+                  <span className="event-emoji">{ev.emoji}</span>
+                )}
                 <div className="event-name">{ev.name}</div>
                 <div className="event-subtitle" style={{ color: ev.color }}>{ev.subtitle}</div>
                 <div className="event-date">{ev.date}</div>
@@ -1115,7 +1119,7 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
     id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
-    desc: "", highlight: "", emoji: "📅", comingSoon: false, order: 99
+    desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: 99
   });
   const [newEventPhoto, setNewEventPhoto] = useState("");
   const [bulkInput, setBulkInput] = useState("");
@@ -1519,7 +1523,7 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
               <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Events</em></h3>
               <button onClick={() => {
                 setEditingEvent("new");
-                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "📅", comingSoon: false, order: liveEventsList.length + 1 });
+                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: liveEventsList.length + 1 });
               }} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>➕ ADD NEW EVENT</button>
             </div>
 
@@ -1532,7 +1536,8 @@ function AdminDashboard({ user, onClose, liveEvents, liveEventsList, dynamicMemb
                   <input className="form-input" placeholder="Sub-heading" value={eventFormData.subtitle} onChange={e => setEventFormData({...eventFormData, subtitle: e.target.value})} />
                   <input className="form-input" placeholder="Date/Season" value={eventFormData.date} onChange={e => setEventFormData({...eventFormData, date: e.target.value})} />
                   <input className="form-input" placeholder="Highlight Text" value={eventFormData.highlight} onChange={e => setEventFormData({...eventFormData, highlight: e.target.value})} />
-                  <input className="form-input" placeholder="Emoji (e.g. 📸)" value={eventFormData.emoji} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
+                  <input className="form-input" placeholder="Emoji (Fallback)" value={eventFormData.emoji} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
+                  <input className="form-input" placeholder="Icon Direct Link (Optional)" value={eventFormData.iconUrl} onChange={e => setEventFormData({...eventFormData, iconUrl: e.target.value})} />
                   <input className="form-input" type="color" value={eventFormData.color} onChange={e => setEventFormData({...eventFormData, color: e.target.value})} title="Theme Color" />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <input type="checkbox" checked={eventFormData.comingSoon} onChange={e => setEventFormData({...eventFormData, comingSoon: e.target.checked})} />
