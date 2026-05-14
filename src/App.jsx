@@ -576,15 +576,14 @@ export default function App() {
       if (u) {
         setIsAuthChecking(true);
         try {
-          const adminDoc = await getDoc(doc(db, "admins", u.email));
+          const email = u.email.toLowerCase();
+          const adminDoc = await getDoc(doc(db, "admins", email));
           if (adminDoc.exists()) {
             setIsAdmin(true);
             setAdminData(adminDoc.data());
           } else {
             setIsAdmin(false);
             setAdminData(null);
-            // Auto sign out if not in admin list to keep it clean
-            // await signOut(auth); 
           }
         } catch (err) {
           console.error("Admin check error:", err);
@@ -594,6 +593,7 @@ export default function App() {
       } else {
         setIsAdmin(false);
         setAdminData(null);
+        setIsAuthChecking(false);
       }
     });
   }, []);
@@ -1626,6 +1626,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       await batch.commit();
     } catch (err) { alert(err.message); }
   };
+
+  if (!adminData) return <div className="lightbox open"><div className="lightbox-content">Loading Admin Data...</div></div>;
 
   return (
     <div className="event-page-overlay" style={{ color: 'var(--white)' }}>
