@@ -1450,12 +1450,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     fetchCerts();
     fetchGallery();
     fetchAdmins();
-    
-    const qMembers = query(collection(db, "members"), orderBy("createdAt", "desc"));
-    const unsubMembers = onSnapshot(qMembers, (snap) => {
-      setDynamicMembers(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-    return () => unsubMembers();
   }, []);
 
   const fetchCerts = async () => {
