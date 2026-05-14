@@ -239,7 +239,7 @@ section { padding: 7rem 0; }
   font-weight: 300; line-height: 1.1; color: var(--white);
   margin-bottom: 1rem;
 }
-.section-title em { font-style: italic; color: var(--gold2); }
+.section-title em { font-style: italic; color: var(--heading-accent, var(--gold2)); }
 .section-sub {
   color: var(--muted); font-size: 0.9rem; line-height: 1.7;
   max-width: 520px; font-weight: 300;

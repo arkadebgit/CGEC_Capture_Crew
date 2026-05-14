@@ -42,6 +42,74 @@ const TEAM_DATA = {
   members: []
 };
 
+// ─── THEME CONFIGURATION ──────────────────────────────────────────────────
+const THEMES = [
+  { 
+    id: 'golden_elegance', 
+    name: 'Golden Elegance', 
+    primary: '#C9A96E', 
+    secondary: '#E8C98A', 
+    heading: '#E8C98A',
+    surface: '#111114'
+  },
+  { 
+    id: 'midnight_royal', 
+    name: 'Midnight Royal', 
+    primary: '#D4AF37', 
+    secondary: '#F9D976', 
+    heading: '#FFFFFF',
+    surface: '#0A0E1A'
+  },
+  { 
+    id: 'crimson_velvet', 
+    name: 'Crimson Velvet', 
+    primary: '#DC143C', 
+    secondary: '#FF4D4D', 
+    heading: '#FFB3B3',
+    surface: '#1A0A0A'
+  },
+  { 
+    id: 'emerald_luxe', 
+    name: 'Emerald Luxe', 
+    primary: '#50C878', 
+    secondary: '#77DD77', 
+    heading: '#D1F2D1',
+    surface: '#0A1A0F'
+  },
+  { 
+    id: 'ocean_breeze', 
+    name: 'Ocean Breeze', 
+    primary: '#00CED1', 
+    secondary: '#40E0D0', 
+    heading: '#E0FFFF',
+    surface: '#0A171A'
+  },
+  { 
+    id: 'sunset_glow', 
+    name: 'Sunset Glow', 
+    primary: '#FF8C00', 
+    secondary: '#FFA07A', 
+    heading: '#FFE4E1',
+    surface: '#1A120A'
+  },
+  { 
+    id: 'amethyst_night', 
+    name: 'Amethyst Night', 
+    primary: '#9966CC', 
+    secondary: '#B399D4', 
+    heading: '#F0E6FF',
+    surface: '#140A1A'
+  },
+  { 
+    id: 'monochrome_noir', 
+    name: 'Monochrome Noir', 
+    primary: '#A0A0A0', 
+    secondary: '#E0E0E0', 
+    heading: '#FFFFFF',
+    surface: '#111111'
+  }
+];
+
 // This will be populated from Firestore
 let STATIC_EVENTS = [
   { id: "varnakriti", name: "VARNAKRITI", subtitle: "Annual Photo Exhibition", date: "February 2026", color: "#C9A96E", desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.", highlight: "Top 3 Winners crowned. 30+ photos on display.", emoji: "🏆", order: 1 },
@@ -350,7 +418,7 @@ export default function App() {
   const [adminData, setAdminData] = useState(null);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
   const [archiveConfig, setArchiveConfig] = useState({ order: [], hidden: [] });
-  const [themeColor, setThemeColor] = useState("#C9A96E");
+  const [themeId, setThemeId] = useState("golden_elegance");
   const [coverPhotos, setCoverPhotos] = useState([]);
 
   // Parallel Real-time & Data Fetching
@@ -441,10 +509,15 @@ export default function App() {
     });
     
     const unsubTheme = onSnapshot(doc(db, "config", "theme"), (doc) => {
-      if (doc.exists() && doc.data().primaryColor) {
-        setThemeColor(doc.data().primaryColor);
-      } else {
-        setThemeColor("#C9A96E");
+      if (doc.exists()) {
+        const data = doc.data();
+        if (data.themeId) {
+          setThemeId(data.themeId);
+        } else if (data.primaryColor) {
+          // Fallback for old color wheel format
+          const nearestTheme = THEMES.find(t => t.primary.toLowerCase() === data.primaryColor.toLowerCase()) || THEMES[0];
+          setThemeId(nearestTheme.id);
+        }
       }
     });
 
@@ -551,10 +624,14 @@ export default function App() {
 
   // Apply Dynamic Theme
   useEffect(() => {
-    document.documentElement.style.setProperty('--gold', themeColor);
-    // Derive a slightly brighter/darker version for gradients if needed
-    // document.documentElement.style.setProperty('--gold2', themeColor + 'CC'); 
-  }, [themeColor]);
+    const theme = THEMES.find(t => t.id === themeId) || THEMES[0];
+    const root = document.documentElement;
+    root.style.setProperty('--gold', theme.primary);
+    root.style.setProperty('--gold2', theme.secondary);
+    root.style.setProperty('--heading-accent', theme.heading);
+    root.style.setProperty('--surface', theme.surface);
+    root.style.setProperty('--ink', theme.surface === '#111114' ? '#0A0A0B' : `${theme.surface}CC`);
+  }, [themeId]);
 
   const handleVerify = async (e) => {
     e.preventDefault();
@@ -1166,7 +1243,7 @@ export default function App() {
           user={user} 
           adminData={adminData} 
           archiveConfig={archiveConfig} 
-          themeColor={themeColor}
+          themeId={themeId}
           coverPhotos={coverPhotos}
           onClose={() => setShowLogin(false)} 
           liveEvents={liveEvents} 
@@ -1174,6 +1251,7 @@ export default function App() {
           dynamicMembers={dynamicMembers} 
           teamMembers={teamMembers}
           ccEvents={ccEvents} 
+          updateTheme={updateTheme}
         />
       )}
       {showRecruitment && (
@@ -1224,8 +1302,8 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents }) {
-  const [tab, setTab] = useState("week");
+function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme }) {
+  const [tab, setTab] = useState(adminData?.role === 'core_member' ? 'profile' : 'week');
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
     id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
@@ -1420,7 +1498,9 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
   };
   
   const updateAdminPermissions = async (email, field, value) => {
-    if (adminData?.role !== 'lead') return alert("Only In-charges can modify permissions.");
+    // Allow self-update of name and profilePic, or lead-update of anything
+    const isSelfUpdate = email === user.email && (field === 'name' || field === 'profilePic');
+    if (adminData?.role !== 'lead' && !isSelfUpdate) return alert("Only In-charges can modify permissions.");
     try {
       await updateDoc(doc(db, "admins", email), { [field]: value });
       fetchAdmins();
@@ -1531,15 +1611,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
     } catch (err) { alert(err.message); }
   };
 
-  const updateTheme = async (color) => {
-    if (color === '#000000') {
-      if (!window.confirm("Setting theme to black might make some elements invisible. Continue?")) return;
-    }
-    try {
-      await setDoc(doc(db, "config", "theme"), { primaryColor: color });
-    } catch (err) { alert(err.message); }
-  };
-
   const updateArchiveConfig = async (newOrder, newHidden) => {
     try {
       await setDoc(doc(db, "config", "archive"), { order: newOrder, hidden: newHidden });
@@ -1574,25 +1645,37 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
         </header>
 
         <div className="gallery-filter">
-          <button className={`filter-btn ${tab === 'week' ? 'active' : ''}`} onClick={() => setTab('week')}>Set Week</button>
-          <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
-          <button className={`filter-btn ${tab === 'extra' ? 'active' : ''}`} onClick={() => setTab('extra')}>Set Extra Frame</button>
-          <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
-          <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
-          <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
-          <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
-          {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
-            <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
+          {/* TIER 2: Management & TIER 3: Admin (Everyone except core_member has access to these) */}
+          {adminData?.role !== 'core_member' && (
+            <>
+              <button className={`filter-btn ${tab === 'week' ? 'active' : ''}`} onClick={() => setTab('week')}>Set Week</button>
+              <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
+              <button className={`filter-btn ${tab === 'extra' ? 'active' : ''}`} onClick={() => setTab('extra')}>Set Extra Frame</button>
+              <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
+              <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
+              <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
+              <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
+              <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
+              <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
+              <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
+              <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
+            </>
           )}
-          <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
-          <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
-          <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
-          <button className={`filter-btn ${tab === 'theme' ? 'active' : ''}`} onClick={() => setTab('theme')}>Theme Settings</button>
-          <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
+
+          {/* TIER 3: Lead/Admin Management Only */}
           {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
-            <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
+            <>
+              <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
+              <button className={`filter-btn ${tab === 'theme' ? 'active' : ''}`} onClick={() => setTab('theme')}>Theme Settings</button>
+              <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
+            </>
           )}
-        </div>        <div className="admin-guide-box fade-in visible" style={{ 
+          
+          {/* TIER 1: Everyone has access to Profile */}
+          <button className={`filter-btn ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>Profile Settings</button>
+        </div>
+        </div>
+        <div className="admin-guide-box fade-in visible" style={{ 
           background: 'rgba(201,169,110,0.05)', 
           border: '1px dashed var(--gold)', 
           borderRadius: '16px', 
@@ -1625,7 +1708,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           </div>
         </div>
 
-        {(tab === 'week' || tab === 'month' || tab === 'extra') && (
+        {adminData?.role !== 'core_member' && (tab === 'week' || tab === 'month' || tab === 'extra') && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
             <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., https://i.ibb.co/... or https://i.postimg.cc/...). PostImage is recommended for stability.</p>
@@ -1658,7 +1741,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
         )}
 
 
-        {tab === 'gallery' && (
+        {adminData?.role !== 'core_member' && tab === 'gallery' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
             <div className="gallery-grid">
@@ -1700,14 +1783,14 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
             </div>
           </div>
         )}
-        {tab === 'apps' && (
+        {adminData?.role !== 'core_member' && tab === 'apps' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Recruitment <em>Applications</em></h3>
             <AdminApplications />
           </div>
         )}
 
-        {tab === 'certs' && (
+        {adminData?.role !== 'core_member' && tab === 'certs' && (
           <div className="fade-in visible">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h3 className="subcategory-title">Issue <em>Certificates</em></h3>
@@ -1778,7 +1861,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           </div>
         )}
 
-        {tab === 'members' && (
+        {adminData?.role !== 'core_member' && tab === 'members' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Add New <em>Member</em></h3>
             <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={() => {}} />
@@ -1830,7 +1913,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           </div>
         )}
 
-        {tab === 'events' && (
+        {adminData?.role !== 'core_member' && tab === 'events' && (
           <div className="fade-in visible">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Events</em></h3>
@@ -2015,8 +2098,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
             )}
           </div>
         )}
-        {tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
-        {tab === 'archive' && (
+        {adminData?.role !== 'core_member' && tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
+        {adminData?.role !== 'core_member' && tab === 'archive' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Manage <em>Archive Timeline</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Reorder how events appear in the Universal Gallery. Use 'Hide' to remove them from the archive without deleting the event itself.</p>
@@ -2092,7 +2175,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           </div>
         )}
 
-        {tab === 'covers' && (
+        {adminData?.role !== 'core_member' && tab === 'covers' && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Manage <em>Hero Covers</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Add or remove background images for the home page. Use direct image links.</p>
@@ -2131,30 +2214,48 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
           </div>
         )}
 
-        {tab === 'theme' && (
+        {tab === 'theme' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
           <div className="fade-in visible">
-            <h3 className="subcategory-title">Webpage <em>Theme Settings</em></h3>
-            <p className="section-sub" style={{ marginBottom: '2rem' }}>Change the primary accent color of the entire platform. This affects buttons, labels, and highlights.</p>
-            <div className="glass-form" style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: '2rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <label style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Pick Primary Theme Color</label>
-                <input 
-                  type="color" 
-                  value={themeColor} 
-                  onChange={(e) => updateTheme(e.target.value)}
-                  style={{ width: '100px', height: '100px', border: 'none', background: 'transparent', cursor: 'pointer' }}
-                />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--gold)', fontFamily: 'var(--font-display)' }}>Theme Preview <em>Style</em></div>
-                  <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button className="form-submit" style={{ flex: 1 }}>Action Button</button>
-                    <button className="admin-nav-btn" style={{ flex: 1 }}>Nav Button</button>
+            <h3 className="subcategory-title">Webpage <em>Style Options</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Select a standardized visual style for this academic semester. This updates colors and headings across the entire platform.</p>
+            
+            <div className="theme-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.5rem' }}>
+              {THEMES.map(t => (
+                <div 
+                  key={t.id} 
+                  className={`theme-card ${themeId === t.id ? 'active' : ''}`}
+                  onClick={() => updateTheme(t.id)}
+                  style={{ 
+                    background: 'rgba(255,255,255,0.03)', 
+                    border: themeId === t.id ? '2px solid var(--gold)' : '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '16px',
+                    padding: '1.5rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    overflow: 'hidden'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: t.primary }}></div>
+                    <div style={{ fontWeight: 'bold', fontSize: '1rem' }}>{t.name}</div>
                   </div>
-                  <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>The color code is: <code style={{ color: 'var(--gold)' }}>{themeColor}</code></p>
+                  
+                  <div style={{ display: 'flex', gap: '4px', marginBottom: '1rem' }}>
+                    <div style={{ flex: 1, height: '4px', background: t.primary, borderRadius: '2px' }}></div>
+                    <div style={{ flex: 1, height: '4px', background: t.secondary, borderRadius: '2px' }}></div>
+                    <div style={{ flex: 1, height: '4px', background: t.heading, borderRadius: '2px' }}></div>
+                  </div>
+
+                  <div style={{ fontSize: '0.7rem', opacity: 0.6, fontStyle: 'italic' }}>
+                    Sample Heading: <span style={{ color: t.heading }}>{t.name}</span>
+                  </div>
+
+                  {themeId === t.id && (
+                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'var(--gold)', color: 'var(--ink)', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✓</div>
+                  )}
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
@@ -2194,12 +2295,15 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
                         <select 
                           className="form-input" 
                           style={{ padding: '0.2rem', fontSize: '0.7rem', width: 'auto', height: 'auto', background: 'transparent' }}
-                          value={adm.role || 'admin'}
+                          value={adm.role || 'core_member'}
                           onChange={(e) => updateAdminPermissions(adm.id, 'role', e.target.value)}
                           disabled={adminData?.role !== 'lead' || adm.id === user.email}
                         >
-                          <option value="admin" style={{ color: '#000' }}>Core Member</option>
-                          <option value="lead" style={{ color: '#000' }}>In-charge (Lead)</option>
+                          <option value="core_member" style={{ color: '#000' }}>Core Member</option>
+                          <option value="coordinator" style={{ color: '#000' }}>Coordinator</option>
+                          <option value="incharge" style={{ color: '#000' }}>In-charge</option>
+                          <option value="pr_manager" style={{ color: '#000' }}>PR Manager</option>
+                          <option value="lead" style={{ color: '#000' }}>Lead (Developer)</option>
                         </select>
                       </td>
                       <td style={{ padding: '1rem' }}>
@@ -2227,6 +2331,40 @@ function AdminDashboard({ user, adminData, archiveConfig, themeColor, coverPhoto
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {tab === 'profile' && (
+          <div className="fade-in visible">
+            <h3 className="subcategory-title">Profile <em>Settings</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Update your administrative profile details. These are visible to other leads and managers.</p>
+            
+            <div className="glass-form" style={{ padding: '2.5rem', maxWidth: '600px' }}>
+              <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--gold)', overflow: 'hidden', marginBottom: '1rem' }}>
+                    <img src={adminData?.profilePic || "https://ui-avatars.com/api/?name=" + (adminData?.name || user.email) + "&background=C9A96E&color=111"} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                  </div>
+                  <span style={{ fontSize: '0.6rem', color: 'var(--gold)', textTransform: 'uppercase', fontWeight: 'bold' }}>{adminData?.role?.replace('_', ' ') || 'Admin'}</span>
+                </div>
+                
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Display Name</label>
+                    <input className="form-input" placeholder="Your Name" value={adminData?.name || ""} onChange={e => updateAdminPermissions(user.email, 'name', e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Profile Picture Link</label>
+                    <input className="form-input" placeholder="https://..." value={adminData?.profilePic || ""} onChange={e => updateAdminPermissions(user.email, 'profilePic', e.target.value)} />
+                  </div>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Email Address (Read-only)</label>
+                    <input className="form-input" value={user.email} disabled style={{ opacity: 0.5 }} />
+                  </div>
+                  <p style={{ fontSize: '0.7rem', opacity: 0.5, fontStyle: 'italic' }}>* Your changes are saved automatically.</p>
+                </div>
+              </div>
             </div>
           </div>
         )}
