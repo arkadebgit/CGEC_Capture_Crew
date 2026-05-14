@@ -1377,6 +1377,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [bulkCertInput, setBulkCertInput] = useState("");
   const [showBulkCert, setShowBulkCert] = useState(false);
+  const [bulkCoverInput, setBulkCoverInput] = useState("");
+  const [showBulkCover, setShowBulkCover] = useState(false);
 
   useEffect(() => {
     if (editingEvent && editingEvent !== 'new') {
@@ -2257,6 +2259,42 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <input name="coverUrl" className="form-input" style={{ flex: 1 }} placeholder="Image Direct Link (https://...)" required />
                 <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover →</button>
               </form>
+
+              <div style={{ marginBottom: '2rem' }}>
+                <button 
+                  onClick={() => setShowBulkCover(!showBulkCover)} 
+                  style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--gold)', border: '1px solid var(--gold)', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer', marginBottom: '1rem' }}
+                >
+                  {showBulkCover ? "Hide Bulk Upload" : "🚀 Bulk Upload Covers"}
+                </button>
+
+                {showBulkCover && (
+                  <div className="fade-in visible" style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)' }}>
+                    <p style={{ fontSize: '0.75rem', opacity: 0.7, marginBottom: '1rem' }}>Paste multiple direct links (one per line or separated by spaces).</p>
+                    <textarea 
+                      className="form-input" 
+                      style={{ minHeight: '150px', fontSize: '0.75rem', fontFamily: 'monospace' }} 
+                      placeholder="https://i.ibb.co/image1.jpg&#10;https://i.ibb.co/image2.jpg"
+                      value={bulkCoverInput}
+                      onChange={e => setBulkCoverInput(e.target.value)}
+                    />
+                    <button 
+                      className="form-submit" 
+                      style={{ marginTop: '1rem', width: '100%' }}
+                      onClick={() => {
+                        const urls = bulkCoverInput.split(/\s+/).filter(u => u.startsWith("http"));
+                        if (urls.length === 0) return alert("No valid links found.");
+                        updateCovers([...urls, ...coverPhotos]);
+                        setBulkCoverInput("");
+                        setShowBulkCover(false);
+                        alert(`${urls.length} covers added!`);
+                      }}
+                    >
+                      DUMP BULK COVERS →
+                    </button>
+                  </div>
+                )}
+              </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
                 {coverPhotos.map((url, idx) => (
