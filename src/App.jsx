@@ -633,6 +633,14 @@ export default function App() {
     root.style.setProperty('--ink', theme.surface === '#111114' ? '#0A0A0B' : `${theme.surface}CC`);
   }, [themeId]);
 
+  const updateTheme = async (id) => {
+    try {
+      await setDoc(doc(db, "config", "theme"), { themeId: id }, { merge: true });
+    } catch (err) {
+      alert("Failed to update theme: " + err.message);
+    }
+  };
+
   const handleVerify = async (e) => {
     e.preventDefault();
     if (!certId.trim()) return;
