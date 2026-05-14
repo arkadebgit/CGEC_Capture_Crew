@@ -1,10 +1,10 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
-// â”€â”€â”€ PLACEHOLDER DATA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦â”€
 
 const TEAM_DATA = {
   founders: [
@@ -42,7 +42,7 @@ const TEAM_DATA = {
   members: []
 };
 
-// â”€â”€â”€ THEME CONFIGURATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ✦✦✦ THEME CONFIGURATION ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦â”€â”€
 const THEMES = [
   { 
     id: 'golden_elegance', 
@@ -112,13 +112,13 @@ const THEMES = [
 
 // This will be populated from Firestore
 let STATIC_EVENTS = [
-  { id: "varnakriti", name: "VARNAKRITI", subtitle: "Annual Photo Exhibition", date: "February 2026", color: "#C9A96E", desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.", highlight: "Top 3 Winners crowned. 30+ photos on display.", emoji: "ðŸ†", order: 1 },
-  { id: "esperanza", name: "ESPERANZA 2k26", subtitle: "Annual Tech Cum Cultural Fest", date: "June 2026", color: "#7EB8D4", desc: "The grand annual celebration of Capture Crew â€” a full-day photo walk, workshop, and exhibition bringing together photography enthusiasts from across the campus.", highlight: "500+ attendees. Campus-wide photo walk.", emoji: "ðŸŒŸ", comingSoon: true, order: 2 },
-  { id: "republic", name: "Republic Day", subtitle: "Patriotic Documentation", date: "January 2026", color: "#FF9933", desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.", highlight: "Tricolor flag hoisting and cultural documentation.", emoji: "ðŸ‡®ðŸ‡³", order: 3 },
-  { id: "croeso", name: "CROESO 2k25", subtitle: "Freshers' Welcome", date: "February 2026", color: "#A8D8A8", desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.", highlight: "Welcome to the frame. New eyes, new stories.", emoji: "ðŸŽ“", order: 4 },
-  { id: "holi", name: "Holi Event", subtitle: "Festival of Colors", date: "March 2026", color: "#FF69B4", desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.", highlight: "Vibrance in every splash.", emoji: "ðŸŽ¨", order: 5 },
-  { id: "saraswati", name: "Saraswati Puja", subtitle: "Festival Documentation", date: "January 2026", color: "#DEB8D0", desc: "Documenting the beauty and devotion of Saraswati Puja on campus â€” from rituals to the procession.", highlight: "Devotion in every frame.", emoji: "ðŸŒ¸", order: 6 },
-  { id: "independence", name: "Independence Day", subtitle: "15th August Special", date: "August 2026", color: "#FF9933", desc: "Capturing the spirit of patriotism â€” flag hoisting ceremonies and special themed photo series.", highlight: "Tricolor through the lens.", emoji: "ðŸ‡®ðŸ‡³", comingSoon: true, order: 7 }
+  { id: "varnakriti", name: "VARNAKRITI", subtitle: "Annual Photo Exhibition", date: "February 2026", color: "#C9A96E", desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.", highlight: "Top 3 Winners crowned. 30+ photos on display.", emoji: "🏆", order: 1 },
+  { id: "esperanza", name: "ESPERANZA 2k26", subtitle: "Annual Tech Cum Cultural Fest", date: "June 2026", color: "#7EB8D4", desc: "The grand annual celebration of Capture Crew — a full-day photo walk, workshop, and exhibition bringing together photography enthusiasts from across the campus.", highlight: "500+ attendees. Campus-wide photo walk.", emoji: "🌟", comingSoon: true, order: 2 },
+  { id: "republic", name: "Republic Day", subtitle: "Patriotic Documentation", date: "January 2026", color: "#FF9933", desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.", highlight: "Tricolor flag hoisting and cultural documentation.", emoji: "🇮🇳", order: 3 },
+  { id: "croeso", name: "CROESO 2k25", subtitle: "Freshers' Welcome", date: "February 2026", color: "#A8D8A8", desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.", highlight: "Welcome to the frame. New eyes, new stories.", emoji: "🎓", order: 4 },
+  { id: "holi", name: "Holi Event", subtitle: "Festival of Colors", date: "March 2026", color: "#FF69B4", desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.", highlight: "Vibrance in every splash.", emoji: "🎨", order: 5 },
+  { id: "saraswati", name: "Saraswati Puja", subtitle: "Festival Documentation", date: "January 2026", color: "#DEB8D0", desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from rituals to the procession.", highlight: "Devotion in every frame.", emoji: "🌸", order: 6 },
+  { id: "independence", name: "Independence Day", subtitle: "15th August Special", date: "August 2026", color: "#FF9933", desc: "Capturing the spirit of patriotism — flag hoisting ceremonies and special themed photo series.", highlight: "Tricolor through the lens.", emoji: "🇮🇳", comingSoon: true, order: 7 }
 ];
 
 const GALLERY_CATEGORIES = ["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"];
@@ -244,7 +244,7 @@ const GALLERY = [
   {
     id: 10,
     category: "Weekly Captures",
-    title: "à¦¶à§‚à¦¨à§à¦¯à¦¤à¦¾à¦° à¦•à§‹à¦²à¦¾à¦¹à¦²",
+    title: "শূন্যতার কোলাহল",
     photographer: "Subhajit Sil",
     dept: "ECE",
     year: "1st Year",
@@ -328,7 +328,7 @@ const HERO_COVERS = [
   "covers/image (8).png"
 ].map(path => (import.meta.env.BASE_URL || "/") + path);
 
-// â”€â”€â”€ APP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ✦✦✦ APP ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦——
 
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
@@ -553,7 +553,7 @@ export default function App() {
     logoUrl: "/logo.jpg",
     faviconUrl: "/logo.jpg",
     siteName: "Capture Crew",
-    heroEyebrow: "Capture Crew Â· CGEC Photography Club",
+    heroEyebrow: "Capture Crew · CGEC Photography Club",
     heroTitle: "CAPTURING MOMENTS,\nCREATING MEMORIES.",
     heroTagline: "Exploring the World through the CGEC lens",
     instaLink: "https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==",
@@ -781,7 +781,7 @@ export default function App() {
           }} />
           <p className="hero-tagline">{siteConfig.heroTagline}</p>
           <button className="hero-cta" onClick={() => scrollTo("gallery")}>
-            Explore the Gallery â†“
+            Explore the Gallery ↓
           </button>
         </div>
         <div className="hero-scroll">Scroll</div>
@@ -791,9 +791,9 @@ export default function App() {
       <section id="week" className="week-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "4rem" }}>
-            <div className="section-label">âœ¦ Featured</div>
+            <div className="section-label">✧ Featured</div>
             <h2 className="section-title">Capture of the <em>Week</em></h2>
-            <p className="section-sub">Hand-picked by the core team â€” one photograph that stopped us in our tracks.</p>
+            <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
           </div>
           <div className="week-inner fade-in">
             <div className="week-image-wrap">
@@ -804,7 +804,7 @@ export default function App() {
               <div className="week-date">Featured</div>
               <p className="week-story">{weekCapture?.title || "Fetching the latest capture..."}</p>
               <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                By <span>{weekCapture?.photographer}</span> ({weekCapture?.dept} Â· {weekCapture?.year})
+                By <span>{weekCapture?.photographer}</span> ({weekCapture?.dept} · {weekCapture?.year})
               </div>
             </div>
           </div>
@@ -816,7 +816,7 @@ export default function App() {
         <div className="container">
           <div className="month-header fade-in">
             <div>
-              <div className="section-label">âœ¦ Premium Showcase</div>
+              <div className="section-label">✧ Premium Showcase</div>
               <h2 className="section-title">Capture of the <em>Month</em></h2>
             </div>
           </div>
@@ -832,7 +832,7 @@ export default function App() {
               <div className="month-of">Premium Selection</div>
               <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCapture?.title}</h3>
               <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                By <span>{monthCapture?.photographer}</span> ({monthCapture?.dept} Â· {monthCapture?.year})
+                By <span>{monthCapture?.photographer}</span> ({monthCapture?.dept} · {monthCapture?.year})
               </div>
             </div>
           </div>
@@ -844,7 +844,7 @@ export default function App() {
         <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }}>
           <div className="container">
             <div className="fade-in" style={{ marginBottom: "4rem" }}>
-              <div className="section-label">âœ¦ Bonus Frame</div>
+              <div className="section-label">✧ Bonus Frame</div>
               <h2 className="section-title">The <em>Extra Frame</em></h2>
             </div>
             <div className="week-inner fade-in">
@@ -856,7 +856,7 @@ export default function App() {
                 <div className="week-date">Bonus Feature</div>
                 <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{extraFrameCapture.title}</h3>
                 <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                  By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} Â· {extraFrameCapture.year})
+                  By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
                 </div>
               </div>
             </div>
@@ -868,9 +868,9 @@ export default function App() {
       <section id="gallery" className="gallery-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
-            <div className="section-label">âœ¦ Our Work</div>
+            <div className="section-label">✧ Our Work</div>
             <h2 className="section-title">The <em>Gallery</em></h2>
-            <p className="section-sub">Curated captures from our photographers â€” click any image to view full screen.</p>
+            <p className="section-sub">Curated captures from our photographers — click any image to view full screen.</p>
           </div>
           <div className="gallery-filter fade-in">
             {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event Winners"].map(cat => (
@@ -889,7 +889,7 @@ export default function App() {
               {ccEvents.map(event => (
                 <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem' }}>
                   <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div className="section-label" style={{ margin: '0 0 1rem' }}>âœ¦ Competition Results</div>
+                    <div className="section-label" style={{ margin: '0 0 1rem' }}>✧ Competition Results</div>
                     <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.5rem', margin: '0' }}>{event.title} <em>Winners</em></h3>
                     <p className="section-sub" style={{ margin: '1rem 0 0', opacity: 0.8 }}>{event.subtitle}</p>
                   </div>
@@ -925,7 +925,7 @@ export default function App() {
                     <div className="gallery-overlay">
                       <div>
                         <div className="gallery-item-title">{item.title}</div>
-                        <div className="gallery-item-photo">by {item.photographer} Â· {item.dept}</div>
+                        <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
                       </div>
                     </div>
                   </div>
@@ -933,7 +933,7 @@ export default function App() {
               </div>
               {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
                 <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-                  <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures â†’</button>
+                  <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures </button>
                 </div>
               )}
             </>
@@ -945,9 +945,9 @@ export default function App() {
       <section id="events" className="events-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
-            <div className="section-label">âœ¦ Milestones</div>
+            <div className="section-label">✧ Milestones</div>
             <h2 className="section-title">Club <em>Events</em></h2>
-            <p className="section-sub">From intimate workshops to grand exhibitions â€” every event, immortalized through our lenses.</p>
+            <p className="section-sub">From intimate workshops to grand exhibitions — every event, immortalized through our lenses.</p>
           </div>
           <div className="events-grid">
             {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => (
@@ -970,7 +970,7 @@ export default function App() {
                   className="event-dive-btn" 
                   onClick={() => ev.comingSoon ? alert("Coming Soon!") : setSelectedEvent(ev)}
                 >
-                  {ev.comingSoon ? "Coming Soon â†’" : "Dive In â†’"}
+                  {ev.comingSoon ? "Coming Soon " : "Dive In "}
                 </button>
               </div>
             ))}
@@ -982,19 +982,19 @@ export default function App() {
               style={{ cursor: 'pointer' }}
             >
               <div className="global-card-content">
-                <span className="event-emoji">ðŸ“‚</span>
+                <span className="event-emoji">📂</span>
                 <div className="event-name">Dive into Event <em>Archive</em></div>
                 <div className="event-subtitle" style={{ color: 'var(--gold)' }}>Universal Gallery</div>
                 <div className="event-desc">Explore every capture from every event we've ever hosted, all in one immersive timeline.</div>
-                <div className="global-card-badge">âœ¨ IMMERSIVE VIEW</div>
-                <button className="event-dive-btn" style={{ marginTop: 'auto' }}>Open Archive â†’</button>
+                <div className="global-card-badge">✨ IMMERSIVE VIEW</div>
+                <button className="event-dive-btn" style={{ marginTop: 'auto' }}>Open Archive </button>
               </div>
               <div className="global-card-bg"></div>
             </div>
           </div>
           {isMobile && !expandedEvents && liveEventsList.length > 3 && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-              <button className="event-dive-btn" onClick={() => setExpandedEvents(true)}>View All Events â†’</button>
+              <button className="event-dive-btn" onClick={() => setExpandedEvents(true)}>View All Events </button>
             </div>
           )}
         </div>
@@ -1004,7 +1004,7 @@ export default function App() {
       <section id="team" className="team-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
-            <div className="section-label">âœ¦ The People Behind the Lens</div>
+            <div className="section-label">✧ The People Behind the Lens</div>
             <h2 className="section-title">Core <em>Team</em></h2>
             <p className="section-sub">The dedicated photographers, editors, and organizers who keep Capture Crew alive.</p>
           </div>
@@ -1021,7 +1021,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept} {m.year ? `Â· ${m.year}` : ""}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -1040,7 +1040,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept} {m.year ? `Â· ${m.year}` : ""}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -1059,7 +1059,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept} {m.year ? `Â· ${m.year}` : ""}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -1077,19 +1077,19 @@ export default function App() {
                         {m.img ? (
                           <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
-                          m.emoji || "ðŸ“·"
+                          m.emoji || "📸"
                         )}
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept} {m.year ? `Â· ${m.year}` : ""}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                   
                   {isMobile && !expandedTeam && teamMembers.core.length > 3 && (
                     <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border)' }} onClick={() => setExpandedTeam(true)}>
                       <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)' }}>
-                        ðŸ“‚
+                        📂
                       </div>
                       <div className="team-name" style={{ color: 'var(--gold)' }}>Show All</div>
                       <div className="team-role">Full Core Team</div>
@@ -1101,12 +1101,12 @@ export default function App() {
                   {(expandedTeam || !isMobile) && (
                     <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
                       <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
-                        âž•
+                        ➕
                       </div>
                       <div className="team-name" style={{ color: 'var(--gold)' }}>Join Our Crew</div>
                       <div className="team-role">Become a Member</div>
                       <div className="team-dept">Apply for Core Team</div>
-                      <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now â†’</button>
+                      <button className="event-dive-btn" style={{ marginTop: '1rem', width: '100%' }}>Apply Now </button>
                     </div>
                   )}
                 </div>
@@ -1123,7 +1123,7 @@ export default function App() {
                 {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
                   <div key={m.name} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
                     <div className="team-avatar" style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem' }}>
-                      ðŸ“·
+                      📸
                     </div>
                     <div className="team-name" style={{ fontSize: '0.95rem' }}>{m.name}</div>
                     <div className="team-role" style={{ fontSize: '0.65rem', color: 'var(--gold)', marginBottom: '0.3rem' }}>{m.role || 'Member'}</div>
@@ -1135,7 +1135,7 @@ export default function App() {
                 {!expandedMembers && shuffledMembers.length > (isMobile ? 6 : 8) && (
                   <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', padding: '1.5rem 1rem' }} onClick={() => setExpandedMembers(true)}>
                     <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)', width: '50px', height: '50px', fontSize: '1rem' }}>
-                      ðŸ“‚
+                      📂
                     </div>
                     <div className="team-name" style={{ color: 'var(--gold)', fontSize: '0.95rem' }}>Show All</div>
                     <div className="team-role" style={{ fontSize: '0.65rem' }}>Full Member List</div>
@@ -1152,7 +1152,7 @@ export default function App() {
       <section id="verify" className="verify-section">
         <div className="container">
           <div className="verify-box fade-in">
-            <div className="section-label">âœ¦ Authenticity</div>
+            <div className="section-label">✧ Authenticity</div>
             <h2 className="section-title">Verify <em>Certificate</em></h2>
             <p className="section-sub">Enter your certificate serial number to verify its authenticity and details.</p>
             
@@ -1165,7 +1165,7 @@ export default function App() {
                 className="form-input"
               />
               <button type="submit" className="form-submit" disabled={isVerifying}>
-                {isVerifying ? "Verifying..." : "Verify Now â†’"}
+                {isVerifying ? "Verifying..." : "Verify Now "}
               </button>
             </form>
 
@@ -1175,7 +1175,7 @@ export default function App() {
                   <div className="result-error">{verifyResult.error}</div>
                 ) : (
                   <div className="result-success">
-                    <div className="result-badge">âœ“ Verified Authenticity</div>
+                    <div className="result-badge">✓ Verified Authenticity</div>
                     <div className="result-grid">
                       <div className="result-item">
                         <span className="label">Issued To</span>
@@ -1222,9 +1222,9 @@ export default function App() {
           </div>
           
           <div className="footer-bottom">
-            <div className="footer-copy">Â© 2026 {siteConfig.siteName} Â· All Rights Reserved</div>
+            <div className="footer-copy">© 2026 {siteConfig.siteName} · All Rights Reserved</div>
             <div className="footer-credit">
-              Crafted with â¤ï¸ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
+              Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
             </div>
           </div>
         </div>
@@ -1232,7 +1232,7 @@ export default function App() {
 
       {/* LIGHTBOX */}
       <div className={`lightbox ${lightboxItem ? "open" : ""}`} onClick={() => setLightboxItem(null)}>
-        <button className="lightbox-close" onClick={() => setLightboxItem(null)}>âœ•</button>
+        <button className="lightbox-close" onClick={() => setLightboxItem(null)}>✕</button>
         {lightboxItem && (
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <img
@@ -1249,7 +1249,7 @@ export default function App() {
               }}
             />
             <div className="lightbox-title">{lightboxItem.title}</div>
-            <div className="lightbox-credit">by {lightboxItem.photographer} Â· {lightboxItem.dept} ({lightboxItem.year})</div>
+            <div className="lightbox-credit">by {lightboxItem.photographer} · {lightboxItem.dept} ({lightboxItem.year})</div>
           </div>
         )}
       </div>
@@ -1315,7 +1315,7 @@ export default function App() {
   );
 }
 
-// â”€â”€â”€ ADMIN COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ✦✦✦ ADMIN COMPONENTS ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦—
 
 function LoginModal({ onClose, user, isUnauthorized }) {
   const [error, setError] = useState("");
@@ -1339,7 +1339,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
         maxWidth: '500px',
         width: '90%'
       }}>
-        <button className="lightbox-close" onClick={onClose} style={{ color: '#fff' }}>âœ•</button>
+        <button className="lightbox-close" onClick={onClose} style={{ color: '#fff' }}>✕</button>
         <div className="section-label" style={{ color: 'var(--gold)' }}>{isUnauthorized ? "Access Denied" : "Restricted Access"}</div>
         <h2 className="section-title" style={{ color: '#fff', fontSize: '2rem', margin: '1rem 0' }}>Team <em>{isUnauthorized ? "Unauthorized" : "Login"}</em></h2>
         
@@ -1386,7 +1386,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
     id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
-    desc: "", highlight: "", emoji: "ðŸ“…", iconUrl: "", comingSoon: false, order: 99
+    desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: 99
   });
   const [profileForm, setProfileForm] = useState({ name: "", profilePic: "", insta: "", year: "1st Year" });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
@@ -1770,7 +1770,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     <div className="event-page-overlay" style={{ color: 'var(--white)', zIndex: 1500, background: '#0A0A0B' }}>
       <div className="container" style={{ paddingBottom: '5rem' }}>
         <header className="event-page-header">
-          <button className="back-btn" onClick={onClose}>â† Close Dashboard</button>
+          <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
           <div className="section-label">Admin Console</div>
           <h1 className="section-title">Team <em>Dashboard</em></h1>
           <p className="section-sub">Logged in as: {user.email}</p>
@@ -1817,7 +1817,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           fontSize: '0.85rem'
         }}>
           <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            ðŸ› ï¸ Admin Deployment Guide
+            🛠️ Admin Deployment Guide
           </h4>
           <p style={{ opacity: 0.8, marginBottom: '1rem' }}>
             For the best performance and consistency, follow this workflow before uploading any content:
@@ -1867,7 +1867,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <input type="date" className="form-input" placeholder="Capture Date" value={featuredData.captureDate} onChange={e => setFeaturedData({...featuredData, captureDate: e.target.value})} />
               
               <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
-                {isUpdating ? "Updating..." : `Update & Save to Gallery â†’`}
+                {isUpdating ? "Updating..." : `Update & Save to Gallery `}
               </button>
             </div>
           </div>
@@ -1931,7 +1931,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 onClick={() => setShowBulkCert(!showBulkCert)} 
                 style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}
               >
-                {showBulkCert ? "SWITCH TO SINGLE" : "ðŸš€ SWITCH TO BULK ISSUE"}
+                {showBulkCert ? "SWITCH TO SINGLE" : "🚀 SWITCH TO BULK ISSUE"}
               </button>
             </div>
 
@@ -1950,7 +1950,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   onChange={e => setBulkCertInput(e.target.value)}
                 />
                 <button className="form-submit" style={{ marginTop: '1.5rem' }} onClick={issueBulkCerts}>
-                  ISSUE ALL CERTIFICATES â†’
+                  ISSUE ALL CERTIFICATES 
                 </button>
               </div>
             ) : (
@@ -1959,7 +1959,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
                 <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
                 <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
-                <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate â†’</button>
+                <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate </button>
               </form>
             )}
 
@@ -2053,7 +2053,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <button onClick={() => {
                 setEditingEvent("new");
                 setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "ðŸ“…", iconUrl: "", comingSoon: false, order: liveEventsList.length + 1 });
-              }} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>âž• ADD NEW EVENT</button>
+              }} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>➕ ADD NEW EVENT</button>
             </div>
 
             {editingEvent ? (
@@ -2082,7 +2082,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         setEditingEvent(null);
                         alert("Event Saved!");
                       } catch (err) { alert("Error: " + err.message); }
-                    }}>SAVE EVENT â†’</button>
+                    }}>SAVE EVENT </button>
                     <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditingEvent(null)}>CANCEL</button>
                   </div>
                 </div>
@@ -2108,8 +2108,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)', marginBottom: '2rem' }}>
                       <h5 style={{ fontSize: '0.8rem', color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        ðŸš€ Bulk Image Uploader 
-                        <a href="https://beeimg.com/upload" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Open BeeImg â†’</a>
+                        🚀 Bulk Image Uploader 
+                        <a href="https://beeimg.com/upload" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Open BeeImg </a>
                       </h5>
                       <p style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '1rem' }}>Upload your images to BeeImg, copy the <strong>Direct Links</strong>, and paste them all below (separated by spaces or lines).</p>
                       <textarea 
@@ -2145,7 +2145,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           setBulkInput("");
                           alert(`${urls.length} photos added successfully to ${editingEvent}!`);
                         } catch (err) { alert("Dump Error: " + err.message); }
-                      }}>DUMP BULK PHOTOS â†’</button>
+                      }}>DUMP BULK PHOTOS </button>
                     </div>
 
                     <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -2350,7 +2350,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 }
               }}>
                 <input name="coverUrl" className="form-input" style={{ flex: 1 }} placeholder="Image Direct Link (https://...)" required />
-                <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover â†’</button>
+                <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover </button>
               </form>
 
               <div style={{ marginBottom: '2rem' }}>
@@ -2358,7 +2358,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   onClick={() => setShowBulkCover(!showBulkCover)} 
                   style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--gold)', border: '1px solid var(--gold)', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer', marginBottom: '1rem' }}
                 >
-                  {showBulkCover ? "Hide Bulk Upload" : "ðŸš€ Bulk Upload Covers"}
+                  {showBulkCover ? "Hide Bulk Upload" : "🚀 Bulk Upload Covers"}
                 </button>
 
                 {showBulkCover && (
@@ -2383,7 +2383,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         alert(`${urls.length} covers added!`);
                       }}
                     >
-                      DUMP BULK COVERS â†’
+                      DUMP BULK COVERS 
                     </button>
                   </div>
                 )}
@@ -2401,7 +2401,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         }
                       }}
                       style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#ff4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', fontSize: '0.6rem' }}
-                    >âœ• DELETE</button>
+                    >✕ DELETE</button>
                   </div>
                 ))}
                 {coverPhotos.length === 0 && <div style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '12px' }}>Using default covers. Add some to customize!</div>}
@@ -2542,7 +2542,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   setIsSavingSite(false);
                 }}
               >
-                {isSavingSite ? "Saving..." : "UPDATE GLOBAL SITE SETTINGS â†’"}
+                {isSavingSite ? "Saving..." : "UPDATE GLOBAL SITE SETTINGS "}
               </button>
             </div>
           </div>
@@ -2684,7 +2684,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       alert("Profile updated successfully!");
                     }}
                   >
-                    {isSavingProfile ? "Saving..." : "SAVE PROFILE SETTINGS â†’"}
+                    {isSavingProfile ? "Saving..." : "SAVE PROFILE SETTINGS "}
                   </button>
                 </div>
               </div>
@@ -2724,7 +2724,7 @@ function AdminCCEvents({ ccEvents }) {
         <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)' }} onClick={() => {
           setEditing('new');
           setFormData({ title: "", subtitle: "", order: ccEvents.length + 1, winners: { "1st": { name: "", dept: "", year: "1st Year", url: "" }, "2nd": { name: "", dept: "", year: "1st Year", url: "" }, "3rd": { name: "", dept: "", year: "1st Year", url: "" } } });
-        }}>âž• ADD EVENT WINNERS</button>
+        }}>➕ ADD EVENT WINNERS</button>
       </div>
 
       {editing ? (
@@ -2768,7 +2768,7 @@ function AdminCCEvents({ ccEvents }) {
           </div>
 
           <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-            <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE WINNERS â†’</button>
+            <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE WINNERS </button>
             <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditing(null)}>CANCEL</button>
           </div>
         </div>
@@ -2945,9 +2945,9 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
         <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)' }} onClick={() => {
           setEditing('new');
           setFormData({ name: "", role: "", email: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99 });
-        }}>âž• ADD TEAM MEMBER</button>
+        }}>➕ ADD TEAM MEMBER</button>
         <button className="admin-nav-btn" style={{ opacity: 0.5 }} onClick={seedData} disabled={isSeeding}>
-          {isSeeding ? "Initializing..." : "ðŸš€ INITIALIZE FROM CODE (Run Once)"}
+          {isSeeding ? "Initializing..." : "🚀 INITIALIZE FROM CODE (Run Once)"}
         </button>
         <button className="admin-nav-btn" style={{ background: '#4CAF50', color: '#fff', border: 'none' }} onClick={handlePromoteYears} disabled={isPromoting}>
           {isPromoting ? "Promoting..." : "ðŸ“… PROMOTE ALL YEARS (Academic Session Start)"}
@@ -2980,7 +2980,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
             <input className="form-input" placeholder="Instagram URL (Optional)" value={formData.insta} onChange={e => setFormData({...formData, insta: e.target.value})} />
 
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE MEMBER â†’</button>
+              <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE MEMBER </button>
               <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditing(null)}>CANCEL</button>
             </div>
           </div>
@@ -3058,13 +3058,13 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
       </div>
       <div className="winner-info">
         <h4 className="winner-name">{data.name}</h4>
-        <p className="winner-dept">{data.dept} Â· {data.year}</p>
+        <p className="winner-dept">{data.dept} · {data.year}</p>
       </div>
     </div>
   );
 }
 
-// â”€â”€â”€ EVENT PAGE COMPONENT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ✦✦✦ EVENT PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 
 function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, archiveConfig, liveEventsList }) {
   useEffect(() => {
@@ -3212,8 +3212,8 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
   );
 }
 
-// â”€â”€â”€ RECRUITMENT MODAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// â”€â”€â”€ RECRUITMENT COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ✦✦✦ RECRUITMENT MODAL ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
+// ✦✦✦ RECRUITMENT COMPONENTS ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 function AdminApplications() {
   const [apps, setApps] = useState([]);
 
@@ -3240,7 +3240,7 @@ function AdminApplications() {
               <tr key={app.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <td style={{ padding: '1rem' }}>
                   <div style={{ fontWeight: '600' }}>{app.name}</div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--gold)' }}>{app.dept} Â· {app.year}</div>
+                  <div style={{ fontSize: '0.7rem', color: 'var(--gold)' }}>{app.dept} · {app.year}</div>
                 </td>
                 <td style={{ padding: '1rem' }}>{app.position}</td>
                 <td style={{ padding: '1rem' }}>
@@ -3297,7 +3297,7 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
       </select>
       <button className="form-submit" type="submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-        {loading ? "Adding..." : "Add Member â†’"}
+        {loading ? "Adding..." : "Add Member "}
       </button>
     </form>
   );
@@ -3345,7 +3345,7 @@ function RecruitmentModal({ onClose }) {
     return (
       <div className="lightbox open" onClick={onClose}>
         <div className="admin-modal glass-form fade-in visible" onClick={e => e.stopPropagation()} style={{ textAlign: 'center', maxWidth: '450px' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>âœ¨</div>
+          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>✨</div>
           <h2 className="section-title">Application <em>Sent!</em></h2>
           <p className="section-sub">Your application has been received. We'll be in touch soon!</p>
           <button className="form-submit" onClick={onClose} style={{ marginTop: '2.5rem', width: '100%' }}>Return to Site</button>
@@ -3357,8 +3357,8 @@ function RecruitmentModal({ onClose }) {
   return (
     <div className="lightbox open" onClick={onClose}>
       <div className="admin-modal glass-form fade-in visible" onClick={e => e.stopPropagation()} style={{ maxWidth: '650px' }}>
-        <button className="lightbox-close" onClick={onClose} style={{ top: '2rem', right: '2rem' }}>âœ•</button>
-        <div className="section-label">âœ¦ Join our legacy</div>
+        <button className="lightbox-close" onClick={onClose} style={{ top: '2rem', right: '2rem' }}>✕</button>
+        <div className="section-label">✧ Join our legacy</div>
         <h2 className="section-title" style={{ fontSize: '2.5rem' }}>The <em>Core Team</em></h2>
         <p className="section-sub" style={{ marginBottom: '3rem' }}>We are looking for creative souls. Apply below.</p>
         
@@ -3422,7 +3422,7 @@ function RecruitmentModal({ onClose }) {
             </div>
           </div>
           <button className="form-submit" type="submit" disabled={isSubmitting} style={{ marginTop: '2.5rem', width: '100%' }}>
-            {isSubmitting ? "PROCESSING..." : "SUBMIT APPLICATION â†’"}
+            {isSubmitting ? "PROCESSING..." : "SUBMIT APPLICATION →"}
           </button>
         </form>
       </div>
