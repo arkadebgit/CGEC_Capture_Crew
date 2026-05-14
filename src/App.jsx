@@ -1566,11 +1566,19 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       if (syncFields.includes(field)) {
         const teamQ = query(collection(db, "team_members"), where("email", "==", email));
         const teamSnap = await getDocs(teamQ);
-        teamSnap.forEach(tDoc => {
-          let teamField = field;
-          if (field === 'profilePic') teamField = 'img';
-          batch.update(doc(db, "team_members", tDoc.id), { [teamField]: value });
-        });
+        if (!teamSnap.empty) {
+          teamSnap.forEach(tDoc => {
+            let teamField = field;
+            if (field === 'profilePic') teamField = 'img';
+            batch.update(doc(db, "team_members", tDoc.id), { [teamField]: value });
+          });
+        } else if (field === 'name' && value) {
+          const nameQ = query(collection(db, "team_members"), where("name", "==", value));
+          const nameSnap = await getDocs(nameQ);
+          nameSnap.forEach(tDoc => {
+            batch.update(doc(db, "team_members", tDoc.id), { email: email });
+          });
+        }
       }
       
       await batch.commit();
