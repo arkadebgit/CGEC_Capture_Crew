@@ -1348,14 +1348,16 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
     desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: 99
   });
-  const [profileForm, setProfileForm] = useState({ name: "", profilePic: "" });
+  const [profileForm, setProfileForm] = useState({ name: "", profilePic: "", insta: "", year: "1st Year" });
   const [isSavingProfile, setIsSavingProfile] = useState(false);
 
   useEffect(() => {
     if (adminData) {
       setProfileForm({ 
         name: adminData.name || "", 
-        profilePic: adminData.profilePic || "" 
+        profilePic: adminData.profilePic || "",
+        insta: adminData.insta || "",
+        year: adminData.year || "1st Year"
       });
     }
   }, [adminData]);
@@ -1542,8 +1544,9 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   };
   
   const updateAdminPermissions = async (email, field, value) => {
-    // Allow self-update of name and profilePic, or lead-update of anything
-    const isSelfUpdate = email === user.email && (field === 'name' || field === 'profilePic');
+    // Allow self-update of name, profilePic, insta, year, or lead-update of anything
+    const allowedSelfFields = ['name', 'profilePic', 'insta', 'year'];
+    const isSelfUpdate = email === user.email && allowedSelfFields.includes(field);
     if (adminData?.role !== 'lead' && !isSelfUpdate) return alert("Only In-charges can modify permissions.");
     try {
       const batch = writeBatch(db);
@@ -1551,14 +1554,15 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       // 1. Update Admins Collection
       batch.update(doc(db, "admins", email), { [field]: value });
       
-      // 2. Sync with Team Members Collection if name or profilePic changes
-      if (field === 'name' || field === 'profilePic') {
+      // 2. Sync with Team Members Collection if relevant fields change
+      const syncFields = ['name', 'profilePic', 'insta', 'year'];
+      if (syncFields.includes(field)) {
         const teamQ = query(collection(db, "team_members"), where("email", "==", email));
         const teamSnap = await getDocs(teamQ);
         teamSnap.forEach(tDoc => {
-          batch.update(doc(db, "team_members", tDoc.id), { 
-            [field === 'profilePic' ? 'img' : field]: value 
-          });
+          let teamField = field;
+          if (field === 'profilePic') teamField = 'img';
+          batch.update(doc(db, "team_members", tDoc.id), { [teamField]: value });
         });
       }
       
@@ -2341,6 +2345,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
+                    <th style={{ padding: '1rem' }}>Name</th>
                     <th style={{ padding: '1rem' }}>Admin Email</th>
                     <th style={{ padding: '1rem' }}>Role</th>
                     <th style={{ padding: '1rem' }}>Management</th>
@@ -2351,7 +2356,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <tbody>
                   {admins.map(adm => (
                     <tr key={adm.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                      <td style={{ padding: '1rem', fontWeight: '600' }}>{adm.id}</td>
+                      <td style={{ padding: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                          <img src={adm.profilePic || "https://ui-avatars.com/api/?name=" + (adm.name || adm.id) + "&background=C9A96E&color=111"} alt="" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
+                          <span style={{ fontWeight: '600' }}>{adm.name || 'No Name'}</span>
+                        </div>
+                      </td>
+                      <td style={{ padding: '1rem', opacity: 0.7 }}>{adm.id}</td>
                       <td style={{ padding: '1rem' }}>
                         <select 
                           className="form-input" 
@@ -2420,6 +2431,21 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <input className="form-input" placeholder="https://..." value={profileForm.profilePic} onChange={e => setProfileForm({...profileForm, profilePic: e.target.value})} />
                   </div>
                   <div className="form-group">
+                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Instagram URL</label>
+                    <input className="form-input" placeholder="https://instagram.com/your-username" value={profileForm.insta} onChange={e => setProfileForm({...profileForm, insta: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Academic Year</label>
+                    <select className="form-input" value={profileForm.year} onChange={e => setProfileForm({...profileForm, year: e.target.value})} style={{ appearance: 'none', background: 'rgba(255,255,255,0.02)' }}>
+                      <option value="1st Year" style={{ color: '#000' }}>1st Year</option>
+                      <option value="2nd Year" style={{ color: '#000' }}>2nd Year</option>
+                      <option value="3rd Year" style={{ color: '#000' }}>3rd Year</option>
+                      <option value="4th Year" style={{ color: '#000' }}>4th Year</option>
+                      <option value="Passout" style={{ color: '#000' }}>Passout</option>
+                      <option value="Alumni" style={{ color: '#000' }}>Alumni</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
                     <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Email Address (Read-only)</label>
                     <input className="form-input" value={user.email} disabled style={{ opacity: 0.5 }} />
                   </div>
@@ -2428,8 +2454,10 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     disabled={isSavingProfile}
                     onClick={async () => {
                       setIsSavingProfile(true);
-                      await updateAdminPermissions(user.email, 'name', profileForm.name);
-                      await updateAdminPermissions(user.email, 'profilePic', profileForm.profilePic);
+                      const fields = Object.keys(profileForm);
+                      for (const f of fields) {
+                        await updateAdminPermissions(user.email, f, profileForm[f]);
+                      }
                       setIsSavingProfile(false);
                       alert("Profile updated successfully!");
                     }}
