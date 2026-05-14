@@ -1277,8 +1277,8 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   };
 
   return (
-    <div className="lightbox open" onClick={onClose}>
-      <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()}>
+    <div className="lightbox open" onClick={onClose} style={{ color: 'var(--white)' }}>
+      <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()} style={{ color: 'var(--white)' }}>
         <button className="lightbox-close" onClick={onClose}>✕</button>
         <div className="section-label">Restricted Access</div>
         <h2 className="section-title">Team <em>{isUnauthorized ? "Unauthorized" : "Login"}</em></h2>
@@ -1627,10 +1627,10 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     } catch (err) { alert(err.message); }
   };
 
-  if (!adminData) return <div className="lightbox open"><div className="lightbox-content">Loading Admin Data...</div></div>;
+  if (!adminData) return <div className="lightbox open" style={{ color: 'var(--white)' }}><div className="lightbox-content">Loading Admin Data...</div></div>;
 
   return (
-    <div className="event-page-overlay" style={{ color: 'var(--white)' }}>
+    <div className="event-page-overlay" style={{ color: 'var(--white)', zIndex: 1500, background: '#0A0A0B' }}>
       <div className="container" style={{ paddingBottom: '5rem' }}>
         <header className="event-page-header">
           <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
