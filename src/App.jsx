@@ -2030,9 +2030,11 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         if (!newEventPhoto) return;
                         try {
                           const currentPhotos = liveEvents[editingEvent] || [];
+                          const updated = [newEventPhoto, ...currentPhotos];
                           await updateDoc(doc(db, "events", editingEvent), {
-                            photos: [newEventPhoto, ...currentPhotos]
+                            photos: updated
                           });
+                          setLocalEventPhotos(updated);
                           setNewEventPhoto("");
                         } catch (err) { alert(err.message); }
                       }}>Add Single +</button>
@@ -2055,13 +2057,28 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         const urls = bulkInput.split(/\s+/).filter(u => u.startsWith("http"));
                         if (urls.length === 0) return alert("No valid links found. Make sure they start with http");
                         try {
-                          const current = liveEvents[editingEvent] || [];
+                          let current = liveEvents[editingEvent];
+                          let updated;
+                          
+                          if (editingEvent === 'varnakriti' && !Array.isArray(current)) {
+                            // If it's varnakriti and structured as sections, dump into 'general'
+                            updated = {
+                              ...current,
+                              general: [...urls, ...(current.general || [])]
+                            };
+                          } else {
+                            // Regular event or array-based varnakriti
+                            const currentArr = Array.isArray(current) ? current : [];
+                            updated = [...urls, ...currentArr];
+                          }
+
                           await updateDoc(doc(db, "events", editingEvent), {
-                            photos: [...urls, ...current]
+                            photos: updated
                           });
+                          setLocalEventPhotos(Array.isArray(updated) ? updated : (updated.general || []));
                           setBulkInput("");
-                          alert(`${urls.length} photos added successfully!`);
-                        } catch (err) { alert(err.message); }
+                          alert(`${urls.length} photos added successfully to ${editingEvent}!`);
+                        } catch (err) { alert("Dump Error: " + err.message); }
                       }}>DUMP BULK PHOTOS →</button>
                     </div>
 
