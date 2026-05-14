@@ -1348,6 +1348,17 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
     desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: 99
   });
+  const [profileForm, setProfileForm] = useState({ name: "", profilePic: "" });
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+
+  useEffect(() => {
+    if (adminData) {
+      setProfileForm({ 
+        name: adminData.name || "", 
+        profilePic: adminData.profilePic || "" 
+      });
+    }
+  }, [adminData]);
   const [newEventPhoto, setNewEventPhoto] = useState("");
   const [bulkInput, setBulkInput] = useState("");
   const [draggedItemIndex, setDraggedItemIndex] = useState(null);
@@ -1535,7 +1546,23 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     const isSelfUpdate = email === user.email && (field === 'name' || field === 'profilePic');
     if (adminData?.role !== 'lead' && !isSelfUpdate) return alert("Only In-charges can modify permissions.");
     try {
-      await updateDoc(doc(db, "admins", email), { [field]: value });
+      const batch = writeBatch(db);
+      
+      // 1. Update Admins Collection
+      batch.update(doc(db, "admins", email), { [field]: value });
+      
+      // 2. Sync with Team Members Collection if name or profilePic changes
+      if (field === 'name' || field === 'profilePic') {
+        const teamQ = query(collection(db, "team_members"), where("email", "==", email));
+        const teamSnap = await getDocs(teamQ);
+        teamSnap.forEach(tDoc => {
+          batch.update(doc(db, "team_members", tDoc.id), { 
+            [field === 'profilePic' ? 'img' : field]: value 
+          });
+        });
+      }
+      
+      await batch.commit();
       fetchAdmins();
     } catch (err) { alert("Failed to update: " + err.message); }
   };
@@ -2386,17 +2413,29 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                   <div className="form-group">
                     <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Display Name</label>
-                    <input className="form-input" placeholder="Your Name" value={adminData?.name || ""} onChange={e => updateAdminPermissions(user.email, 'name', e.target.value)} />
+                    <input className="form-input" placeholder="Your Name" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} />
                   </div>
                   <div className="form-group">
                     <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Profile Picture Link</label>
-                    <input className="form-input" placeholder="https://..." value={adminData?.profilePic || ""} onChange={e => updateAdminPermissions(user.email, 'profilePic', e.target.value)} />
+                    <input className="form-input" placeholder="https://..." value={profileForm.profilePic} onChange={e => setProfileForm({...profileForm, profilePic: e.target.value})} />
                   </div>
                   <div className="form-group">
                     <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Email Address (Read-only)</label>
                     <input className="form-input" value={user.email} disabled style={{ opacity: 0.5 }} />
                   </div>
-                  <p style={{ fontSize: '0.7rem', opacity: 0.5, fontStyle: 'italic' }}>* Your changes are saved automatically.</p>
+                  <button 
+                    className="form-submit" 
+                    disabled={isSavingProfile}
+                    onClick={async () => {
+                      setIsSavingProfile(true);
+                      await updateAdminPermissions(user.email, 'name', profileForm.name);
+                      await updateAdminPermissions(user.email, 'profilePic', profileForm.profilePic);
+                      setIsSavingProfile(false);
+                      alert("Profile updated successfully!");
+                    }}
+                  >
+                    {isSavingProfile ? "Saving..." : "SAVE PROFILE SETTINGS →"}
+                  </button>
                 </div>
               </div>
             </div>
@@ -2520,7 +2559,7 @@ function AdminCCEvents({ ccEvents }) {
 function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({
-    name: "", role: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99
+    name: "", role: "", email: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99
   });
   const [isSeeding, setIsSeeding] = useState(false);
 
@@ -2613,7 +2652,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
         <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)' }} onClick={() => {
           setEditing('new');
-          setFormData({ name: "", role: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99 });
+          setFormData({ name: "", role: "", email: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99 });
         }}>➕ ADD TEAM MEMBER</button>
         <button className="admin-nav-btn" style={{ opacity: 0.5 }} onClick={seedData} disabled={isSeeding}>
           {isSeeding ? "Initializing..." : "🚀 INITIALIZE FROM CODE (Run Once)"}
@@ -2626,6 +2665,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
             <input className="form-input" placeholder="Full Name" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
             <input className="form-input" placeholder="Role (e.g. Photographer)" value={formData.role} onChange={e => setFormData({...formData, role: e.target.value})} />
+            <input className="form-input" placeholder="Email Address (To Link Profile)" value={formData.email || ""} onChange={e => setFormData({...formData, email: e.target.value.toLowerCase().trim()})} />
             
             <select className="form-input" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
               {categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
@@ -2692,7 +2732,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
                       <td style={{ padding: '0.8rem', opacity: 0.7 }}>{m.dept} <br/> {m.year}</td>
                       <td style={{ padding: '0.8rem' }}>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button className="admin-nav-btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem' }} onClick={() => { setEditing(m.id); setFormData(m); }}>Edit</button>
+                          <button className="admin-nav-btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem' }} onClick={() => { setEditing(m.id); setFormData({ ...m, email: m.email || "" }); }}>Edit</button>
                           <button className="admin-nav-btn" style={{ padding: '0.2rem 0.5rem', fontSize: '0.6rem', background: '#ff4444' }} onClick={() => deleteMember(m.id)}>Delete</button>
                         </div>
                       </td>
