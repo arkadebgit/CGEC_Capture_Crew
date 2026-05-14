@@ -1674,7 +1674,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           {/* TIER 1: Everyone has access to Profile */}
           <button className={`filter-btn ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>Profile Settings</button>
         </div>
-        </div>
         <div className="admin-guide-box fade-in visible" style={{ 
           background: 'rgba(201,169,110,0.05)', 
           border: '1px dashed var(--gold)', 
