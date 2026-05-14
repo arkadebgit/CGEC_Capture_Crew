@@ -470,7 +470,7 @@ export default function App() {
           if (latestMonth) setMonthCapture(latestMonth);
           if (latestExtra) setExtraFrameCapture(latestExtra);
         }
-        setTimeout(() => setIsInitializing(false), 800);
+        // No setInitializing(false) here, we wait for siteConfig in the listener
       } catch (err) { 
         console.error("Fetch error:", err);
         setIsInitializing(false); 
@@ -527,7 +527,14 @@ export default function App() {
 
     // 4. Site Config Listener
     const unsubSite = onSnapshot(doc(db, "config", "site"), (snap) => {
-      if (snap.exists()) setSiteConfig(snap.data());
+      if (snap.exists()) {
+        setSiteConfig(snap.data());
+        // Dismiss splash once site config is ready
+        setTimeout(() => setIsInitializing(false), 800);
+      } else {
+        // Fallback if no config exists yet
+        setIsInitializing(false);
+      }
     });
 
     return () => {
