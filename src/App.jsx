@@ -1233,7 +1233,13 @@ export default function App() {
         <LoginModal onClose={() => setShowLogin(false)} />
       )}
       {showLogin && user && isAuthChecking && (
-        <div className="lightbox open"><div className="lightbox-content">Verifying Authorization...</div></div>
+        <div className="lightbox open" style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 3000 }}>
+          <div className="lightbox-content" style={{ textAlign: 'center' }}>
+            <div className="section-label" style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Security Check</div>
+            <h2 className="section-title" style={{ fontSize: '1.5rem' }}>Verifying <em>Authorization...</em></h2>
+            <div style={{ marginTop: '2rem', opacity: 0.5, fontSize: '0.8rem' }}>Checking email: {user.email}</div>
+          </div>
+        </div>
       )}
       {showLogin && user && !isAuthChecking && !isAdmin && (
         <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
@@ -1270,31 +1276,56 @@ function LoginModal({ onClose, user, isUnauthorized }) {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // Once logged in, the dashboard will show because user exists and showLogin is true
     } catch (err) {
       setError("Failed to sign in with Google.");
     }
   };
 
   return (
-    <div className="lightbox open" onClick={onClose} style={{ color: 'var(--white)' }}>
-      <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()} style={{ color: 'var(--white)' }}>
-        <button className="lightbox-close" onClick={onClose}>✕</button>
-        <div className="section-label">Restricted Access</div>
-        <h2 className="section-title">Team <em>{isUnauthorized ? "Unauthorized" : "Login"}</em></h2>
-        <p className="section-sub" style={{ fontSize: '0.8rem', margin: '1.5rem 0' }}>
-          {isUnauthorized 
-            ? `Your email (${user?.email}) is not authorized to access the Admin Console. Please contact the lead.`
-            : "Access is restricted to authorized Core Team members only."}
-        </p>
+    <div className="lightbox open" onClick={onClose} style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 2000 }}>
+      <div className="lightbox-content admin-modal" onClick={e => e.stopPropagation()} style={{ 
+        background: '#111', 
+        padding: '3rem', 
+        borderRadius: '24px', 
+        border: '1px solid var(--gold)',
+        maxWidth: '500px',
+        width: '90%'
+      }}>
+        <button className="lightbox-close" onClick={onClose} style={{ color: '#fff' }}>✕</button>
+        <div className="section-label" style={{ color: 'var(--gold)' }}>{isUnauthorized ? "Access Denied" : "Restricted Access"}</div>
+        <h2 className="section-title" style={{ color: '#fff', fontSize: '2rem', margin: '1rem 0' }}>Team <em>{isUnauthorized ? "Unauthorized" : "Login"}</em></h2>
         
         {isUnauthorized ? (
-          <button className="form-submit" onClick={() => signOut(auth)} style={{ width: '100%' }}>Sign Out & Try Again</button>
+          <div className="fade-in visible">
+            <p style={{ color: '#ff4d4d', fontWeight: 'bold', marginBottom: '1rem' }}>
+              Authentication Successful, but Authorization Failed.
+            </p>
+            <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '2rem', lineHeight: '1.6' }}>
+              Your email <strong>{user?.email}</strong> is not listed in our authorized administrators database.
+              <br /><br />
+              If you are a Core Member, please contact a Lead to have your email added to the system.
+            </p>
+            <button className="form-submit" onClick={() => signOut(auth)} style={{ width: '100%', background: '#ff4d4d' }}>Sign Out & Try Different Account</button>
+          </div>
         ) : (
-          <button className="form-submit" onClick={handleGoogleLogin} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px' }} />
-            Continue with Google
-          </button>
+          <div>
+            <p className="section-sub" style={{ fontSize: '0.9rem', margin: '1.5rem 0', opacity: 0.7 }}>
+              Access is restricted to authorized Capture Crew Core Team members only.
+            </p>
+            <button className="form-submit" onClick={handleGoogleLogin} style={{ 
+              width: '100%', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              gap: '1rem',
+              background: 'var(--gold)',
+              color: '#000',
+              fontWeight: 'bold'
+            }}>
+              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px' }} />
+              Continue with Google
+            </button>
+          </div>
         )}
         {error && <p style={{ color: '#ff4d4d', fontSize: '0.8rem', marginTop: '1rem' }}>{error}</p>}
       </div>
@@ -1670,7 +1701,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           {/* TIER 1: Everyone has access to Profile */}
           <button className={`filter-btn ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>Profile Settings</button>
         </div>
-        <div className="admin-guide-box fade-in visible" style={{ 
+        <div className="admin-guide-box visible" style={{ 
           background: 'rgba(201,169,110,0.05)', 
           border: '1px dashed var(--gold)', 
           borderRadius: '16px', 
@@ -1704,7 +1735,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         </div>
 
         {adminData?.role !== 'core_member' && (tab === 'week' || tab === 'month' || tab === 'extra') && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
             <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., https://i.ibb.co/... or https://i.postimg.cc/...). PostImage is recommended for stability.</p>
             <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
@@ -1737,7 +1768,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
 
         {adminData?.role !== 'core_member' && tab === 'gallery' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
             <div className="gallery-grid">
               {gallery.map(g => (
@@ -1779,14 +1810,14 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </div>
         )}
         {adminData?.role !== 'core_member' && tab === 'apps' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Recruitment <em>Applications</em></h3>
             <AdminApplications />
           </div>
         )}
 
         {adminData?.role !== 'core_member' && tab === 'certs' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h3 className="subcategory-title">Issue <em>Certificates</em></h3>
               <button 
@@ -1857,7 +1888,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         )}
 
         {adminData?.role !== 'core_member' && tab === 'members' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Add New <em>Member</em></h3>
             <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={() => {}} />
             
@@ -1909,7 +1940,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         )}
 
         {adminData?.role !== 'core_member' && tab === 'events' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Events</em></h3>
               <button onClick={() => {
@@ -2095,7 +2126,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         )}
         {adminData?.role !== 'core_member' && tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
         {adminData?.role !== 'core_member' && tab === 'archive' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Manage <em>Archive Timeline</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Reorder how events appear in the Universal Gallery. Use 'Hide' to remove them from the archive without deleting the event itself.</p>
             
@@ -2171,7 +2202,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         )}
 
         {adminData?.role !== 'core_member' && tab === 'covers' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Manage <em>Hero Covers</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Add or remove background images for the home page. Use direct image links.</p>
             
@@ -2210,7 +2241,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         )}
 
         {tab === 'theme' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Webpage <em>Style Options</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Select a standardized visual style for this academic semester. This updates colors and headings across the entire platform.</p>
             
@@ -2255,7 +2286,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </div>
         )}
         {tab === 'admins' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Manage <em>Admin Access</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Only authorized emails can access this console. <strong>In-charges</strong> can manage permissions for others.</p>
             
@@ -2331,7 +2362,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         )}
 
         {tab === 'profile' && (
-          <div className="fade-in visible">
+          <div className="visible">
             <h3 className="subcategory-title">Profile <em>Settings</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Update your administrative profile details. These are visible to other leads and managers.</p>
             
