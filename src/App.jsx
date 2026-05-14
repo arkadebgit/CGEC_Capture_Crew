@@ -1021,7 +1021,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -1040,7 +1040,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -1059,7 +1059,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                 </div>
@@ -1082,7 +1082,7 @@ export default function App() {
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
-                      <div className="team-dept">{m.dept}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
                     </div>
                   ))}
                   
@@ -1442,46 +1442,52 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const handleGlobalCleanup = async () => {
     if (!window.confirm("This will deduplicate and format ALL members. Proceed?")) return;
     try {
-      const q = query(collection(db, "members"));
-      const snap = await getDocs(q);
-      const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      const namesSeen = new Set();
-      const deptMap = {
-        "CE": "Civil Engineering", "ME": "Mechanical Engineering", "EE": "Electrical Engineering",
-        "ECE": "Electronics & Communication Engineering", "CSE": "Computer Science & Engineering"
-      };
-      for (const m of all) {
-        const cleanName = m.name?.trim();
-        if (namesSeen.has(cleanName)) {
-          await deleteDoc(doc(db, "members", m.id));
-          continue;
+      const collections = ["members", "team_members"];
+      let totalCleaned = 0;
+      
+      for (const collName of collections) {
+        const q = query(collection(db, collName));
+        const snap = await getDocs(q);
+        const all = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const namesSeen = new Set();
+        const deptMap = {
+          "CE": "Civil Engineering", "ME": "Mechanical Engineering", "EE": "Electrical Engineering",
+          "ECE": "Electronics & Communication Engineering", "CSE": "Computer Science & Engineering"
+        };
+        for (const m of all) {
+          const cleanName = m.name?.trim();
+          if (namesSeen.has(cleanName) && collName === "members") {
+            await deleteDoc(doc(db, collName, m.id));
+            continue;
+          }
+          let fixedDept = m.dept || "";
+          let fixedYear = m.year || "";
+          if (!fixedYear && fixedDept.includes("Yr.")) {
+            const parts = fixedDept.split("Yr.");
+            fixedYear = parts[0].trim() + " Year";
+            fixedDept = parts[1].trim().replace(".", "").replace(",", "");
+          }
+          const upperDept = fixedDept.toUpperCase();
+          if (deptMap[upperDept]) fixedDept = deptMap[upperDept];
+          else {
+            if (upperDept.includes("CIVIL")) fixedDept = "Civil Engineering";
+            if (upperDept.includes("MECHANICAL")) fixedDept = "Mechanical Engineering";
+            if (upperDept.includes("ELECTRICAL")) fixedDept = "Electrical Engineering";
+            if (upperDept.includes("ELECTRONICS")) fixedDept = "Electronics & Communication Engineering";
+            if (upperDept.includes("COMPUTER")) fixedDept = "Computer Science & Engineering";
+          }
+          if (fixedYear.includes("1st")) fixedYear = "1st Year";
+          if (fixedYear.includes("2nd")) fixedYear = "2nd Year";
+          if (fixedYear.includes("3rd")) fixedYear = "3rd Year";
+          if (fixedYear.includes("4th")) fixedYear = "4th Year";
+          if (fixedDept !== m.dept || fixedYear !== m.year || cleanName !== m.name) {
+            await updateDoc(doc(db, collName, m.id), { dept: fixedDept, year: fixedYear, name: cleanName });
+            totalCleaned++;
+          }
+          namesSeen.add(cleanName);
         }
-        let fixedDept = m.dept || "";
-        let fixedYear = m.year || "";
-        if (!fixedYear && fixedDept.includes("Yr.")) {
-          const parts = fixedDept.split("Yr.");
-          fixedYear = parts[0].trim() + " Year";
-          fixedDept = parts[1].trim().replace(".", "").replace(",", "");
-        }
-        const upperDept = fixedDept.toUpperCase();
-        if (deptMap[upperDept]) fixedDept = deptMap[upperDept];
-        else {
-          if (upperDept.includes("CIVIL")) fixedDept = "Civil Engineering";
-          if (upperDept.includes("MECHANICAL")) fixedDept = "Mechanical Engineering";
-          if (upperDept.includes("ELECTRICAL")) fixedDept = "Electrical Engineering";
-          if (upperDept.includes("ELECTRONICS")) fixedDept = "Electronics & Communication Engineering";
-          if (upperDept.includes("COMPUTER")) fixedDept = "Computer Science & Engineering";
-        }
-        if (fixedYear.includes("1st")) fixedYear = "1st Year";
-        if (fixedYear.includes("2nd")) fixedYear = "2nd Year";
-        if (fixedYear.includes("3rd")) fixedYear = "3rd Year";
-        if (fixedYear.includes("4th")) fixedYear = "4th Year";
-        if (fixedDept !== m.dept || fixedYear !== m.year || cleanName !== m.name) {
-          await updateDoc(doc(db, "members", m.id), { dept: fixedDept, year: fixedYear, name: cleanName });
-        }
-        namesSeen.add(cleanName);
       }
-      alert("System Cleanup Complete!");
+      alert(`System Cleanup Complete! ${totalCleaned} records updated.`);
     } catch (err) { alert("Cleanup Failed: " + err.message); }
   };
 
@@ -2808,6 +2814,48 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
     name: "", role: "", email: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99
   });
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isPromoting, setIsPromoting] = useState(false);
+
+  const handlePromoteYears = async () => {
+    if (!window.confirm("CRITICAL: This will increment the year for ALL members and team members (1st -> 2nd, 2nd -> 3rd, 3rd -> 4th, 4th -> Passout). Proceed?")) return;
+    
+    setIsPromoting(true);
+    try {
+      const colls = ["members", "team_members"];
+      let totalUpdated = 0;
+
+      for (const collName of colls) {
+        const snap = await getDocs(collection(db, collName));
+        const batch = writeBatch(db);
+        let batchCount = 0;
+
+        snap.forEach(d => {
+          const data = d.data();
+          let newYear = data.year || "";
+          
+          if (newYear === "1st Year") newYear = "2nd Year";
+          else if (newYear === "2nd Year") newYear = "3rd Year";
+          else if (newYear === "3rd Year") newYear = "4th Year";
+          else if (newYear === "4th Year") newYear = "Passout";
+          
+          if (newYear !== data.year) {
+            batch.update(doc(db, collName, d.id), { year: newYear });
+            batchCount++;
+          }
+        });
+
+        if (batchCount > 0) {
+          await batch.commit();
+          totalUpdated += batchCount;
+        }
+      }
+      alert(`Successfully promoted years for ${totalUpdated} members!`);
+    } catch (err) {
+      alert("Promotion failed: " + err.message);
+    } finally {
+      setIsPromoting(false);
+    }
+  };
 
   const save = async () => {
     if (!formData.name || !formData.img) return alert("Name and Image URL are required");
@@ -2902,6 +2950,9 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
         }}>➕ ADD TEAM MEMBER</button>
         <button className="admin-nav-btn" style={{ opacity: 0.5 }} onClick={seedData} disabled={isSeeding}>
           {isSeeding ? "Initializing..." : "🚀 INITIALIZE FROM CODE (Run Once)"}
+        </button>
+        <button className="admin-nav-btn" style={{ background: '#4CAF50', color: '#fff', border: 'none' }} onClick={handlePromoteYears} disabled={isPromoting}>
+          {isPromoting ? "Promoting..." : "📅 PROMOTE ALL YEARS (Academic Session Start)"}
         </button>
       </div>
 
