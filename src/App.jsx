@@ -551,16 +551,7 @@ export default function App() {
     heroTagline: "Exploring the World through the CGEC lens",
     instaLink: "https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==",
     waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
-    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
-    footerCredit: "Arkadeb",
-    sectionTitles: {
-      week: "Capture of the Week",
-      month: "Capture of the Month",
-      events: "Event Archive",
-      gallery: "Universal Gallery",
-      team: "Core Team",
-      verify: "Verify Certificate"
-    }
+    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony"
   });
 
   useEffect(() => {
@@ -771,7 +762,16 @@ export default function App() {
         </div>
         <div className="hero-content">
           <div className="hero-eyebrow">{siteConfig.heroEyebrow}</div>
-          <h1 className="hero-title" dangerouslySetInnerHTML={{ __html: siteConfig.heroTitle?.replace('\n', '<br/>').replace(/([^,]+),/g, '<em>$1,</em>').replace(/([^.]+)\./g, '<em>$1.</em>') }} />
+          <h1 className="hero-title" dangerouslySetInnerHTML={{ 
+            __html: siteConfig.heroTitle?.split('\n').map(line => {
+              const words = line.split(' ');
+              if (words.length >= 2) {
+                // First word white, rest emphasized (gold)
+                return `${words[0]} <em>${words.slice(1).join(' ')}</em>`;
+              }
+              return line;
+            }).join('<br/>')
+          }} />
           <p className="hero-tagline">{siteConfig.heroTagline}</p>
           <button className="hero-cta" onClick={() => scrollTo("gallery")}>
             Explore the Gallery ↓
@@ -785,7 +785,7 @@ export default function App() {
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "4rem" }}>
             <div className="section-label">✦ Featured</div>
-            <h2 className="section-title">{siteConfig.sectionTitles?.week?.split(' ').slice(0,-1).join(' ')} <em>{siteConfig.sectionTitles?.week?.split(' ').slice(-1)}</em></h2>
+            <h2 className="section-title">Capture of the <em>Week</em></h2>
             <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
           </div>
           <div className="week-inner fade-in">
@@ -1217,7 +1217,7 @@ export default function App() {
           <div className="footer-bottom">
             <div className="footer-copy">© 2026 {siteConfig.siteName} · All Rights Reserved</div>
             <div className="footer-credit">
-              Crafted with ❤️ by <a href={siteConfig.instaLink} target="_blank" rel="noopener noreferrer">{siteConfig.footerCredit}</a>
+              Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
             </div>
           </div>
         </div>
@@ -2488,8 +2488,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 </div>
 
                 {/* SOCIALS */}
-                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
-                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Social & Footer</h4>
+                <div style={{ paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Social Links</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div>
                       <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Instagram Link</label>
@@ -2503,32 +2503,17 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Facebook Link</label>
                       <input className="form-input" value={siteForm.fbLink} onChange={e => setSiteForm({...siteForm, fbLink: e.target.value})} />
                     </div>
-                    <div>
-                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Footer Credit Name</label>
-                      <input className="form-input" value={siteForm.footerCredit} onChange={e => setSiteForm({...siteForm, footerCredit: e.target.value})} />
-                    </div>
                   </div>
                 </div>
+              </div>
 
-                {/* SECTION TITLES */}
-                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
-                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Section Headings</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {Object.keys(siteForm.sectionTitles || {}).map(key => (
-                      <div key={key}>
-                        <label style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'capitalize' }}>{key} Title</label>
-                        <input 
-                          className="form-input" 
-                          value={siteForm.sectionTitles[key]} 
-                          onChange={e => setSiteForm({
-                            ...siteForm, 
-                            sectionTitles: { ...siteForm.sectionTitles, [key]: e.target.value }
-                          })} 
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              <div style={{ background: 'rgba(201,169,110,0.1)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--gold)' }}>
+                <h5 style={{ color: 'var(--gold)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>💡 How to update Logo & Favicon?</h5>
+                <p style={{ fontSize: '0.7rem', opacity: 0.8, lineHeight: '1.5' }}>
+                  1. You cannot upload ZIP files directly. Extract your images first.<br/>
+                  2. Upload your preferred logo (square) or favicon to a service like <a href="https://beeimg.com" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>BeeImg</a> or <a href="https://postimages.org" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>PostImage</a>.<br/>
+                  3. Copy the <strong>Direct Link</strong> (ending in .jpg, .png, or .ico) and paste it into the fields above.
+                </p>
               </div>
 
               <button 
