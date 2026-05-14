@@ -525,6 +525,11 @@ export default function App() {
       if (doc.exists() && doc.data().urls) setCoverPhotos(doc.data().urls);
     });
 
+    // 4. Site Config Listener
+    const unsubSite = onSnapshot(doc(db, "config", "site"), (snap) => {
+      if (snap.exists()) setSiteConfig(snap.data());
+    });
+
     return () => {
       unsubMembers();
       unsubTeam();
@@ -533,8 +538,38 @@ export default function App() {
       unsubConfig();
       unsubTheme();
       unsubCovers();
+      unsubSite();
     };
   }, []);
+
+  const [siteConfig, setSiteConfig] = useState({
+    logoUrl: "/logo.jpg",
+    faviconUrl: "/logo.jpg",
+    siteName: "Capture Crew",
+    heroEyebrow: "Capture Crew · CGEC Photography Club",
+    heroTitle: "CAPTURING MOMENTS,\nCREATING MEMORIES.",
+    heroTagline: "Exploring the World through the CGEC lens",
+    instaLink: "https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==",
+    waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
+    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
+    footerCredit: "Arkadeb",
+    sectionTitles: {
+      week: "Capture of the Week",
+      month: "Capture of the Month",
+      events: "Event Archive",
+      gallery: "Universal Gallery",
+      team: "Core Team",
+      verify: "Verify Certificate"
+    }
+  });
+
+  useEffect(() => {
+    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.type = 'image/x-icon';
+    link.rel = 'shortcut icon';
+    link.href = siteConfig.faviconUrl || "/logo.jpg";
+    document.getElementsByTagName('head')[0].appendChild(link);
+  }, [siteConfig.faviconUrl]);
 
 
   // Nav scroll & Mobile detection
@@ -684,9 +719,9 @@ export default function App() {
       <div className="splash-screen">
         <div className="splash-content">
           <div className="shutter-icon">
-            <img src="/logo.jpg" alt="Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', border: '2px solid var(--gold)', padding: '5px' }} />
+            <img src={siteConfig.logoUrl || "/logo.jpg"} alt="Logo" style={{ width: '100px', height: '100px', borderRadius: '50%', border: '2px solid var(--gold)', padding: '5px' }} />
           </div>
-          <h1 className="splash-logo">CAPTURE <span>CREW</span></h1>
+          <h1 className="splash-logo">{siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span></h1>
           <div className="splash-loader">
             <div className="loader-bar"></div>
           </div>
@@ -701,9 +736,9 @@ export default function App() {
       <nav className={`nav ${navScrolled ? "scrolled" : ""}`}>
         <div className="nav-brand" onClick={() => scrollTo("home")}>
           <div className="nav-logo">
-            <img src="/logo.jpg" alt="Capture Crew Logo" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+            <img src={siteConfig.logoUrl || "/logo.jpg"} alt="Logo" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
           </div>
-          <div className="nav-name">Capture Crew</div>
+          <div className="nav-name">{siteConfig.siteName}</div>
         </div>
         
         <button className={`nav-toggle ${mobileMenuOpen ? "active" : ""}`} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -735,12 +770,9 @@ export default function App() {
           <div className="hero-overlay" />
         </div>
         <div className="hero-content">
-          <div className="hero-eyebrow">Capture Crew · CGEC Photography Club</div>
-          <h1 className="hero-title">
-            CAPTURING <em>MOMENTS,</em><br />
-            CREATING <em>MEMORIES.</em>
-          </h1>
-          <p className="hero-tagline">Exploring the World through the CGEC lens</p>
+          <div className="hero-eyebrow">{siteConfig.heroEyebrow}</div>
+          <h1 className="hero-title" dangerouslySetInnerHTML={{ __html: siteConfig.heroTitle?.replace('\n', '<br/>').replace(/([^,]+),/g, '<em>$1,</em>').replace(/([^.]+)\./g, '<em>$1.</em>') }} />
+          <p className="hero-tagline">{siteConfig.heroTagline}</p>
           <button className="hero-cta" onClick={() => scrollTo("gallery")}>
             Explore the Gallery ↓
           </button>
@@ -753,7 +785,7 @@ export default function App() {
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "4rem" }}>
             <div className="section-label">✦ Featured</div>
-            <h2 className="section-title">Capture of the <em>Week</em></h2>
+            <h2 className="section-title">{siteConfig.sectionTitles?.week?.split(' ').slice(0,-1).join(' ')} <em>{siteConfig.sectionTitles?.week?.split(' ').slice(-1)}</em></h2>
             <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
           </div>
           <div className="week-inner fade-in">
@@ -1163,7 +1195,7 @@ export default function App() {
       <footer className="footer">
         <div className="container">
           <div className="footer-top">
-            <div className="footer-brand">Capture <span>Crew</span></div>
+            <div className="footer-brand">{siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span></div>
             <p className="footer-college">Cooch Behar Government Engineering College</p>
           </div>
           
@@ -1176,16 +1208,16 @@ export default function App() {
             </div>
             
             <div className="footer-socials">
-              <a href="https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==" target="_blank" rel="noreferrer" className="social-icon">Instagram</a>
-              <a href="https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t" target="_blank" rel="noreferrer" className="social-icon">WhatsApp</a>
-              <a href="https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony" target="_blank" rel="noreferrer" className="social-icon">Facebook</a>
+              <a href={siteConfig.instaLink} target="_blank" rel="noreferrer" className="social-icon">Instagram</a>
+              <a href={siteConfig.waLink} target="_blank" rel="noreferrer" className="social-icon">WhatsApp</a>
+              <a href={siteConfig.fbLink} target="_blank" rel="noreferrer" className="social-icon">Facebook</a>
             </div>
           </div>
           
           <div className="footer-bottom">
-            <div className="footer-copy">© 2026 Capture Crew · All Rights Reserved</div>
+            <div className="footer-copy">© 2026 {siteConfig.siteName} · All Rights Reserved</div>
             <div className="footer-credit">
-              Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
+              Crafted with ❤️ by <a href={siteConfig.instaLink} target="_blank" rel="noopener noreferrer">{siteConfig.footerCredit}</a>
             </div>
           </div>
         </div>
@@ -1266,6 +1298,7 @@ export default function App() {
           teamMembers={teamMembers}
           ccEvents={ccEvents} 
           updateTheme={updateTheme}
+          siteConfig={siteConfig}
         />
       )}
       {showRecruitment && (
@@ -1341,7 +1374,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme }) {
+function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig }) {
   const [tab, setTab] = useState(adminData?.role === 'core_member' ? 'profile' : 'week');
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
@@ -1379,6 +1412,12 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [showBulkCert, setShowBulkCert] = useState(false);
   const [bulkCoverInput, setBulkCoverInput] = useState("");
   const [showBulkCover, setShowBulkCover] = useState(false);
+  const [siteForm, setSiteForm] = useState(siteConfig);
+  const [isSavingSite, setIsSavingSite] = useState(false);
+
+  useEffect(() => {
+    setSiteForm(siteConfig);
+  }, [siteConfig]);
 
   useEffect(() => {
     if (editingEvent && editingEvent !== 'new') {
@@ -1748,6 +1787,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             <>
               <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
               <button className={`filter-btn ${tab === 'theme' ? 'active' : ''}`} onClick={() => setTab('theme')}>Theme Settings</button>
+              <button className={`filter-btn ${tab === 'site' ? 'active' : ''}`} onClick={() => setTab('site')}>Site Settings</button>
               <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
             </>
           )}
@@ -2402,6 +2442,114 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             </div>
           </div>
         )}
+        {tab === 'site' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+          <div className="visible">
+            <h3 className="subcategory-title">Site <em>Configuration</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Manage global brand identity, hero texts, and social links.</p>
+            
+            <div className="glass-form" style={{ padding: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                {/* IDENTITY */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Brand Identity</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Site Name</label>
+                      <input className="form-input" value={siteForm.siteName} onChange={e => setSiteForm({...siteForm, siteName: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Logo URL</label>
+                      <input className="form-input" value={siteForm.logoUrl} onChange={e => setSiteForm({...siteForm, logoUrl: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Favicon URL</label>
+                      <input className="form-input" value={siteForm.faviconUrl} onChange={e => setSiteForm({...siteForm, faviconUrl: e.target.value})} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* HERO */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Hero Section</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Eyebrow Text</label>
+                      <input className="form-input" value={siteForm.heroEyebrow} onChange={e => setSiteForm({...siteForm, heroEyebrow: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Title (Use \n for new line)</label>
+                      <textarea className="form-input" style={{ minHeight: '60px' }} value={siteForm.heroTitle} onChange={e => setSiteForm({...siteForm, heroTitle: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Tagline</label>
+                      <input className="form-input" value={siteForm.heroTagline} onChange={e => setSiteForm({...siteForm, heroTagline: e.target.value})} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* SOCIALS */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Social & Footer</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Instagram Link</label>
+                      <input className="form-input" value={siteForm.instaLink} onChange={e => setSiteForm({...siteForm, instaLink: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>WhatsApp Link</label>
+                      <input className="form-input" value={siteForm.waLink} onChange={e => setSiteForm({...siteForm, waLink: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Facebook Link</label>
+                      <input className="form-input" value={siteForm.fbLink} onChange={e => setSiteForm({...siteForm, fbLink: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Footer Credit Name</label>
+                      <input className="form-input" value={siteForm.footerCredit} onChange={e => setSiteForm({...siteForm, footerCredit: e.target.value})} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* SECTION TITLES */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Section Headings</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {Object.keys(siteForm.sectionTitles || {}).map(key => (
+                      <div key={key}>
+                        <label style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'capitalize' }}>{key} Title</label>
+                        <input 
+                          className="form-input" 
+                          value={siteForm.sectionTitles[key]} 
+                          onChange={e => setSiteForm({
+                            ...siteForm, 
+                            sectionTitles: { ...siteForm.sectionTitles, [key]: e.target.value }
+                          })} 
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                className="form-submit" 
+                style={{ marginTop: '2rem', width: '100%' }}
+                disabled={isSavingSite}
+                onClick={async () => {
+                  setIsSavingSite(true);
+                  try {
+                    await setDoc(doc(db, "config", "site"), siteForm);
+                    alert("Site configuration saved successfully!");
+                  } catch (err) { alert(err.message); }
+                  setIsSavingSite(false);
+                }}
+              >
+                {isSavingSite ? "Saving..." : "UPDATE GLOBAL SITE SETTINGS →"}
+              </button>
+            </div>
+          </div>
+        )}
+
         {tab === 'admins' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
           <div className="visible">
             <h3 className="subcategory-title">Manage <em>Admin Access</em></h3>
