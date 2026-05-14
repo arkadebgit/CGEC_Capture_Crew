@@ -1382,7 +1382,12 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
   useEffect(() => {
     if (editingEvent && editingEvent !== 'new') {
-      setLocalEventPhotos(liveEvents[editingEvent] || []);
+      const data = liveEvents[editingEvent];
+      if (editingEvent === 'varnakriti' && data && !Array.isArray(data)) {
+        setLocalEventPhotos(data.general || []);
+      } else {
+        setLocalEventPhotos(Array.isArray(data) ? data : []);
+      }
     } else {
       setLocalEventPhotos([]);
     }
@@ -2088,7 +2093,17 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         <span style={{ fontSize: '0.6rem', opacity: 0.5, fontWeight: 'normal' }}>🖱️ Drag to reorder</span>
                         <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)', padding: '0.3rem 0.8rem' }} onClick={async () => {
                           try {
-                            await updateDoc(doc(db, "events", editingEvent), { photos: localEventPhotos });
+                            let updatedData;
+                            if (editingEvent === 'varnakriti' && !Array.isArray(liveEvents[editingEvent])) {
+                              updatedData = {
+                                ...liveEvents[editingEvent],
+                                general: localEventPhotos
+                              };
+                            } else {
+                              updatedData = localEventPhotos;
+                            }
+                            
+                            await updateDoc(doc(db, "events", editingEvent), { photos: updatedData });
                             alert("Photo order saved!");
                           } catch (err) { alert(err.message); }
                         }}>SAVE PHOTO ORDER</button>
