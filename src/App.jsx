@@ -350,9 +350,17 @@ export default function App() {
     return next;
   });
 
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminData, setAdminData] = useState(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(false);
+  const [archiveConfig, setArchiveConfig] = useState({ order: [], hidden: [] });
+  const [themeId, setThemeId] = useState("golden_elegance");
+  const [coverPhotos, setCoverPhotos] = useState([]);
   const activeCovers = coverPhotos.length > 0 ? coverPhotos : HERO_COVERS;
 
   useEffect(() => {
+    if (!activeCovers || activeCovers.length === 0) return;
+    
     // Boundary check for when the covers list shrinks
     if (currentHeroIndex >= activeCovers.length) {
       setCurrentHeroIndex(0);
@@ -422,12 +430,6 @@ export default function App() {
     setShuffledMembers(shuffle(combinedMembers));
   }, [dynamicMembers]);
 
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminData, setAdminData] = useState(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(false);
-  const [archiveConfig, setArchiveConfig] = useState({ order: [], hidden: [] });
-  const [themeId, setThemeId] = useState("golden_elegance");
-  const [coverPhotos, setCoverPhotos] = useState([]);
 
   // Parallel Real-time & Data Fetching
   useEffect(() => {
