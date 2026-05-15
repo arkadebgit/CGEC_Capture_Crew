@@ -561,13 +561,7 @@ export default function App() {
     fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony"
   });
 
-  useEffect(() => {
-    const link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-    link.type = 'image/x-icon';
-    link.rel = 'shortcut icon';
-    link.href = siteConfig.faviconUrl || "/logo.jpg";
-    document.getElementsByTagName('head')[0].appendChild(link);
-  }, [siteConfig.faviconUrl]);
+
 
 
   // Nav scroll & Mobile detection
