@@ -1409,6 +1409,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [bulkInput, setBulkInput] = useState("");
   const [draggedItemIndex, setDraggedItemIndex] = useState(null);
   const [localEventPhotos, setLocalEventPhotos] = useState([]);
+  const [localCoverPhotos, setLocalCoverPhotos] = useState([]);
   const [certs, setCerts] = useState([]);
   const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
   
@@ -1425,6 +1426,12 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [showBulkCover, setShowBulkCover] = useState(false);
   const [siteForm, setSiteForm] = useState(siteConfig);
   const [isSavingSite, setIsSavingSite] = useState(false);
+
+  useEffect(() => {
+    if (tab === 'covers') {
+      setLocalCoverPhotos(coverPhotos);
+    }
+  }, [tab, coverPhotos]);
 
   useEffect(() => {
     setSiteForm(siteConfig);
@@ -1507,7 +1514,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const handleDragStart = (e, index) => {
     setDraggedItemIndex(index);
     e.dataTransfer.effectAllowed = "move";
-    // Set a ghost image or just styling
     e.target.style.opacity = "0.5";
   };
 
@@ -1519,16 +1525,16 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     e.preventDefault();
   };
 
-  const handleDrop = (e, targetIndex) => {
+  const handleDrop = (e, targetIndex, list, setter) => {
     e.preventDefault();
     if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
 
-    const photos = [...localEventPhotos];
-    const draggedItem = photos[draggedItemIndex];
-    photos.splice(draggedItemIndex, 1);
-    photos.splice(targetIndex, 0, draggedItem);
+    const items = [...list];
+    const draggedItem = items[draggedItemIndex];
+    items.splice(draggedItemIndex, 1);
+    items.splice(targetIndex, 0, draggedItem);
     
-    setLocalEventPhotos(photos);
+    setter(items);
     setDraggedItemIndex(null);
   };
 
@@ -2192,7 +2198,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           onDragStart={(e) => handleDragStart(e, idx)}
                           onDragEnd={handleDragEnd}
                           onDragOver={handleDragOver}
-                          onDrop={(e) => handleDrop(e, idx)}
+                          onDrop={(e) => handleDrop(e, idx, localEventPhotos, setLocalEventPhotos)}
                         >
                           <img src={url} alt="" style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px', border: draggedItemIndex === idx ? '2px solid var(--gold)' : '1px solid var(--border)' }} referrerPolicy="no-referrer" />
                           <button onClick={() => {
@@ -2358,7 +2364,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 e.preventDefault();
                 const url = e.target.coverUrl.value.trim();
                 if (url) {
-                  updateCovers([...coverPhotos, url]);
+                  setLocalCoverPhotos([...localCoverPhotos, url]);
                   e.target.coverUrl.value = "";
                 }
               }}>
@@ -2390,10 +2396,10 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       onClick={() => {
                         const urls = bulkCoverInput.split(/\s+/).filter(u => u.startsWith("http"));
                         if (urls.length === 0) return alert("No valid links found.");
-                        updateCovers([...urls, ...coverPhotos]);
+                        setLocalCoverPhotos([...urls, ...localCoverPhotos]);
                         setBulkCoverInput("");
                         setShowBulkCover(false);
-                        alert(`${urls.length} covers added!`);
+                        alert(`${urls.length} covers added to pending list!`);
                       }}
                     >
                       DUMP BULK COVERS 
@@ -2402,22 +2408,42 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 )}
               </div>
 
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <h4 style={{ color: 'var(--gold)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Cover Gallery Preview 
+                  <span style={{ fontSize: '0.6rem', opacity: 0.5, fontWeight: 'normal' }}>🖱️ Drag to reorder</span>
+                </h4>
+                <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)', padding: '0.3rem 0.8rem' }} onClick={() => {
+                  updateCovers(localCoverPhotos);
+                  alert("Cover order saved!");
+                }}>SAVE COVER ORDER</button>
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
-                {coverPhotos.map((url, idx) => (
-                  <div key={idx} style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '150px', border: '1px solid var(--border)', background: 'rgba(0,0,0,0.2)' }}>
+                {localCoverPhotos.map((url, idx) => (
+                  <div 
+                    key={idx} 
+                    style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '150px', border: draggedItemIndex === idx ? '2px solid var(--gold)' : '1px solid var(--border)', background: 'rgba(0,0,0,0.2)', cursor: 'move', transition: 'transform 0.2s' }}
+                    draggable="true"
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={handleDragOver}
+                    onDrop={(e) => handleDrop(e, idx, localCoverPhotos, setLocalCoverPhotos)}
+                  >
                     <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} referrerPolicy="no-referrer" />
                     <button 
                       onClick={() => {
                         if (window.confirm("Remove this cover?")) {
-                          const newCovers = coverPhotos.filter((_, i) => i !== idx);
-                          updateCovers(newCovers);
+                          const newCovers = localCoverPhotos.filter((_, i) => i !== idx);
+                          setLocalCoverPhotos(newCovers);
                         }
                       }}
-                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#ff4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', fontSize: '0.6rem' }}
+                      style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: '#ff4444', color: '#fff', border: 'none', borderRadius: '4px', padding: '0.3rem', cursor: 'pointer', fontSize: '0.6rem', zIndex: 10 }}
                     >✕ DELETE</button>
+                    <div style={{ position: 'absolute', bottom: 5, left: 5, background: 'rgba(0,0,0,0.5)', padding: '2px 5px', borderRadius: '4px', fontSize: '8px', pointerEvents: 'none' }}>#{idx + 1}</div>
                   </div>
                 ))}
-                {coverPhotos.length === 0 && <div style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '12px' }}>Using default covers. Add some to customize!</div>}
+                {localCoverPhotos.length === 0 && <div style={{ gridColumn: '1/-1', padding: '3rem', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '12px' }}>Using default covers. Add some to customize!</div>}
               </div>
             </div>
           </div>
