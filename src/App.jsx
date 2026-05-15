@@ -1600,7 +1600,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     // Allow self-update of name, profilePic, insta, year, or lead-update of anything
     const allowedSelfFields = ['name', 'profilePic', 'insta', 'year'];
     const isSelfUpdate = email === user.email && allowedSelfFields.includes(field);
-    if (adminData?.role !== 'lead' && !isSelfUpdate) return alert("Only In-charges can modify permissions.");
+    const isAuthorized = adminData?.role === 'lead' || adminData?.role === 'incharge';
+    if (!isAuthorized && !isSelfUpdate) return alert("Only Leads and In-charges can modify permissions.");
     try {
       const batch = writeBatch(db);
       
@@ -1634,6 +1635,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
   const removeAdmin = async (email) => {
     if (email === user.email) return alert("You cannot remove your own admin access!");
+    const isAuthorized = adminData?.role === 'lead' || adminData?.role === 'incharge';
+    if (!isAuthorized) return alert("Only Leads and In-charges can revoke access.");
     if (window.confirm(`Revoke admin access for ${email}?`)) {
       try {
         await deleteDoc(doc(db, "admins", email));
@@ -1789,12 +1792,18 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             </>
           )}
 
-          {/* TIER 3: Lead/Admin Management Only */}
-          {(adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+          {/* TIER 2.5: System Management (Lead, Incharge, Coordinator, Moderator) */}
+          {(adminData?.role === 'lead' || adminData?.role === 'incharge' || adminData?.role === 'coordinator' || adminData?.role === 'moderator' || adminData?.canManageAdmins) && (
             <>
               <button className={`filter-btn ${tab === 'team_mgmt' ? 'active' : ''}`} onClick={() => setTab('team_mgmt')}>Manage Core Team</button>
               <button className={`filter-btn ${tab === 'theme' ? 'active' : ''}`} onClick={() => setTab('theme')}>Theme Settings</button>
               <button className={`filter-btn ${tab === 'site' ? 'active' : ''}`} onClick={() => setTab('site')}>Site Settings</button>
+            </>
+          )}
+
+          {/* TIER 3: Lead/Incharge/Admin Management Only */}
+          {(adminData?.role === 'lead' || adminData?.role === 'incharge' || adminData?.canManageAdmins) && (
+            <>
               <button className={`filter-btn ${tab === 'admins' ? 'active' : ''}`} onClick={() => setTab('admins')}>Manage Admins</button>
             </>
           )}
@@ -1860,7 +1869,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
               <input type="date" className="form-input" placeholder="Capture Date" value={featuredData.captureDate} onChange={e => setFeaturedData({...featuredData, captureDate: e.target.value})} />
               
-              <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
+              <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(type)}>
                 {isUpdating ? "Updating..." : `Update & Save to Gallery `}
               </button>
             </div>
@@ -1903,7 +1912,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           alert("Delete failed: " + err.message);
                         }
                       }
-                    }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Photo ðŸ—‘</button>
+                    }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Photo 🗑️</button>
                   </div>
                 </div>
               ))}
@@ -1995,7 +2004,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4rem', marginBottom: '1.5rem' }}>
               <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Live Members</em></h3>
-              <button onClick={handleGlobalCleanup} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>ðŸ› ï¸ SYSTEM CLEANUP & DEDUPLICATE</button>
+              <button onClick={handleGlobalCleanup} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>🛠️ SYSTEM CLEANUP & DEDUPLICATE</button>
             </div>
             <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
@@ -2046,7 +2055,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Events</em></h3>
               <button onClick={() => {
                 setEditingEvent("new");
-                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "ðŸ“…", iconUrl: "", comingSoon: false, order: liveEventsList.length + 1 });
+                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: liveEventsList.length + 1 });
               }} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>➕ ADD NEW EVENT</button>
             </div>
 
@@ -2145,7 +2154,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       Gallery Preview 
                       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.6rem', opacity: 0.5, fontWeight: 'normal' }}>ðŸ–±ï¸ Drag to reorder</span>
+                        <span style={{ fontSize: '0.6rem', opacity: 0.5, fontWeight: 'normal' }}>🖱️ Drag to reorder</span>
                         <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)', padding: '0.3rem 0.8rem' }} onClick={async () => {
                           try {
                             let updatedData;
@@ -2181,7 +2190,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                               const updated = localEventPhotos.filter((_, i) => i !== idx);
                               setLocalEventPhotos(updated);
                             }
-                          }} style={{ position: 'absolute', top: 5, right: 5, background: '#ff4444', border: 'none', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>Ã—</button>
+                          }} style={{ position: 'absolute', top: 5, right: 5, background: '#ff4444', border: 'none', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>×</button>
                           <div style={{ position: 'absolute', bottom: 5, left: 5, background: 'rgba(0,0,0,0.5)', padding: '2px 5px', borderRadius: '4px', fontSize: '8px', pointerEvents: 'none' }}>#{idx + 1}</div>
                         </div>
                       ))}
@@ -2220,11 +2229,11 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                             <button 
                               disabled={idx === 0}
                               onClick={() => reorderEvents(idx, -1)}
-                              style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === 0 ? 0.3 : 1 }}>â–²</button>
+                              style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === 0 ? 0.3 : 1 }}>▲</button>
                             <button 
                               disabled={idx === liveEventsList.length - 1}
                               onClick={() => reorderEvents(idx, 1)}
-                              style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === liveEventsList.length - 1 ? 0.3 : 1 }}>â–¼</button>
+                              style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === liveEventsList.length - 1 ? 0.3 : 1 }}>▼</button>
                           </div>
                         </td>
                         <td style={{ padding: '1rem' }}>{(liveEvents[ev.id] || []).length} photos</td>
@@ -2287,7 +2296,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                             [newOrder[idx], newOrder[idx-1]] = [newOrder[idx-1], newOrder[idx]];
                             updateArchiveConfig(newOrder, archiveConfig.hidden || []);
                           }}
-                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer', fontSize: '0.7rem', opacity: idx === 0 ? 0.3 : 1 }}>â–²</button>
+                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer', fontSize: '0.7rem', opacity: idx === 0 ? 0.3 : 1 }}>▲</button>
                         <button 
                           disabled={idx === arr.length - 1}
                           onClick={() => {
@@ -2295,7 +2304,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                             [newOrder[idx], newOrder[idx+1]] = [newOrder[idx+1], newOrder[idx]];
                             updateArchiveConfig(newOrder, archiveConfig.hidden || []);
                           }}
-                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer', fontSize: '0.7rem', opacity: idx === arr.length - 1 ? 0.3 : 1 }}>â–¼</button>
+                          style={{ padding: '0.3rem 0.6rem', borderRadius: '4px', border: '1px solid var(--gold)', color: 'var(--gold)', background: 'transparent', cursor: 'pointer', fontSize: '0.7rem', opacity: idx === arr.length - 1 ? 0.3 : 1 }}>▼</button>
                         <button 
                           onClick={() => {
                             const hidden = [...(archiveConfig.hidden || []), ev.id];
@@ -2442,7 +2451,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   </div>
 
                   {themeId === t.id && (
-                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'var(--gold)', color: 'var(--ink)', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>âœ“</div>
+                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'var(--gold)', color: 'var(--ink)', width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>✓</div>
                   )}
                 </div>
               ))}
@@ -2515,7 +2524,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               </div>
 
               <div style={{ background: 'rgba(201,169,110,0.1)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--gold)' }}>
-                <h5 style={{ color: 'var(--gold)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>ðŸ’¡ How to update Logo & Favicon?</h5>
+                <h5 style={{ color: 'var(--gold)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>💡 How to update Logo & Favicon?</h5>
                 <p style={{ fontSize: '0.7rem', opacity: 0.8, lineHeight: '1.5' }}>
                   1. You cannot upload ZIP files directly. Extract your images first.<br/>
                   2. Upload your preferred logo (square) or favicon to a service like <a href="https://beeimg.com" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>BeeImg</a> or <a href="https://postimages.org" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>PostImage</a>.<br/>
@@ -2589,6 +2598,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         >
                           <option value="core_member" style={{ color: '#000' }}>Core Member</option>
                           <option value="coordinator" style={{ color: '#000' }}>Coordinator</option>
+                          <option value="moderator" style={{ color: '#000' }}>Moderator</option>
                           <option value="incharge" style={{ color: '#000' }}>In-charge</option>
                           <option value="pr_manager" style={{ color: '#000' }}>PR Manager</option>
                           <option value="lead" style={{ color: '#000' }}>Lead (Developer)</option>
@@ -2599,7 +2609,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           <input 
                             type="checkbox" 
                             checked={adm.role === 'lead' || adm.canManageAdmins} 
-                            disabled={adminData?.role !== 'lead' || adm.role === 'lead' || adm.id === user.email}
+                            disabled={(adminData?.role !== 'lead' && adminData?.role !== 'incharge') || adm.role === 'lead' || adm.id === user.email}
                             onChange={(e) => updateAdminPermissions(adm.id, 'canManageAdmins', e.target.checked)}
                           />
                           <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>Can Manage Admins</span>
@@ -2944,7 +2954,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
           {isSeeding ? "Initializing..." : "🚀 INITIALIZE FROM CODE (Run Once)"}
         </button>
         <button className="admin-nav-btn" style={{ background: '#4CAF50', color: '#fff', border: 'none' }} onClick={handlePromoteYears} disabled={isPromoting}>
-          {isPromoting ? "Promoting..." : "ðŸ“… PROMOTE ALL YEARS (Academic Session Start)"}
+          {isPromoting ? "Promoting..." : "📅 PROMOTE ALL YEARS (Academic Session Start)"}
         </button>
       </div>
 
@@ -3004,13 +3014,13 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
                             style={{ padding: '0 4px', fontSize: '10px', opacity: idx === 0 ? 0.2 : 1 }} 
                             onClick={() => reorder(cat.id, idx, 'up')}
                             disabled={idx === 0}
-                          >â–²</button>
+                          >▲</button>
                           <button 
                             className="admin-nav-btn" 
                             style={{ padding: '0 4px', fontSize: '10px', opacity: idx === (teamMembers[cat.id].length - 1) ? 0.2 : 1 }} 
                             onClick={() => reorder(cat.id, idx, 'down')}
                             disabled={idx === (teamMembers[cat.id].length - 1)}
-                          >â–¼</button>
+                          >▼</button>
                         </div>
                       </td>
                       <td style={{ padding: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
@@ -3162,7 +3172,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
           </div>
           <div className="explorer-actions">
             <div className="explorer-search">
-              <span className="search-icon">ðŸ”</span>
+              <span className="search-icon">🔍 </span>
               <input 
                 type="text" 
                 placeholder="Search images..." 
@@ -3192,7 +3202,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
             <div className="grid-item-inner">
               <img src={p} alt={title} loading="lazy" referrerPolicy="no-referrer" />
               <div className="grid-item-meta">
-                <span className="file-icon">ðŸ“·</span>
+                <span className="file-icon">📷</span>
                 <span className="file-name">IMG_{1000 + photos.indexOf(p)}.JPG</span>
               </div>
             </div>
