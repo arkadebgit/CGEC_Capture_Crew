@@ -350,13 +350,21 @@ export default function App() {
     return next;
   });
 
+  const activeCovers = coverPhotos.length > 0 ? coverPhotos : HERO_COVERS;
+
   useEffect(() => {
-    console.log("Hero Image Change:", currentHeroIndex, HERO_COVERS[currentHeroIndex]);
+    // Boundary check for when the covers list shrinks
+    if (currentHeroIndex >= activeCovers.length) {
+      setCurrentHeroIndex(0);
+      return;
+    }
+
     const timer = setInterval(() => {
-      setCurrentHeroIndex(prev => (prev + 1) % HERO_COVERS.length);
+      setCurrentHeroIndex(prev => (prev + 1) % activeCovers.length);
     }, 8000);
+    
     return () => clearInterval(timer);
-  }, [currentHeroIndex]);
+  }, [activeCovers.length, currentHeroIndex]);
   
   // Certificate State
   const [certId, setCertId] = useState("");
@@ -750,8 +758,8 @@ export default function App() {
       {/* HERO */}
       <section id="home" className="hero">
         <div className="hero-bg">
-          {(coverPhotos.length > 0 ? coverPhotos : ["/COVER/C1.jpg", "/COVER/C2.jpg", "/COVER/C3.jpg"]).map((img, idx) => (
-            (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % (coverPhotos.length || 3)) && (
+          {activeCovers.map((img, idx) => (
+            (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % activeCovers.length) && (
               <div
                 key={idx}
                 className={`hero-slide ${idx === currentHeroIndex ? "active" : ""}`}
