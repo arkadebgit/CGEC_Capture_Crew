@@ -472,34 +472,10 @@ export default function App() {
     });
 
     // 2. Fetch Gallery
-    const fetchData = async () => {
-      try {
-        const [gallerySnap] = await Promise.all([
-          getDocs(collection(db, "gallery"))
-        ]);
-
-        if (!gallerySnap.empty) {
-          const liveGallery = gallerySnap.docs.map(d => ({ id: d.id, ...d.data() }));
-          const sorted = [...liveGallery].sort((a, b) => {
-            const dateA = a.captureDate || "";
-            const dateB = b.captureDate || "";
-            if (dateB !== dateA) return dateB.localeCompare(dateA);
-            return (b.createdAt || "").localeCompare(a.createdAt || "");
-          });
-          setGallery(liveGallery);
-          const latestWeek = sorted.find(g => g.category === "Weekly Captures");
-          const latestMonth = sorted.find(g => g.category === "Monthly Captures");
-          const latestExtra = sorted.find(g => g.category === "The Extra Frame");
-          if (latestWeek) setWeekCapture(latestWeek);
-          if (latestMonth) setMonthCapture(latestMonth);
-          if (latestExtra) setExtraFrameCapture(latestExtra);
-        }
-        // No setInitializing(false) here, we wait for siteConfig in the listener
-      } catch (err) { 
-        console.error("Fetch error:", err);
-        setIsInitializing(false); 
-      }
-    };
+    const unsubGallery = onSnapshot(collection(db, "gallery"), (snap) => {
+      const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      setGallery(fetched);
+    });
 
     // 3. Events Snapshot
     const unsubEvents = onSnapshot(collection(db, "events"), async (snap) => {
@@ -527,7 +503,6 @@ export default function App() {
       setCcEvents(snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.order || 99) - (b.order || 99)));
     });
 
-    fetchData();
     const unsubConfig = onSnapshot(doc(db, "config", "archive"), (doc) => {
       if (doc.exists()) setArchiveConfig(doc.data());
     });
@@ -570,8 +545,32 @@ export default function App() {
       unsubTheme();
       unsubCovers();
       unsubSite();
+      unsubGallery();
     };
   }, []);
+
+  // Derive Featured Captures Dynamically from Gallery
+  useEffect(() => {
+    if (!gallery || gallery.length === 0) return;
+
+    const sorted = [...gallery].sort((a, b) => {
+      const dateA = a.captureDate || "";
+      const dateB = b.captureDate || "";
+      if (dateB !== dateA) return dateB.localeCompare(dateA);
+      
+      const createdA = a.createdAt || "";
+      const createdB = b.createdAt || "";
+      return createdB.localeCompare(createdA);
+    });
+
+    const latestWeek = sorted.find(g => g.category === "Weekly Captures");
+    const latestMonth = sorted.find(g => g.category === "Monthly Captures");
+    const latestExtra = sorted.find(g => g.category === "The Extra Frame");
+
+    setWeekCapture(latestWeek || null);
+    setMonthCapture(latestMonth || null);
+    setExtraFrameCapture(latestExtra || null);
+  }, [gallery]);
 
   const [siteConfig, setSiteConfig] = useState({
     logoUrl: "/logo.jpg",
@@ -1399,7 +1398,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig }) {
+function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery }) {
   const [tab, setTab] = useState(adminData?.role === 'core_member' ? 'profile' : 'week');
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
@@ -1552,7 +1551,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     setDraggedItemIndex(null);
   };
 
-  const [gallery, setGallery] = useState([]);
   const updateRepublicDayPhotos = async () => {
     const setA = [
       "https://beeimg.com/images/c58546952951.jpg", "https://beeimg.com/images/h17773436031.jpg",
@@ -1583,7 +1581,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
   useEffect(() => {
     fetchCerts();
-    fetchGallery();
     fetchAdmins();
   }, []);
 
@@ -1591,13 +1588,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     try {
       const snap = await getDocs(collection(db, "certificates"));
       setCerts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    } catch (e) { console.error(e); }
-  };
-
-  const fetchGallery = async () => {
-    try {
-      const snap = await getDocs(collection(db, "gallery"));
-      setGallery(snap.docs.map(d => ({ id: d.id, ...d.data() })));
     } catch (e) { console.error(e); }
   };
 
@@ -1694,7 +1684,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       alert(`Saved to Gallery and Featured automatically!`);
 
       setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
-      fetchGallery(); 
     } catch (err) {
       alert("Error: " + err.message);
     } finally {
@@ -1899,7 +1888,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
               <input type="date" className="form-input" placeholder="Capture Date" value={featuredData.captureDate} onChange={e => setFeaturedData({...featuredData, captureDate: e.target.value})} />
               
-              <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(type)}>
+              <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
                 {isUpdating ? "Updating..." : `Update & Save to Gallery `}
               </button>
             </div>
@@ -1920,24 +1909,9 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <button onClick={async () => {
                       if (window.confirm("Delete from Gallery?")) {
                         try {
-                          const photoToDelete = g;
                           await deleteDoc(doc(db, "gallery", g.id));
                           
-                          // Also remove from featured config if it matches
-                          const weekRef = doc(db, "config", "week");
-                          const monthRef = doc(db, "config", "month");
-                          
-                          const [weekSnap, monthSnap] = await Promise.all([getDoc(weekRef), getDoc(monthRef)]);
-                          
-                          if (weekSnap.exists() && weekSnap.data().url === photoToDelete.url) {
-                            await deleteDoc(weekRef);
-                          }
-                          if (monthSnap.exists() && monthSnap.data().url === photoToDelete.url) {
-                            await deleteDoc(monthRef);
-                          }
-
                           alert("Photo deleted successfully!");
-                          fetchGallery();
                         } catch (err) {
                           alert("Delete failed: " + err.message);
                         }
