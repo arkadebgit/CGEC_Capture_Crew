@@ -1900,26 +1900,28 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           <div className="visible">
             <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
             <div className="gallery-grid">
-              {gallery.map(g => (
-                <div key={g.id} className="gallery-item">
-                  <img src={g.url} alt="" loading="lazy" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px' }} referrerPolicy="no-referrer" />
-                  <div style={{ padding: '0.5rem' }}>
-                    <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: 'var(--white)' }}>{g.title}</div>
-                    <div style={{ fontSize: '0.6rem', color: 'var(--muted)' }}>{g.photographer}</div>
-                    <button onClick={async () => {
-                      if (window.confirm("Delete from Gallery?")) {
-                        try {
-                          await deleteDoc(doc(db, "gallery", g.id));
-                          
-                          alert("Photo deleted successfully!");
-                        } catch (err) {
-                          alert("Delete failed: " + err.message);
-                        }
-                      }
-                    }} style={{ background: 'transparent', color: '#ff4d4d', border: 'none', fontSize: '0.7rem', marginTop: '1rem', cursor: 'pointer' }}>Delete Photo 🗑️</button>
-                  </div>
+              {!gallery || gallery.length === 0 ? (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem 2rem', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '16px' }}>
+                  <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📸</div>
+                  <p>The gallery is currently empty. Upload featured captures to see them here.</p>
                 </div>
-              ))}
+              ) : (
+                gallery.map(g => (
+                  <div key={g.id} className="gallery-item" style={{ border: '1px solid var(--border)', background: 'var(--card2)', display: 'flex', flexDirection: 'column' }}>
+                    <img src={g.url} alt="" loading="lazy" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} referrerPolicy="no-referrer" />
+                    <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gold)', marginBottom: '0.2rem' }}>{g.title || "Untitled"}</div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginBottom: '1rem' }}>{g.photographer || "Unknown"} · {g.category}</div>
+                      <button onClick={async () => {
+                        if (window.confirm("Delete from Gallery?")) {
+                          try { await deleteDoc(doc(db, "gallery", g.id)); alert("Deleted!"); }
+                          catch (err) { alert("Error: " + err.message); }
+                        }
+                      }} style={{ background: 'rgba(255,77,77,0.1)', color: '#ff4d4d', border: '1px solid rgba(255,77,77,0.2)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.7rem', width: '100%', cursor: 'pointer', marginTop: 'auto' }}>Delete Photo 🗑️</button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}

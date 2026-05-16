@@ -399,6 +399,14 @@ section { padding: 7rem 0; }
 }
 @media(max-width: 900px) { .gallery-masonry { grid-template-columns: repeat(2, 1fr); } }
 @media(max-width: 540px) { .gallery-masonry { grid-template-columns: 1fr; } }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
 .gallery-item {
   position: relative; overflow: hidden; cursor: pointer;
   background: var(--card); border-radius: 20px;
