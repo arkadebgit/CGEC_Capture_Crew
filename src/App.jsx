@@ -3148,7 +3148,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
             {groupedEvents.map((ev, idx) => (
               <div key={ev.id} className="archive-group" style={{ marginBottom: '5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-                  <div className="section-label" style={{ margin: 0 }}>Step {idx + 1}</div>
+                  <div className="section-label" style={{ margin: 0 }}>Chapter {(idx + 1).toString().padStart(2, '0')}</div>
                   <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>{ev.name} <em>{ev.date}</em></h2>
                 </div>
                 <EventSection 
