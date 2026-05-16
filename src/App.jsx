@@ -4,7 +4,7 @@ import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, s
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 
-// ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦â”€
+// ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
 
 const TEAM_DATA = {
   founders: [
@@ -42,7 +42,7 @@ const TEAM_DATA = {
   members: []
 };
 
-// ✦✦✦ THEME CONFIGURATION ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦â”€â”€
+// ✦✦✦ THEME CONFIGURATION ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦───
 const THEMES = [
   { 
     id: 'golden_elegance', 
@@ -328,7 +328,21 @@ const HERO_COVERS = [
   "covers/image (8).png"
 ].map(path => (import.meta.env.BASE_URL || "/") + path);
 
-// ✦✦✦ APP ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦——
+// ✦✦✦ APP ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦────
+
+const ArrowLeft = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '8px', verticalAlign: 'middle', display: 'inline-block' }}>
+    <line x1="19" y1="12" x2="5" y2="12"></line>
+    <polyline points="12 19 5 12 12 5"></polyline>
+  </svg>
+);
+
+const ArrowRight = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '8px', verticalAlign: 'middle', display: 'inline-block' }}>
+    <line x1="5" y1="12" x2="19" y2="12"></line>
+    <polyline points="12 5 19 12 12 19"></polyline>
+  </svg>
+);
 
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
@@ -1783,7 +1797,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     <div className="event-page-overlay" style={{ color: 'var(--white)', zIndex: 1500, background: '#0A0A0B' }}>
       <div className="container" style={{ paddingBottom: '5rem' }}>
         <header className="event-page-header">
-          <button className="back-btn" onClick={onClose}>← Close Dashboard</button>
+          <button className="back-btn" onClick={onClose}><ArrowLeft /> Close Dashboard</button>
           <div className="section-label">Admin Console</div>
           <h1 className="section-title">Team <em>Dashboard</em></h1>
           <p className="section-sub">Logged in as: {user.email}</p>
@@ -2600,7 +2614,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 onChange={e => setNewAdminEmail(e.target.value)} 
                 required 
               />
-              <button className="form-submit" type="submit" style={{ width: "auto", padding: "0 2.5rem", margin: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>Authorize Access →</button>
+              <button className="form-submit" type="submit" style={{ width: "auto", padding: "0 2.5rem", margin: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>Authorize Access <ArrowRight /></button>
             </form>
             <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
@@ -3142,7 +3156,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
     <div className="event-page-overlay">
       <div className="container" style={{ paddingBottom: '8rem' }}>
         <header className="event-page-header">
-          <button className="back-btn" onClick={onClose}>â† Back to Home</button>
+          <button className="back-btn" onClick={onClose}><ArrowLeft /> Back to Home</button>
           <div className="section-label">{isGlobal ? "Universal Archive" : "Event Showcase"}</div>
           <h1 className="section-title">{event.name} <em>Glimpse</em></h1>
           <p className="section-sub">{event.desc}</p>
@@ -3200,7 +3214,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
       <div className="explorer-header">
         <div className="explorer-toolbar">
           <div className="explorer-path">
-            <span className="path-root" onClick={onClose} style={{ cursor: 'pointer' }}>Events</span>
+            <span className="path-root" onClick={onClose} style={{ cursor: 'pointer' }}><ArrowLeft /> Events</span>
             <span className="path-sep">/</span>
             <span className="path-folder">{subtitle}</span>
             <span className="path-sep">/</span>
@@ -3462,7 +3476,7 @@ function RecruitmentModal({ onClose }) {
             </div>
           </div>
           <button className="form-submit" type="submit" disabled={isSubmitting} style={{ marginTop: '2.5rem', width: '100%' }}>
-            {isSubmitting ? "PROCESSING..." : "SUBMIT APPLICATION →"}
+            {isSubmitting ? "PROCESSING..." : <>SUBMIT APPLICATION <ArrowRight /></>}
           </button>
         </form>
       </div>
