@@ -474,7 +474,11 @@ export default function App() {
     // 2. Fetch Gallery
     const unsubGallery = onSnapshot(collection(db, "gallery"), (snap) => {
       const fetched = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      setGallery(fetched);
+      if (fetched.length === 0) {
+        setGallery(GALLERY);
+      } else {
+        setGallery(fetched);
+      }
     });
 
     // 3. Events Snapshot
@@ -1323,6 +1327,7 @@ export default function App() {
           ccEvents={ccEvents} 
           updateTheme={updateTheme}
           siteConfig={siteConfig}
+          gallery={gallery}
         />
       )}
       {showRecruitment && (
