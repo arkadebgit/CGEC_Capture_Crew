@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Routes, Route, Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -346,8 +347,20 @@ const ArrowRight = () => (
 
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("home");
-  const [galleryFilter, setGalleryFilter] = useState("All");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const topLevelCategories = ["Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event Winners"];
+  const decodedPath = decodeURIComponent(location.pathname.substring(1));
+  const isGalleryCategory = topLevelCategories.includes(decodedPath);
+  const pathParts = location.pathname.split('/').filter(Boolean);
+  const isGallerySub = pathParts[0] === 'gallery' && pathParts[1];
+  
+  const activeSection = location.pathname === "/" ? "home" : (isGalleryCategory || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]);
+  const galleryFilter = isGalleryCategory ? decodedPath : (isGallerySub ? decodeURIComponent(pathParts[1]) : "All");
+
+  const setGalleryFilterRoute = (cat) => {
+    navigate(cat === "All" ? "/gallery" : `/${cat}`);
+  };
   const [lightboxItem, setLightboxItem] = useState(null);
 
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -717,9 +730,14 @@ export default function App() {
   const scrollTo = (id) => {
     if (selectedEvent) setSelectedEvent(null);
     setMobileMenuOpen(false);
+    let route = "/";
+    if (id === "gallery") route = "/gallery";
+    if (id === "events") route = "/events";
+    if (id === "team") route = "/team";
+    if (id === "verify") route = "/verify";
+    navigate(route);
     setTimeout(() => {
-      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-      setActiveSection(id);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }, 100);
   };
 
@@ -765,17 +783,35 @@ export default function App() {
         </button>
 
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
-          {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => (
-            <li key={id} className={activeSection === id ? "active" : ""} onClick={() => scrollTo(id)}>{label}</li>
-          ))}
+          {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => {
+            let route = id === "home" ? "/" : `/${id}`;
+            return (
+              <li key={id} className={activeSection === id ? "active" : ""}>
+                <Link 
+                  to={route} 
+                  onClick={(e) => {
+                    if (selectedEvent) setSelectedEvent(null);
+                    setMobileMenuOpen(false);
+                    setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+                  }}
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  {label}
+                </Link>
+              </li>
+            );
+          })}
           <li className="nav-btn-wrapper">
-            <button className="admin-nav-btn" onClick={() => setShowLogin(true)}>Admin Console</button>
+            <button className="admin-nav-btn" onClick={() => navigate('/admin')}>Admin Console</button>
           </li>
         </ul>
       </nav>
 
       {/* HERO */}
-      <section id="home" className="hero">
+      <Routes>
+        <Route path="/" element={
+          <>
+            <section id="home" className="hero">
         <div className="hero-bg">
           {activeCovers.map((img, idx) => (
             (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % activeCovers.length) && (
@@ -885,8 +921,12 @@ export default function App() {
         </section>
       )}
 
-      {/* GALLERY */}
-      <section id="gallery" className="gallery-section">
+          </>
+        } />
+
+        {["/gallery", "/Weekly Captures", "/Monthly Captures", "/The Extra Frame", "/CC Event Winners", "/gallery/:category"].map(path => (
+          <Route key={path} path={path} element={
+          <section id="gallery" className="gallery-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
             <div className="section-label">✧ Our Work</div>
@@ -898,7 +938,7 @@ export default function App() {
               <button 
                 key={cat} 
                 className={`filter-btn ${galleryFilter === cat ? "active" : ""} ${cat === "CC Event Winners" ? "premium-btn" : ""}`} 
-                onClick={() => setGalleryFilter(cat)}
+                onClick={() => setGalleryFilterRoute(cat)}
               >
                 {cat}
               </button>
@@ -961,9 +1001,11 @@ export default function App() {
           )}
         </div>
       </section>
+        } />
+        ))}
 
-      {/* EVENTS */}
-      <section id="events" className="events-section">
+        <Route path="/events" element={
+          <section id="events" className="events-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
             <div className="section-label">✧ Milestones</div>
@@ -989,7 +1031,7 @@ export default function App() {
                 <div className="event-highlight">{ev.highlight}</div>
                 <button 
                   className="event-dive-btn" 
-                  onClick={() => ev.comingSoon ? alert("Coming Soon!") : setSelectedEvent(ev)}
+                  onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
                 >
                   {ev.comingSoon ? "Coming Soon " : "Dive In "}
                 </button>
@@ -999,7 +1041,7 @@ export default function App() {
             {/* Global Gallery Card */}
             <div 
               className="event-card global-gallery-card fade-in" 
-              onClick={() => setShowGlobalGallery(true)}
+              onClick={() => navigate('/events/archive')}
               style={{ cursor: 'pointer' }}
             >
               <div className="global-card-content">
@@ -1020,9 +1062,10 @@ export default function App() {
           )}
         </div>
       </section>
+        } />
 
-      {/* TEAM */}
-      <section id="team" className="team-section">
+        <Route path="/team" element={
+          <section id="team" className="team-section">
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
             <div className="section-label">✧ The People Behind the Lens</div>
@@ -1168,9 +1211,10 @@ export default function App() {
           </div>
         </div>
       </section>
+        } />
 
-      {/* VERIFY SECTION */}
-      <section id="verify" className="verify-section">
+        <Route path="/verify" element={
+          <section id="verify" className="verify-section">
         <div className="container">
           <div className="verify-box fade-in">
             <div className="section-label">✧ Authenticity</div>
@@ -1218,7 +1262,37 @@ export default function App() {
           </div>
         </div>
       </section>
-
+        } />
+        <Route path="/events/:eventId" element={
+          <EventRouteWrapper 
+            liveEventsList={liveEventsList}
+            liveEvents={liveEvents}
+            setLightboxItem={setLightboxItem}
+            archiveConfig={archiveConfig}
+            navigate={navigate}
+          />
+        } />
+        <Route path="/admin" element={
+          <AdminRouteWrapper
+            user={user}
+            isAuthChecking={isAuthChecking}
+            isAdmin={isAdmin}
+            adminData={adminData}
+            archiveConfig={archiveConfig}
+            themeId={themeId}
+            coverPhotos={coverPhotos}
+            liveEvents={liveEvents}
+            liveEventsList={liveEventsList}
+            dynamicMembers={dynamicMembers}
+            teamMembers={teamMembers}
+            ccEvents={ccEvents}
+            updateTheme={updateTheme}
+            siteConfig={siteConfig}
+            gallery={gallery}
+            navigate={navigate}
+          />
+        } />
+      </Routes>
 
       <footer className="footer">
         <div className="container">
@@ -1232,7 +1306,7 @@ export default function App() {
               {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => (
                 <a key={id} onClick={() => scrollTo(id)} className="footer-link">{label}</a>
               ))}
-              <a onClick={() => setShowLogin(true)} className="footer-link">Admin Console</a>
+              <a onClick={() => navigate('/admin')} className="footer-link">Admin Console</a>
             </div>
             
             <div className="footer-socials">
@@ -1275,65 +1349,79 @@ export default function App() {
         )}
       </div>
       {/* MODALS */}
-      {selectedEvent && (
-        <EventPage 
-          event={selectedEvent} 
-          onClose={() => {
-            setSelectedEvent(null);
-            setTimeout(() => scrollTo("events"), 50);
-          }}
-          setLightboxItem={setLightboxItem} 
-          liveEvents={liveEvents}
-        />
-      )}
-      {showGlobalGallery && (
-        <EventPage 
-          isGlobal={true}
-          event={{ id: 'global', name: 'Event Archive', desc: 'A universal journey through all our club milestones and collective memories.' }}
-          onClose={() => setShowGlobalGallery(false)}
-          setLightboxItem={setLightboxItem}
-          liveEvents={liveEvents}
-          archiveConfig={archiveConfig}
-          liveEventsList={liveEventsList}
-        />
-      )}
-      {showLogin && !user && (
-        <LoginModal onClose={() => setShowLogin(false)} />
-      )}
-      {showLogin && user && isAuthChecking && (
-        <div className="lightbox open" style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 3000 }}>
-          <div className="lightbox-content" style={{ textAlign: 'center' }}>
-            <div className="section-label" style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Security Check</div>
-            <h2 className="section-title" style={{ fontSize: '1.5rem' }}>Verifying <em>Authorization...</em></h2>
-            <div style={{ marginTop: '2rem', opacity: 0.5, fontSize: '0.8rem' }}>Checking email: {user.email}</div>
-          </div>
-        </div>
-      )}
-      {showLogin && user && !isAuthChecking && !isAdmin && (
-        <LoginModal user={user} onClose={() => setShowLogin(false)} isUnauthorized={true} />
-      )}
-      {showLogin && user && !isAuthChecking && isAdmin && (
-        <AdminDashboard 
-          user={user} 
-          adminData={adminData} 
-          archiveConfig={archiveConfig} 
-          themeId={themeId}
-          coverPhotos={coverPhotos}
-          onClose={() => setShowLogin(false)} 
-          liveEvents={liveEvents} 
-          liveEventsList={liveEventsList} 
-          dynamicMembers={dynamicMembers} 
-          teamMembers={teamMembers}
-          ccEvents={ccEvents} 
-          updateTheme={updateTheme}
-          siteConfig={siteConfig}
-          gallery={gallery}
-        />
-      )}
       {showRecruitment && (
         <RecruitmentModal onClose={() => setShowRecruitment(false)} />
       )}
     </div>
+  );
+}
+
+function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate }) {
+  const { eventId } = useParams();
+  
+  if (eventId === 'archive') {
+    return (
+      <EventPage 
+        isGlobal={true}
+        event={{ id: 'global', name: 'Event Archive', desc: 'A universal journey through all our club milestones and collective memories.' }}
+        onClose={() => navigate('/events')}
+        setLightboxItem={setLightboxItem}
+        liveEvents={liveEvents}
+        archiveConfig={archiveConfig}
+        liveEventsList={liveEventsList}
+      />
+    );
+  }
+
+  const decoded = decodeURIComponent(eventId);
+  const event = liveEventsList.find(e => e.name === decoded || e.id === decoded);
+  
+  if (!event) return <div style={{ color: 'white', padding: '5rem', textAlign: 'center' }}>Event not found</div>;
+
+  return (
+    <EventPage 
+      event={event} 
+      onClose={() => navigate('/events')}
+      setLightboxItem={setLightboxItem} 
+      liveEvents={liveEvents}
+    />
+  );
+}
+
+function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveConfig, themeId, coverPhotos, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, navigate }) {
+  if (!user) return <LoginModal onClose={() => navigate('/')} />;
+  
+  if (isAuthChecking) {
+    return (
+      <div className="lightbox open" style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 3000 }}>
+        <div className="lightbox-content" style={{ textAlign: 'center' }}>
+          <div className="section-label" style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Security Check</div>
+          <h2 className="section-title" style={{ fontSize: '1.5rem' }}>Verifying <em>Authorization...</em></h2>
+          <div style={{ marginTop: '2rem', opacity: 0.5, fontSize: '0.8rem' }}>Checking email: {user.email}</div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!isAdmin) return <LoginModal user={user} onClose={() => navigate('/')} isUnauthorized={true} />;
+  
+  return (
+    <AdminDashboard 
+      user={user} 
+      adminData={adminData} 
+      archiveConfig={archiveConfig} 
+      themeId={themeId}
+      coverPhotos={coverPhotos}
+      onClose={() => navigate('/')} 
+      liveEvents={liveEvents} 
+      liveEventsList={liveEventsList} 
+      dynamicMembers={dynamicMembers} 
+      teamMembers={teamMembers}
+      ccEvents={ccEvents} 
+      updateTheme={updateTheme}
+      siteConfig={siteConfig}
+      gallery={gallery}
+    />
   );
 }
 
