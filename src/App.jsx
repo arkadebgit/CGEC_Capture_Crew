@@ -3510,7 +3510,7 @@ function RecruitmentModal({ onClose }) {
               <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Academic Year</label>
               <select className="form-input" style={{ appearance: 'none' }} required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Year</option>
-                <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option><option style={{ background: '#111' }}>Passout</option>
+                <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option>
               </select>
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
