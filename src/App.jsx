@@ -854,7 +854,7 @@ export default function App() {
           </div>
           <div className="week-inner fade-in">
             <div className="week-image-wrap">
-              <img src={weekCapture?.url || "/placeholder.jpg"} alt={weekCapture?.title} className="week-img" referrerPolicy="no-referrer" />
+              <img src={weekCapture?.url || "/placeholder.jpg"} alt={weekCapture?.title} className="week-img" referrerPolicy="no-referrer" style={{ cursor: weekCapture ? 'pointer' : 'default' }} onClick={() => weekCapture && setLightboxItem(weekCapture)} />
               <div className="week-badge">This Week's Pick</div>
             </div>
             <div className="week-info">
@@ -879,7 +879,7 @@ export default function App() {
           </div>
           <div className="month-slide fade-in">
             <div className="month-image-wrap">
-              <img src={monthCapture?.url || "/placeholder.jpg"} alt={monthCapture?.title} className="month-img" referrerPolicy="no-referrer" />
+              <img src={monthCapture?.url || "/placeholder.jpg"} alt={monthCapture?.title} className="month-img" referrerPolicy="no-referrer" style={{ cursor: monthCapture ? 'pointer' : 'default' }} onClick={() => monthCapture && setLightboxItem(monthCapture)} />
               <div className="month-frame" />
               <div className="month-award">
                 <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -906,7 +906,7 @@ export default function App() {
             </div>
             <div className="week-inner fade-in">
               <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0' }} referrerPolicy="no-referrer" />
+                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0', cursor: 'pointer' }} referrerPolicy="no-referrer" onClick={() => setLightboxItem(extraFrameCapture)} />
                 <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
               </div>
               <div className="week-info" style={{ padding: '0' }}>
