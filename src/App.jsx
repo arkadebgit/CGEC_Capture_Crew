@@ -1615,7 +1615,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     "Electrical Engineering",
     "Civil Engineering"
   ];
-  const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year"];
+  const YEARS = ["1st Year", "2nd Year", "3rd Year", "4th Year", "Passout"];
 
   const handleDragStart = (e, index) => {
     setDraggedItemIndex(index);
@@ -2878,7 +2878,7 @@ function AdminCCEvents({ ccEvents }) {
                     const w = {...formData.winners}; w[rank].year = e.target.value; setFormData({...formData, winners: w});
                   }}>
                     <option value="">Select Year</option>
-                    {["1st Year", "2nd Year", "3rd Year", "4th Year"].map(y => (
+                    {["1st Year", "2nd Year", "3rd Year", "4th Year", "Passout"].map(y => (
                       <option key={y} value={y}>{y}</option>
                     ))}
                   </select>
@@ -3510,7 +3510,7 @@ function RecruitmentModal({ onClose }) {
               <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Academic Year</label>
               <select className="form-input" style={{ appearance: 'none' }} required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
                 <option value="" style={{ background: '#111' }}>Select Year</option>
-                <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option>
+                <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option><option style={{ background: '#111' }}>Passout</option>
               </select>
             </div>
             <div className="form-group" style={{ gridColumn: '1 / -1' }}>
