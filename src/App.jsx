@@ -1137,7 +1137,7 @@ export default function App() {
             {/* CORE TEAM */}
             {teamMembers.core?.length > 0 && (
               <div className="team-subcategory">
-                <h3 className="subcategory-title">Core <em>Team</em></h3>
+                <h3 className="subcategory-title"><em>Core Team</em></h3>
                 <div className="team-grid">
                   {(isMobile && !expandedTeam ? teamMembers.core.slice(0, 3) : teamMembers.core).map(m => (
                     <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
@@ -1220,11 +1220,12 @@ export default function App() {
         <Route path="/verify" element={
           <section id="verify" className="verify-section">
         <div className="container">
-          <div className="verify-box fade-in">
+          <div className="fade-in" style={{ marginBottom: "3rem", textAlign: "center" }}>
             <div className="section-label">✧ Authenticity</div>
             <h2 className="section-title">Verify <em>Certificate</em></h2>
             <p className="section-sub">Enter your certificate serial number to verify its authenticity and details.</p>
-            
+          </div>
+          <div className="verify-box fade-in">
             <form className="verify-form" onSubmit={handleVerify}>
               <input 
                 type="text" 
