@@ -618,16 +618,44 @@ export default function App() {
     };
   }, []);
 
-  // Fade-in observer
+  // Consolidated Intersection Observer for fade-in animations
   useEffect(() => {
-    const els = document.querySelectorAll(".fade-in");
-    const obs = new IntersectionObserver(
-      entries => entries.forEach(e => e.isIntersecting && e.target.classList.add("visible")),
-      { threshold: 0.1 }
-    );
-    els.forEach(el => obs.observe(el));
-    return () => obs.disconnect();
-  }, [galleryFilter, gallery, weekCapture, monthCapture, extraFrameCapture, expandedGallery, expandedEvents, expandedTeam, expandedMembers]);
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    const elements = document.querySelectorAll('.fade-in');
+    elements.forEach(el => observer.observe(el));
+
+    // Re-observe when components might re-render or expand (e.g. dynamic/lazy load backups)
+    const timer = setInterval(() => {
+      const newElements = document.querySelectorAll('.fade-in:not(.visible)');
+      newElements.forEach(el => observer.observe(el));
+    }, 500);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(timer);
+    };
+  }, [
+    location.pathname,
+    galleryFilter,
+    gallery,
+    liveEvents,
+    shuffledMembers,
+    isInitializing,
+    weekCapture,
+    monthCapture,
+    extraFrameCapture,
+    expandedGallery,
+    expandedEvents,
+    expandedTeam,
+    expandedMembers
+  ]);
 
   // Lightbox esc
   useEffect(() => {
@@ -664,30 +692,6 @@ export default function App() {
       }
     });
   }, []);
-  // Intersection Observer for fade-in animations
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1 });
-
-    const elements = document.querySelectorAll('.fade-in');
-    elements.forEach(el => observer.observe(el));
-
-    // Re-observe when components might re-render or expand
-    const timer = setInterval(() => {
-      const newElements = document.querySelectorAll('.fade-in:not(.visible)');
-      newElements.forEach(el => observer.observe(el));
-    }, 1000);
-
-    return () => {
-      observer.disconnect();
-      clearInterval(timer);
-    };
-  }, [gallery, liveEvents, shuffledMembers, isInitializing]);
 
   // Apply Dynamic Theme
   useEffect(() => {
@@ -1069,7 +1073,7 @@ export default function App() {
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
             <div className="section-label">✧ The People Behind the Lens</div>
-            <h2 className="section-title">Core <em>Team</em></h2>
+            <h2 className="section-title"><em>Team</em></h2>
             <p className="section-sub">The dedicated photographers, editors, and organizers who keep Capture Crew alive.</p>
           </div>
           <div className="team-container">
@@ -1095,7 +1099,7 @@ export default function App() {
             {/* INCHARGE */}
             {teamMembers.incharge?.length > 0 && (
               <div className="team-subcategory">
-                <h3 className="subcategory-title"><em>Incharge</em></h3>
+                <h3 className="subcategory-title"><em>Incharges</em></h3>
                 <div className="team-grid incharge-grid">
                   {teamMembers.incharge.map(m => (
                     <div key={m.id || m.name} className="team-card incharge-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
