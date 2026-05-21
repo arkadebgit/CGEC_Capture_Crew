@@ -1944,16 +1944,16 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </p>
           <ol style={{ paddingLeft: '1.2rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', opacity: 0.9 }}>
             <li>
-              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a>. Recommended settings: <b>Size: 0.98 MB</b>, <b>Quality: 70%</b>.
+              <strong>Compress:</strong> If the image exceeds Cloudinary's 10 MB upload limit (or shows a limit error), compress it using <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a> to ensure it is under 10 MB (Recommended settings: <b>Size: 0.98 MB</b>, <b>Quality: 70%</b>).
             </li>
             <li>
               <strong>Bypass Limits:</strong> If you hit the 100+ images limit or see a subscription prompt, simply <b>Clear Browser Cache</b> to reset the tool.
             </li>
             <li>
-              <strong>Upload:</strong> Host the compressed images on <a href="https://beeimg.com/upload" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>BeeImg</a> to get direct links.
+              <strong>Upload:</strong> Host the images on <a href="https://cloudinary.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>Cloudinary</a> to get delivery URLs / direct links.
             </li>
             <li>
-              <strong>Link:</strong> Copy the <strong>Direct Link</strong> (ending in .jpg/.png) and paste it into the forms below.
+              <strong>Link:</strong> Copy the <strong>Direct Link</strong> (ending in .jpg/.png or standard Cloudinary format) and paste it into the forms below.
             </li>
           </ol>
           <div style={{ fontSize: '0.75rem', opacity: 0.6, fontStyle: 'italic' }}>
@@ -1964,9 +1964,9 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         {adminData?.role !== 'core_member' && (tab === 'week' || tab === 'month' || tab === 'extra') && (
           <div className="visible">
             <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
-            <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., https://i.ibb.co/... or https://i.postimg.cc/...). PostImage is recommended for stability.</p>
+            <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., Cloudinary links starting with https://res.cloudinary.com/... or https://i.postimg.cc/...). Cloudinary is recommended for stability.</p>
             <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
-              <input className="form-input" placeholder="Image Direct Link (https://i.ibb.co/...)" value={featuredData.url} onChange={e => {
+              <input className="form-input" placeholder="Image Direct Link (https://res.cloudinary.com/...)" value={featuredData.url} onChange={e => {
                 let val = e.target.value;
                 if (val.includes('ibb.co') && !val.includes('i.ibb.co')) {
                   console.warn("Likely not a direct link");
@@ -2216,13 +2216,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)', marginBottom: '2rem' }}>
                       <h5 style={{ fontSize: '0.8rem', color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         🚀 Bulk Image Uploader 
-                        <a href="https://beeimg.com/upload" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Open BeeImg </a>
+                        <a href="https://cloudinary.com/" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Open Cloudinary </a>
                       </h5>
-                      <p style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '1rem' }}>Upload your images to BeeImg, copy the <strong>Direct Links</strong>, and paste them all below (separated by spaces or lines).</p>
+                      <p style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '1rem' }}>Upload your images to Cloudinary, copy the <strong>Direct Links/Delivery URLs</strong>, and paste them all below (separated by spaces or lines).</p>
                       <textarea 
                         className="form-input" 
                         style={{ minHeight: '120px', fontSize: '0.75rem', fontFamily: 'monospace' }} 
-                        placeholder="Paste multiple links here... https://beeimg.com/images/1.jpg https://beeimg.com/images/2.jpg"
+                        placeholder="Paste multiple links here... https://res.cloudinary.com/.../image.jpg"
                         value={bulkInput}
                         onChange={e => setBulkInput(e.target.value)}
                       />
@@ -2651,7 +2651,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <h5 style={{ color: 'var(--gold)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>💡 How to update Logo & Favicon?</h5>
                 <p style={{ fontSize: '0.7rem', opacity: 0.8, lineHeight: '1.5' }}>
                   1. You cannot upload ZIP files directly. Extract your images first.<br/>
-                  2. Upload your preferred logo (square) or favicon to a service like <a href="https://beeimg.com" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>BeeImg</a> or <a href="https://postimages.org" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>PostImage</a>.<br/>
+                  2. Upload your preferred logo (square) or favicon to a service like <a href="https://cloudinary.com" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>Cloudinary</a> or <a href="https://postimages.org" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)' }}>PostImage</a>.<br/>
                   3. Copy the <strong>Direct Link</strong> (ending in .jpg, .png, or .ico) and paste it into the fields above.
                 </p>
               </div>
@@ -3104,7 +3104,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
               <option value="Alumni">Alumni</option>
             </select>
 
-            <input className="form-input" placeholder="Image Direct Link (BeeImg/PostImg)" value={formData.img} onChange={e => setFormData({...formData, img: e.target.value})} />
+            <input className="form-input" placeholder="Image Direct Link (Cloudinary/PostImg)" value={formData.img} onChange={e => setFormData({...formData, img: e.target.value})} />
             <input className="form-input" placeholder="Instagram URL (Optional)" value={formData.insta} onChange={e => setFormData({...formData, insta: e.target.value})} />
 
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
