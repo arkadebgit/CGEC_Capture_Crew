@@ -1260,6 +1260,24 @@ export default function App() {
                         <span className="value">{verifyResult.event}</span>
                       </div>
                     </div>
+                    {(verifyResult.link || verifyResult.certUrl || verifyResult.url || verifyResult.certificateUrl || verifyResult.pdfUrl) && (
+                      <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+                        <a 
+                          href={verifyResult.link || verifyResult.certUrl || verifyResult.url || verifyResult.certificateUrl || verifyResult.pdfUrl} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="form-submit" 
+                          style={{ 
+                            display: 'inline-block', 
+                            textDecoration: 'none', 
+                            textAlign: 'center',
+                            minWidth: '200px'
+                          }}
+                        >
+                          Download Certificate
+                        </a>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1522,7 +1540,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [localEventPhotos, setLocalEventPhotos] = useState([]);
   const [localCoverPhotos, setLocalCoverPhotos] = useState([]);
   const [certs, setCerts] = useState([]);
-  const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "" });
+  const [newCert, setNewCert] = useState({ name: "", serialNo: "", date: "", event: "", link: "" });
   
   const [featuredData, setFeaturedData] = useState({ 
     url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], 
@@ -1793,7 +1811,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     e.preventDefault();
     try {
       await addDoc(collection(db, "certificates"), newCert);
-      setNewCert({ name: "", serialNo: "", date: "", event: "" });
+      setNewCert({ name: "", serialNo: "", date: "", event: "", link: "" });
       fetchCerts();
       alert("Certificate Issued!");
     } catch (err) {
@@ -1823,15 +1841,19 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       lines.forEach(line => {
         const parts = line.split(',').map(s => s.trim());
         if (parts.length >= 4) {
-          const [name, serialNo, date, event] = parts;
+          const [name, serialNo, date, event, link] = parts;
           const newDocRef = doc(collection(db, "certificates"));
-          batch.set(newDocRef, { 
+          const certData = { 
             name, 
             serialNo, 
             date, 
             event, 
             createdAt: new Date().toISOString() 
-          });
+          };
+          if (link) {
+            certData.link = link;
+          }
+          batch.set(newDocRef, certData);
           count++;
         }
       });
@@ -1944,7 +1966,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </p>
           <ol style={{ paddingLeft: '1.2rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', opacity: 0.9 }}>
             <li>
-              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a> only if your image is more than 10 MB. Recommended settings: <b>Size: 0.98 MB</b>, <b>Quality: 70%</b>.
+              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a> only if your image is more than 10 MB. Recommended settings: <b>Size: 2 MB</b>, <b>Quality: 60%</b>.
             </li>
             <li>
               <strong>Bypass Limits:</strong> If you hit the 100+ images limit or see a subscription prompt, simply <b>Clear Browser Cache</b> to reset the tool.
@@ -2047,12 +2069,12 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <h4 style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Bulk Certificate Issuance</h4>
                 <p style={{ fontSize: '0.75rem', opacity: 0.6, marginBottom: '1.5rem' }}>
                   Paste student details line by line from your Excel/Sheet. <br/>
-                  <strong>Format:</strong> Student Name, Serial No, Date, Event
+                  <strong>Format:</strong> Student Name, Serial No, Date, Event, Certificate Link (Optional)
                 </p>
                 <textarea 
                   className="form-input" 
                   style={{ minHeight: '200px', fontSize: '0.8rem', fontFamily: 'monospace' }} 
-                  placeholder="John Doe, CC-VAR-001, 15 Feb 2026, Varnakriti&#10;Jane Smith, CC-VAR-002, 15 Feb 2026, Varnakriti"
+                  placeholder="John Doe, CC-VAR-001, 15 Feb 2026, Varnakriti, https://res.cloudinary.com/...&#10;Jane Smith, CC-VAR-002, 15 Feb 2026, Varnakriti"
                   value={bulkCertInput}
                   onChange={e => setBulkCertInput(e.target.value)}
                 />
@@ -2066,6 +2088,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
                 <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
                 <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
+                <input className="form-input" placeholder="Certificate Link (Optional)" value={newCert.link || ""} onChange={e => setNewCert({...newCert, link: e.target.value})} />
                 <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate </button>
               </form>
             )}
@@ -2079,6 +2102,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <th style={{ padding: '1rem' }}>Serial No</th>
                     <th style={{ padding: '1rem' }}>Event</th>
                     <th style={{ padding: '1rem' }}>Date</th>
+                    <th style={{ padding: '1rem' }}>Link</th>
                     <th style={{ padding: '1rem' }}>Action</th>
                   </tr>
                 </thead>
@@ -2089,6 +2113,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       <td style={{ padding: '1rem', color: 'var(--gold)' }}>{c.serialNo}</td>
                       <td style={{ padding: '1rem' }}>{c.event}</td>
                       <td style={{ padding: '1rem', opacity: 0.7 }}>{c.date}</td>
+                      <td style={{ padding: '1rem' }}>
+                        {(c.link || c.certUrl || c.url || c.certificateUrl || c.pdfUrl) ? (
+                          <a href={c.link || c.certUrl || c.url || c.certificateUrl || c.pdfUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>View Link</a>
+                        ) : (
+                          <span style={{ opacity: 0.4 }}>None</span>
+                        )}
+                      </td>
                       <td style={{ padding: '1rem' }}>
                         <button onClick={() => deleteCert(c.id)} style={{ background: '#ff4444', border: 'none', color: '#fff', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem' }}>Delete</button>
                       </td>
