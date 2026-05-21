@@ -1223,7 +1223,7 @@ export default function App() {
           <div className="fade-in" style={{ marginBottom: "3rem", textAlign: "center" }}>
             <div className="section-label">✧ Authenticity</div>
             <h2 className="section-title">Verify <em>Certificate</em></h2>
-            <p className="section-sub">Enter your certificate serial number to verify its authenticity and details.</p>
+            <p className="section-sub" style={{ margin: "0 auto", textAlign: "center" }}>Enter your certificate serial number to verify its authenticity and details.</p>
           </div>
           <div className="verify-box fade-in">
             <form className="verify-form" onSubmit={handleVerify}>
