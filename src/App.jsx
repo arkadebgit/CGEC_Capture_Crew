@@ -427,6 +427,7 @@ export default function App() {
   const [teamMembers, setTeamMembers] = useState({ founders: [], incharge: [], coordinators: [], core: [] });
   const [liveEvents, setLiveEvents] = useState({});
   const [liveEventsList, setLiveEventsList] = useState([]);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
   const [ccEvents, setCcEvents] = useState([]);
   const [isInitializing, setIsInitializing] = useState(true);
   const [showGlobalGallery, setShowGlobalGallery] = useState(false);
@@ -513,6 +514,7 @@ export default function App() {
 
       setLiveEvents(eventsMap);
       setLiveEventsList(eventList.sort((a,b) => (a.order || 99) - (b.order || 99)));
+      setEventsLoaded(true);
     });
 
     // 4. CC Events Snapshot
@@ -1381,6 +1383,7 @@ export default function App() {
             setLightboxItem={setLightboxItem}
             archiveConfig={archiveConfig}
             navigate={navigate}
+            eventsLoaded={eventsLoaded}
           />
         } />
         <Route path="/admin" element={
@@ -1467,7 +1470,18 @@ export default function App() {
   );
 }
 
-function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate }) {
+function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate, eventsLoaded }) {
+  if (!eventsLoaded) {
+    return (
+      <div className="lightbox open" style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 3000 }}>
+        <div className="lightbox-content" style={{ textAlign: 'center' }}>
+          <div className="section-label" style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Loading</div>
+          <h2 className="section-title" style={{ fontSize: '1.5rem' }}>Loading <em>Event Details...</em></h2>
+        </div>
+      </div>
+    );
+  }
+
   const { eventId } = useParams();
   
   if (eventId === 'archive') {
