@@ -848,82 +848,170 @@ export default function App() {
         <div className="hero-scroll">Scroll</div>
       </section>
 
-      {/* CAPTURE OF THE WEEK */}
-      <section id="week" className="week-section">
-        <div className="container">
-          <div className="fade-in" style={{ marginBottom: "4rem" }}>
-            <div className="section-label">✧ Featured</div>
-            <h2 className="section-title">Capture of the <em>Week</em></h2>
-            <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
-          </div>
-          <div className="week-inner fade-in">
-            <div className="week-image-wrap">
-              <img src={weekCapture?.url || "/placeholder.jpg"} alt={weekCapture?.title} className="week-img" referrerPolicy="no-referrer" style={{ cursor: weekCapture ? 'pointer' : 'default' }} onClick={() => weekCapture && setLightboxItem(weekCapture)} />
-              <div className="week-badge">This Week's Pick</div>
-            </div>
-            <div className="week-info">
-              <div className="week-date">Featured</div>
-              <p className="week-story">{weekCapture?.title || "Fetching the latest capture..."}</p>
-              <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                By <span>{weekCapture?.photographer}</span> ({weekCapture?.dept} · {weekCapture?.year})
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CAPTURE OF THE MONTH */}
-      <section id="month" className="month-section">
-        <div className="container">
-          <div className="month-header fade-in">
-            <div>
-              <div className="section-label">✧ Premium Showcase</div>
-              <h2 className="section-title">Capture of the <em>Month</em></h2>
-            </div>
-          </div>
-          <div className="month-slide fade-in">
-            <div className="month-image-wrap">
-              <img src={monthCapture?.url || "/placeholder.jpg"} alt={monthCapture?.title} className="month-img" referrerPolicy="no-referrer" style={{ cursor: monthCapture ? 'pointer' : 'default' }} onClick={() => monthCapture && setLightboxItem(monthCapture)} />
-              <div className="month-frame" />
-              <div className="month-award">
-                <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
-              </div>
-            </div>
-            <div className="month-info">
-              <div className="month-of">Premium Selection</div>
-              <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCapture?.title}</h3>
-              <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                By <span>{monthCapture?.photographer}</span> ({monthCapture?.dept} · {monthCapture?.year})
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* THE EXTRA FRAME */}
-      {extraFrameCapture && (
-        <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }}>
-          <div className="container">
-            <div className="fade-in" style={{ marginBottom: "4rem" }}>
-              <div className="section-label">✧ Bonus Frame</div>
-              <h2 className="section-title">The <em>Extra Frame</em></h2>
-            </div>
-            <div className="week-inner fade-in">
-              <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0', cursor: 'pointer' }} referrerPolicy="no-referrer" onClick={() => setLightboxItem(extraFrameCapture)} />
-                <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
-              </div>
-              <div className="week-info" style={{ padding: '0' }}>
-                <div className="week-date">Bonus Feature</div>
-                <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{extraFrameCapture.title}</h3>
-                <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                  By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
+      {(() => {
+        const sections = [];
+        if (weekCapture) {
+          sections.push({
+            date: weekCapture.captureDate || "",
+            created: weekCapture.createdAt || "",
+            element: (
+              <section id="week" className="week-section" key="week">
+                <div className="container">
+                  <div className="fade-in" style={{ marginBottom: "4rem" }}>
+                    <div className="section-label">✧ Featured</div>
+                    <h2 className="section-title">Capture of the <em>Week</em></h2>
+                    <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
+                  </div>
+                  <div className="week-inner fade-in">
+                    <div className="week-image-wrap">
+                      <img src={weekCapture.url || "/placeholder.jpg"} alt={weekCapture.title} className="week-img" referrerPolicy="no-referrer" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(weekCapture)} />
+                      <div className="week-badge">This Week's Pick</div>
+                    </div>
+                    <div className="week-info">
+                      <div className="week-date">Featured</div>
+                      <p className="week-story">{weekCapture.title || "Fetching the latest capture..."}</p>
+                      <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                        By <span>{weekCapture.photographer}</span> ({weekCapture.dept} · {weekCapture.year})
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
+              </section>
+            )
+          });
+        } else {
+          sections.push({
+            date: "",
+            created: "",
+            element: (
+              <section id="week" className="week-section" key="week">
+                <div className="container">
+                  <div className="fade-in" style={{ marginBottom: "4rem" }}>
+                    <div className="section-label">✧ Featured</div>
+                    <h2 className="section-title">Capture of the <em>Week</em></h2>
+                    <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
+                  </div>
+                  <div className="week-inner fade-in">
+                    <div className="week-image-wrap">
+                      <img src="/placeholder.jpg" alt="Placeholder" className="week-img" referrerPolicy="no-referrer" style={{ cursor: 'default' }} />
+                      <div className="week-badge">This Week's Pick</div>
+                    </div>
+                    <div className="week-info">
+                      <div className="week-date">Featured</div>
+                      <p className="week-story">Fetching the latest capture...</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )
+          });
+        }
+
+        if (monthCapture) {
+          sections.push({
+            date: monthCapture.captureDate || "",
+            created: monthCapture.createdAt || "",
+            element: (
+              <section id="month" className="month-section" key="month">
+                <div className="container">
+                  <div className="month-header fade-in">
+                    <div>
+                      <div className="section-label">✧ Premium Showcase</div>
+                      <h2 className="section-title">Capture of the <em>Month</em></h2>
+                    </div>
+                  </div>
+                  <div className="month-slide fade-in">
+                    <div className="month-image-wrap">
+                      <img src={monthCapture.url || "/placeholder.jpg"} alt={monthCapture.title} className="month-img" referrerPolicy="no-referrer" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(monthCapture)} />
+                      <div className="month-frame" />
+                      <div className="month-award">
+                        <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
+                      </div>
+                    </div>
+                    <div className="month-info">
+                      <div className="month-of">Premium Selection</div>
+                      <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCapture.title}</h3>
+                      <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                        By <span>{monthCapture.photographer}</span> ({monthCapture.dept} · {monthCapture.year})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )
+          });
+        } else {
+          sections.push({
+            date: "",
+            created: "",
+            element: (
+              <section id="month" className="month-section" key="month">
+                <div className="container">
+                  <div className="month-header fade-in">
+                    <div>
+                      <div className="section-label">✧ Premium Showcase</div>
+                      <h2 className="section-title">Capture of the <em>Month</em></h2>
+                    </div>
+                  </div>
+                  <div className="month-slide fade-in">
+                    <div className="month-image-wrap">
+                      <img src="/placeholder.jpg" alt="Placeholder" className="month-img" referrerPolicy="no-referrer" style={{ cursor: 'default' }} />
+                      <div className="month-frame" />
+                      <div className="month-award">
+                        <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
+                      </div>
+                    </div>
+                    <div className="month-info">
+                      <div className="month-of">Premium Selection</div>
+                      <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>Fetching the latest capture...</h3>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )
+          });
+        }
+
+        if (extraFrameCapture) {
+          sections.push({
+            date: extraFrameCapture.captureDate || "",
+            created: extraFrameCapture.createdAt || "",
+            element: (
+              <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }} key="extra">
+                <div className="container">
+                  <div className="fade-in" style={{ marginBottom: "4rem" }}>
+                    <div className="section-label">✧ Bonus Frame</div>
+                    <h2 className="section-title">The <em>Extra Frame</em></h2>
+                  </div>
+                  <div className="week-inner fade-in">
+                    <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
+                      <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0', cursor: 'pointer' }} referrerPolicy="no-referrer" onClick={() => setLightboxItem(extraFrameCapture)} />
+                      <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
+                    </div>
+                    <div className="week-info" style={{ padding: '0' }}>
+                      <div className="week-date">Bonus Feature</div>
+                      <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{extraFrameCapture.title}</h3>
+                      <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                        By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            )
+          });
+        }
+
+        // Sort sections: newest first
+        sections.sort((a, b) => {
+          if (a.date === "" && b.date !== "") return 1;
+          if (b.date === "" && a.date !== "") return -1;
+          if (b.date !== a.date) return b.date.localeCompare(a.date);
+          return b.created.localeCompare(a.created);
+        });
+
+        return sections.map(s => s.element);
+      })()}
 
           </>
         } />
