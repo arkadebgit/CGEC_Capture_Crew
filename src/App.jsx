@@ -1101,8 +1101,8 @@ export default function App() {
         <div className="container">
           <div className="fade-in" style={{ marginBottom: "3rem" }}>
             <div className="section-label">✧ Milestones</div>
-            <h2 className="section-title">Club <em>Events</em></h2>
-            <p className="section-sub">From intimate workshops to grand exhibitions — every event, immortalized through our lenses.</p>
+            <h2 className="section-title">College <em>Events</em></h2>
+            <p className="section-sub">From vibrant campus fests to unforgettable college moments — every event, immortalized through our lenses.</p>
           </div>
           <div className="events-grid">
             {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => (
