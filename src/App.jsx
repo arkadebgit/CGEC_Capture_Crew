@@ -1944,7 +1944,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </p>
           <ol style={{ paddingLeft: '1.2rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', opacity: 0.9 }}>
             <li>
-              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a>. Recommended settings: <b>Size: 0.98 MB</b>, <b>Quality: 70%</b> (Ensure the file size is under 10 MB if showing a limit error).
+              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a> only if your image is more than 10 MB. Recommended settings: <b>Size: 0.98 MB</b>, <b>Quality: 70%</b>.
             </li>
             <li>
               <strong>Bypass Limits:</strong> If you hit the 100+ images limit or see a subscription prompt, simply <b>Clear Browser Cache</b> to reset the tool.
