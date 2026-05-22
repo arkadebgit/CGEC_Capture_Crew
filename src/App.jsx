@@ -113,14 +113,158 @@ const THEMES = [
 
 // This will be populated from Firestore
 let STATIC_EVENTS = [
-  { id: "varnakriti", name: "VARNAKRITI", subtitle: "Annual Photo Exhibition", date: "February 2026", color: "#C9A96E", desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.", highlight: "Top 3 Winners crowned. 30+ photos on display.", emoji: "🏆", order: 1 },
+  { id: "varnakriti", name: "VARNAKRITI", subtitle: "Annual Photo Exhibition", date: "February 2026", color: "#C9A96E", desc: "Our flagship photo exhibition where the finest captures of the year are displayed on a gallery wall. Features a Top 3 Winners showcase with award ceremony.", highlight: "Top 3 Winners crowned. 30+ photos on display.", emoji: "🏆", iconUrl: "/events/varnakriti/events/image.png", order: 1 },
   { id: "esperanza", name: "ESPERANZA 2k26", subtitle: "Annual Tech Cum Cultural Fest", date: "June 2026", color: "#7EB8D4", desc: "The grand annual celebration of Capture Crew — a full-day photo walk, workshop, and exhibition bringing together photography enthusiasts from across the campus.", highlight: "500+ attendees. Campus-wide photo walk.", emoji: "🌟", comingSoon: true, order: 2 },
-  { id: "republic", name: "Republic Day", subtitle: "Patriotic Documentation", date: "January 2026", color: "#FF9933", desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.", highlight: "Tricolor flag hoisting and cultural documentation.", emoji: "🇮🇳", order: 3 },
-  { id: "croeso", name: "CROESO 2k25", subtitle: "Freshers' Welcome", date: "February 2026", color: "#A8D8A8", desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.", highlight: "Welcome to the frame. New eyes, new stories.", emoji: "🎓", order: 4 },
-  { id: "holi", name: "Holi Event", subtitle: "Festival of Colors", date: "March 2026", color: "#FF69B4", desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.", highlight: "Vibrance in every splash.", emoji: "🎨", order: 5 },
-  { id: "saraswati", name: "Saraswati Puja", subtitle: "Festival Documentation", date: "January 2026", color: "#DEB8D0", desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from rituals to the procession.", highlight: "Devotion in every frame.", emoji: "🌸", order: 6 },
+  { id: "republic", name: "Republic Day", subtitle: "Patriotic Documentation", date: "January 2026", color: "#FF9933", desc: "Celebrating the 77th Republic Day of India on campus. A day of pride, patriotism, and honoring the constitution through our lenses.", highlight: "Tricolor flag hoisting and cultural documentation.", emoji: "🇮🇳", iconUrl: "https://i.ibb.co/21qSZTTv/image.png", order: 3 },
+  { id: "croeso", name: "CROESO 2k25", subtitle: "Freshers' Welcome", date: "February 2026", color: "#A8D8A8", desc: "A warm welcome for first-year students. Introductory sessions, camera handling workshops, and a mini photo-walk across campus.", highlight: "Welcome to the frame. New eyes, new stories.", emoji: "🎓", iconUrl: "/events/croeso/image.png", order: 4 },
+  { id: "holi", name: "Holi Event", subtitle: "Festival of Colors", date: "March 2026", color: "#FF69B4", desc: "Celebrating the vibrant festival of colors with the Capture Crew family. A day of joy and splash of colors.", highlight: "Vibrance in every splash.", emoji: "🎨", iconUrl: "/events/holi/SaveClip.App_642148216_17961485553051405_8385715078758128532_n.jpg", order: 5 },
+  { id: "saraswati", name: "Saraswati Puja", subtitle: "Festival Documentation", date: "January 2026", color: "#DEB8D0", desc: "Documenting the beauty and devotion of Saraswati Puja on campus — from rituals to the procession.", highlight: "Devotion in every frame.", emoji: "🌸", iconUrl: "https://i.postimg.cc/qMb9T5CS/image.png", order: 6 },
   { id: "independence", name: "Independence Day", subtitle: "15th August Special", date: "August 2026", color: "#FF9933", desc: "Capturing the spirit of patriotism — flag hoisting ceremonies and special themed photo series.", highlight: "Tricolor through the lens.", emoji: "🇮🇳", comingSoon: true, order: 7 }
 ];
+
+const STATIC_EVENT_ICONS = {
+  varnakriti: "/events/varnakriti/events/image.png",
+  croeso: "/events/croeso/image.png",
+  holi: "/events/holi/SaveClip.App_642148216_17961485553051405_8385715078758128532_n.jpg",
+  republic: "https://i.ibb.co/21qSZTTv/image.png",
+  saraswati: "https://i.postimg.cc/qMb9T5CS/image.png"
+};
+
+const STATIC_EVENT_PHOTOS = {
+  varnakriti: {
+    general: [
+      "/events/varnakriti/events/SaveClip.App_634440523_17913157053299557_2777657706342258186_n.jpg",
+      "/events/varnakriti/events/WhatsApp Image 2026-05-11 at 8.55.11 PM.jpeg",
+      "/events/varnakriti/events/WhatsApp Image 2026-05-12 at 4.34.07 PM.jpeg",
+      "/events/varnakriti/events/image (1).png",
+      "/events/varnakriti/events/image.png"
+    ],
+    prize: [
+      "/events/varnakriti/prize/image (1).png",
+      "/events/varnakriti/prize/image (10).png",
+      "/events/varnakriti/prize/image (11).png",
+      "/events/varnakriti/prize/image (12).png",
+      "/events/varnakriti/prize/image (2).png",
+      "/events/varnakriti/prize/image (3).png",
+      "/events/varnakriti/prize/image (4).png",
+      "/events/varnakriti/prize/image (5).png",
+      "/events/varnakriti/prize/image (6).png",
+      "/events/varnakriti/prize/image (7).png",
+      "/events/varnakriti/prize/image (8).png",
+      "/events/varnakriti/prize/image (9).png",
+      "/events/varnakriti/prize/image.png"
+    ],
+    winners: [
+      "/events/varnakriti/winners/SaveClip.App_640302939_17960191608051405_7355162228165538329_n.jpg",
+      "/events/varnakriti/winners/SaveClip.App_640396337_17960191617051405_8629856469985778477_n.jpg",
+      "/events/varnakriti/winners/SaveClip.App_640415008_17960191587051405_6590193589515239244_n.jpg"
+    ]
+  },
+  croeso: [
+    "/events/croeso/image (2).png",
+    "/events/croeso/image.png",
+    "/events/croeso/IMG-20260217-WA0140.jpg",
+    "/events/croeso/IMG-20260217-WA0142.jpg",
+    "/events/croeso/IMG-20260217-WA0146.jpg",
+    "/events/croeso/IMG-20260217-WA0147.jpg",
+    "/events/croeso/IMG-20260217-WA0149.jpg",
+    "/events/croeso/IMG-20260217-WA0157.jpg",
+    "/events/croeso/IMG-20260217-WA0159.jpg",
+    "/events/croeso/IMG-20260217-WA0161.jpg",
+    "/events/croeso/IMG-20260217-WA0163.jpg",
+    "/events/croeso/IMG-20260217-WA0164.jpg",
+    "/events/croeso/IMG-20260217-WA0165.jpg",
+    "/events/croeso/IMG-20260217-WA0166.jpg",
+    "/events/croeso/IMG-20260217-WA0167.jpg",
+    "/events/croeso/IMG-20260217-WA0168.jpg",
+    "/events/croeso/IMG-20260217-WA0170.jpg",
+    "/events/croeso/IMG-20260217-WA0172.jpg",
+    "/events/croeso/IMG-20260217-WA0174.jpg",
+    "/events/croeso/IMG-20260218-WA0029.jpg",
+    "/events/croeso/IMG-20260219-WA0015.jpg",
+    "/events/croeso/IMG-20260219-WA0016.jpg",
+    "/events/croeso/IMG-20260219-WA0017.jpg",
+    "/events/croeso/IMG-20260219-WA0018.jpg",
+    "/events/croeso/IMG-20260219-WA0019.jpg",
+    "/events/croeso/IMG20260217201023 (1).jpg",
+    "/events/croeso/IMG_20260217_104013405.jpg",
+    "/events/croeso/IMG_20260217_104018666.jpg",
+    "/events/croeso/IMG_20260217_104031799.jpg",
+    "/events/croeso/IMG_20260217_104040598.jpg",
+    "/events/croeso/IMG_20260217_104220050.jpg",
+    "/events/croeso/IMG_20260217_105435377.jpg",
+    "/events/croeso/IMG_20260217_105550033.jpg",
+    "/events/croeso/IMG_20260217_165431.jpg",
+    "/events/croeso/IMG_20260217_165433.jpg",
+    "/events/croeso/IMG_20260217_165527.jpg",
+    "/events/croeso/IMG_20260217_185447.jpg",
+    "/events/croeso/IMG_20260217_185450.jpg",
+    "/events/croeso/IMG_20260217_190023.jpg",
+    "/events/croeso/IMG_20260217_190100.jpg",
+    "/events/croeso/IMG_20260217_190111.jpg",
+    "/events/croeso/IMG_20260217_190130.jpg",
+    "/events/croeso/IMG_20260217_190511899.jpg",
+    "/events/croeso/IMG_20260217_190740498_HDR~2.jpg",
+    "/events/croeso/IMG_20260217_191240418~2.jpg",
+    "/events/croeso/IMG_20260217_201131203~2.jpg",
+    "/events/croeso/IMG_20260217_205004.jpg",
+    "/events/croeso/IMG_20260217_205006.jpg",
+    "/events/croeso/PXL_20260217_104556883.jpg",
+    "/events/croeso/PXL_20260217_104645465.jpg",
+    "/events/croeso/PXL_20260217_104758690.jpg",
+    "/events/croeso/PXL_20260217_175532791.jpg",
+    "/events/croeso/PXL_20260217_192135594.jpg",
+    "/events/croeso/PXL_20260217_193632847.jpg",
+    "/events/croeso/PXL_20260217_194649852.jpg",
+    "/events/croeso/PXL_20260217_194656883.jpg",
+    "/events/croeso/PXL_20260217_194906694.jpg",
+    "/events/croeso/t's a time to disco ....Captured byArkadeb Thokdar, 1st yr. ME..jpg"
+  ],
+  holi: [
+    "/events/holi/SaveClip.App_642148216_17961485553051405_8385715078758128532_n.jpg",
+    "/events/holi/SaveClip.App_642529503_17961485511051405_131829195843355943_n.jpg",
+    "/events/holi/SaveClip.App_642635932_17961485550051405_2472211186656361010_n.jpg",
+    "/events/holi/SaveClip.App_642666667_17961485388051405_2814668728871964987_n.jpg",
+    "/events/holi/SaveClip.App_642683403_17961485373051405_7735649280446324333_n.jpg",
+    "/events/holi/SaveClip.App_642698762_17961485562051405_1727925144419840966_n.jpg",
+    "/events/holi/SaveClip.App_642709633_17961485523051405_6942903691962638290_n.jpg",
+    "/events/holi/SaveClip.App_645446133_17961485409051405_3632317390478327203_n.jpg",
+    "/events/holi/SaveClip.App_648129421_17961485535051405_4433441016486177670_n.jpg",
+    "/events/holi/SaveClip.App_648768061_17961485364051405_841916865367389342_n.jpg"
+  ],
+  saraswati: [
+    "https://i.postimg.cc/qMb9T5CS/image.png",
+    "https://i.postimg.cc/0yr1Kss1/image-(1).png",
+    "https://i.postimg.cc/Y965B21f/image-(2).png",
+    "https://i.postimg.cc/JnNfC7bK/image-(3).png",
+    "https://i.postimg.cc/XJfR6Nwh/image-(4).png",
+    "https://i.postimg.cc/KjmdGXN0/image-(5).png"
+  ],
+  republic: [
+    "https://i.ibb.co/cKvTd26Z/image-1.png", "https://i.ibb.co/WN2RhJ8w/image-2.png", "https://i.ibb.co/hRZJQsjB/image-3.png",
+    "https://i.ibb.co/gM9kRmK3/image-4.png", "https://i.ibb.co/v4vvwFbs/image-5.png", "https://i.ibb.co/KxcKwsDc/image-6.png",
+    "https://i.ibb.co/Z16J13cX/image-7.png", "https://i.ibb.co/k69Vt6Gk/image-8.png", "https://i.ibb.co/Z43DjX7/image-9.png",
+    "https://i.ibb.co/MJ0k1t6/image-10.png", "https://i.ibb.co/rG1r3Q6r/image-11.png", "https://i.ibb.co/jk6vQfSm/image-12.png",
+    "https://i.ibb.co/HDcYS9Ff/image-13.png", "https://i.ibb.co/xK5j6t3b/image-14.png", "https://i.ibb.co/v4K6JpBD/image-15.png",
+    "https://i.ibb.co/Wmbq5Fp/image-16.png", "https://i.ibb.co/1tS00rPx/image-17.png", "https://i.ibb.co/svLXkpFx/image-18.png",
+    "https://i.ibb.co/ZRmcRm87/image-19.png", "https://i.ibb.co/Vcdz97bb/image-20.png", "https://i.ibb.co/NdVv1Y6S/image-21.png",
+    "https://i.ibb.co/YFY0swYk/image-22.png", "https://i.ibb.co/WNcvvKjR/image-23.png", "https://i.ibb.co/0VvY79kB/image-24.png",
+    "https://i.ibb.co/7dPMQ5Bb/image-25.png", "https://i.ibb.co/K8g7MBk/image-27.png", "https://i.ibb.co/LDc9Sqwv/image-28.png",
+    "https://i.ibb.co/4RBCCYSp/image-29.png", "https://i.ibb.co/KzV78YZC/image-30.png", "https://i.ibb.co/rR94SJ9T/image-31.png",
+    "https://i.ibb.co/MkqdRZ5W/image-32.png", "https://i.ibb.co/hx5N1zQv/image-33.png", "https://i.ibb.co/LdRW1b3n/image-34.png",
+    "https://i.ibb.co/21qSZTTv/image.png"
+  ]
+};
+
+const flattenPhotos = (photos) => {
+  if (!photos) return [];
+  if (Array.isArray(photos)) return photos;
+  return [
+    ...(photos.general || []),
+    ...(photos.prize || []),
+    ...(photos.winners || [])
+  ];
+};
 
 const GALLERY_CATEGORIES = ["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"];
 
@@ -509,6 +653,8 @@ export default function App() {
       for (const ev of STATIC_EVENTS) {
         if (!eventList.find(e => e.id === ev.id)) {
           await setDoc(doc(db, "events", ev.id), ev);
+        } else {
+          await setDoc(doc(db, "events", ev.id), ev, { merge: true });
         }
       }
 
@@ -1113,8 +1259,8 @@ export default function App() {
                 className="event-card fade-in"
                 style={{ "--c": ev.color }}
               >
-                {ev.iconUrl ? (
-                  <img src={ev.iconUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
+                {ev.iconUrl || STATIC_EVENT_ICONS[ev.id] ? (
+                  <img src={ev.iconUrl || STATIC_EVENT_ICONS[ev.id]} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
                 ) : (
                   <span className="event-emoji">{ev.emoji}</span>
                 )}
@@ -2473,7 +2619,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                               style={{ background: 'transparent', border: '1px solid var(--gold)', color: 'var(--gold)', padding: '0.2rem 0.5rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.6rem', opacity: idx === liveEventsList.length - 1 ? 0.3 : 1 }}>▼</button>
                           </div>
                         </td>
-                        <td style={{ padding: '1rem' }}>{(liveEvents[ev.id] || []).length} photos</td>
+                        <td style={{ padding: '1rem' }}>{flattenPhotos(liveEvents[ev.id]).length} photos</td>
                         <td style={{ padding: '1rem' }}>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
                             <button onClick={() => {
@@ -3332,6 +3478,19 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
     window.scrollTo(0, 0);
   }, []);
 
+  const getEventPhotos = () => {
+    const livePhotos = liveEvents[event.id];
+    const hasLivePhotos = livePhotos && (
+      Array.isArray(livePhotos) ? livePhotos.length > 0 : (
+        (livePhotos.general && livePhotos.general.length > 0) ||
+        (livePhotos.prize && livePhotos.prize.length > 0) ||
+        (livePhotos.winners && livePhotos.winners.length > 0)
+      )
+    );
+    return hasLivePhotos ? livePhotos : (STATIC_EVENT_PHOTOS[event.id] || []);
+  };
+
+  const photos = getEventPhotos();
   const isVarnakriti = event.id === "varnakriti";
 
   // Get grouped events for global archive
@@ -3380,7 +3539,15 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
                 <EventSection 
                   title={ev.name} 
                   subtitle={ev.date} 
-                  photos={liveEvents[ev.id] || []} 
+                  photos={
+                    liveEvents[ev.id] && (
+                      Array.isArray(liveEvents[ev.id]) ? liveEvents[ev.id].length > 0 : (
+                        (liveEvents[ev.id].general && liveEvents[ev.id].general.length > 0) ||
+                        (liveEvents[ev.id].prize && liveEvents[ev.id].prize.length > 0) ||
+                        (liveEvents[ev.id].winners && liveEvents[ev.id].winners.length > 0)
+                      )
+                    ) ? flattenPhotos(liveEvents[ev.id]) : flattenPhotos(STATIC_EVENT_PHOTOS[ev.id])
+                  } 
                   setLightboxItem={setLightboxItem} 
                   onClose={onClose} 
                 />
@@ -3392,14 +3559,14 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
           </div>
         ) : (
           <>
-            {isVarnakriti && !Array.isArray(liveEvents[event.id]) ? (
+            {isVarnakriti && !Array.isArray(photos) ? (
               <div className="varnakriti-sections">
-                <EventSection title="Exhibition" subtitle="General" photos={liveEvents[event.id].general} setLightboxItem={setLightboxItem} onClose={onClose} />
-                <EventSection title="Awards" subtitle="Prize Distribution" photos={liveEvents[event.id].prize} setLightboxItem={setLightboxItem} onClose={onClose} />
-                <EventSection title="Winners" subtitle="Photography Excellence" photos={liveEvents[event.id].winners} setLightboxItem={setLightboxItem} onClose={onClose} />
+                <EventSection title="Exhibition" subtitle="General" photos={photos.general} setLightboxItem={setLightboxItem} onClose={onClose} />
+                <EventSection title="Awards" subtitle="Prize Distribution" photos={photos.prize} setLightboxItem={setLightboxItem} onClose={onClose} />
+                <EventSection title="Winners" subtitle="Photography Excellence" photos={photos.winners} setLightboxItem={setLightboxItem} onClose={onClose} />
               </div>
             ) : (
-              <EventSection title="Gallery" subtitle="Highlights" photos={liveEvents[event.id] || []} setLightboxItem={setLightboxItem} onClose={onClose} />
+              <EventSection title="Gallery" subtitle="Highlights" photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} />
             )}
           </>
         )}
