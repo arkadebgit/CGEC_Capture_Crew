@@ -3633,7 +3633,7 @@ function LiveShowcase({ config, setLightboxItem }) {
       ref={containerRef} 
       className="live-showcase-container" 
       style={{ 
-        height: '450vh',
+        height: `${Math.max(450, totalCards * 80)}vh`,
         '--live-color': config.color || '#ffcc00'
       }}
     >

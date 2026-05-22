@@ -1406,14 +1406,13 @@ section { padding: 7rem 0; }
   cursor: pointer;
   pointer-events: auto;
 
-  --card-grayscale: clamp(0, calc(var(--card-dist) * 3), 1);
-  --card-opacity: clamp(0.15, calc(1.0 - (var(--card-dist) * 1.7)), 1);
+  --card-grayscale: clamp(0, calc((var(--card-dist) - 0.33) / 0.17), 1);
   
-  --card-focus-range: 0.1;
-  --card-max-blur: 8px;
-  --card-norm-dist: min(var(--card-dist), var(--card-focus-range));
-  --card-blur-progress: calc(var(--card-norm-dist) / var(--card-focus-range));
-  --card-blur: calc(var(--card-blur-progress) * var(--card-max-blur));
+  --card-opacity-progress: clamp(0, calc((var(--card-dist) - 0.33) / 0.17), 1);
+  --card-opacity: calc(1.0 - var(--card-opacity-progress) * 0.85);
+
+  --card-blur-progress: clamp(0, calc((var(--card-dist) - 0.33) / 0.17), 1);
+  --card-blur: calc(var(--card-blur-progress) * 8px);
   
   --caption-active: clamp(0, calc(1 - (var(--card-dist) / 0.025)), 1);
   --caption-opacity: var(--caption-active);
