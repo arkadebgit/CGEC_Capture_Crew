@@ -3552,8 +3552,7 @@ function LiveShowcase({ config, setLightboxItem }) {
         for (let idx = 0; idx < cards.length; idx++) {
           const card = cards[idx];
           const cardI = idx + 1;
-          const phase = (cardI - 1) / totalCards - 0.75;
-          const pos = (phase + progress + 1.0) % 1.0;
+          const pos = (progress - (cardI - 1) / totalCards + 1.0) % 1.0;
           const dist = Math.min(pos, 1.0 - pos);
           card.style.setProperty('--card-dist', dist);
         }
@@ -3574,11 +3573,10 @@ function LiveShowcase({ config, setLightboxItem }) {
   const handleCardClick = (idx) => {
     const cardI = idx + 1;
     const progress = scrollInfo.progress;
-    const phase = (cardI - 1) / totalCards - 0.75;
-    const pos = (phase + progress + 1.0) % 1.0;
+    const pos = (progress - (cardI - 1) / totalCards + 1.0) % 1.0;
     const dist = Math.min(pos, 1.0 - pos);
 
-    if (dist < 0.03) {
+    if (dist < 0.05) {
       setLightboxItem({
         url: photos[idx],
         title: `${config.eventName || "Live Event"} - Moment ${cardI}`,
@@ -3587,9 +3585,7 @@ function LiveShowcase({ config, setLightboxItem }) {
         year: "Current Fest"
       });
     } else {
-      let targetProgress = 0.75 - (cardI - 1) / totalCards;
-      while (targetProgress < 0) targetProgress += 1.0;
-      targetProgress = targetProgress % 1.0;
+      let targetProgress = (cardI - 1) / totalCards;
 
       if (containerRef.current) {
         const rect = containerRef.current.getBoundingClientRect();
@@ -3666,8 +3662,7 @@ function LiveShowcase({ config, setLightboxItem }) {
               const cardI = idx + 1;
               const angle = ((cardI - 1) / totalCards) * 360;
               
-              const initialPhase = (cardI - 1) / totalCards - 0.75;
-              const initialPos = (initialPhase + 1.0) % 1.0;
+              const initialPos = (0.0 - (cardI - 1) / totalCards + 1.0) % 1.0;
               const initialDist = Math.min(initialPos, 1.0 - initialPos);
 
               return (

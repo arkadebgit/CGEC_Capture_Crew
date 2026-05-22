@@ -1379,7 +1379,7 @@ section { padding: 7rem 0; }
   --card-border-radius: 16px;
   --card-width: max(160px, 15vw);
   --card-height: calc(var(--card-width) * 6 / 4);
-  --radius: calc(var(--card-width) * var(--cards) / (2 * 3.1416));
+  --radius: max(320px, calc(var(--card-width) * var(--cards) / (2 * 3.1416)));
 
   position: absolute;
   width: calc(var(--radius) * 2);
@@ -1406,8 +1406,8 @@ section { padding: 7rem 0; }
   cursor: pointer;
   pointer-events: auto;
 
-  --card-grayscale: clamp(0, calc(var(--card-dist) * var(--cards) * 0.6), 1);
-  --card-opacity: clamp(0.05, calc(1 - (var(--card-dist) / 0.18)), 1);
+  --card-grayscale: clamp(0, calc(var(--card-dist) * 3), 1);
+  --card-opacity: clamp(0.15, calc(1.0 - (var(--card-dist) * 1.7)), 1);
   
   --card-focus-range: 0.1;
   --card-max-blur: 8px;
