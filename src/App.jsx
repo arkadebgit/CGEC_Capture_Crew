@@ -1474,6 +1474,7 @@ export default function App() {
             siteConfig={siteConfig}
             gallery={gallery}
             navigate={navigate}
+            liveEventConfig={liveEventConfig}
           />
         } />
       </Routes>
@@ -1583,7 +1584,7 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
   );
 }
 
-function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveConfig, themeId, coverPhotos, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, navigate }) {
+function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveConfig, themeId, coverPhotos, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, navigate, liveEventConfig }) {
   if (!user) return <LoginModal onClose={() => navigate('/')} />;
   
   if (isAuthChecking) {
