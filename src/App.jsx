@@ -552,8 +552,6 @@ export default function App() {
       for (const ev of STATIC_EVENTS) {
         if (!eventList.find(e => e.id === ev.id)) {
           await setDoc(doc(db, "events", ev.id), ev);
-        } else {
-          await setDoc(doc(db, "events", ev.id), ev, { merge: true });
         }
       }
 
@@ -1152,30 +1150,33 @@ export default function App() {
             <p className="section-sub">From vibrant campus fests to unforgettable college moments — every event, immortalized through our lenses.</p>
           </div>
           <div className="events-grid">
-            {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => (
-              <div
-                key={ev.id}
-                className="event-card fade-in"
-                style={{ "--c": ev.color }}
-              >
-                {ev.iconUrl || STATIC_EVENT_ICONS[ev.id] ? (
-                  <img src={ev.iconUrl || STATIC_EVENT_ICONS[ev.id]} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
-                ) : (
-                  <span className="event-emoji">{ev.emoji}</span>
-                )}
-                <div className="event-name">{ev.name}</div>
-                <div className="event-subtitle" style={{ color: ev.color }}>{ev.subtitle}</div>
-                <div className="event-date">{ev.date}</div>
-                <div className="event-desc">{ev.desc}</div>
-                <div className="event-highlight">{ev.highlight}</div>
-                <button 
-                  className="event-dive-btn" 
-                  onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
+            {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => {
+              const logoUrl = (ev.iconUrl && ev.iconUrl.startsWith('http')) ? ev.iconUrl : (STATIC_EVENT_ICONS[ev.id] && STATIC_EVENT_ICONS[ev.id].startsWith('http') ? STATIC_EVENT_ICONS[ev.id] : null);
+              return (
+                <div
+                  key={ev.id}
+                  className="event-card fade-in"
+                  style={{ "--c": ev.color }}
                 >
-                  {ev.comingSoon ? "Coming Soon " : "Dive In "}
-                </button>
-              </div>
-            ))}
+                  {logoUrl ? (
+                    <img src={logoUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
+                  ) : (
+                    <span className="event-emoji">{ev.emoji}</span>
+                  )}
+                  <div className="event-name">{ev.name}</div>
+                  <div className="event-subtitle" style={{ color: ev.color }}>{ev.subtitle}</div>
+                  <div className="event-date">{ev.date}</div>
+                  <div className="event-desc">{ev.desc}</div>
+                  <div className="event-highlight">{ev.highlight}</div>
+                  <button 
+                    className="event-dive-btn" 
+                    onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
+                  >
+                    {ev.comingSoon ? "Coming Soon " : "Dive In "}
+                  </button>
+                </div>
+              );
+            })}
             
             {/* Global Gallery Card */}
             <div 
