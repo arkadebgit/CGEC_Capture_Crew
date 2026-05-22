@@ -2067,9 +2067,18 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     setIsSavingLive(true);
     try {
       const photosArray = liveForm.photosRaw
-        .split("\n")
+        .split(/[\s,;]+/)
         .map(p => p.trim())
-        .filter(p => p.length > 0);
+        .filter(p => p.length > 0)
+        .map(p => {
+          if (!p.startsWith("http://") && !p.startsWith("https://")) {
+            if (p.includes(".") && !p.startsWith("/")) {
+              return "https://" + p;
+            }
+          }
+          return p;
+        })
+        .filter(p => p.startsWith("http://") || p.startsWith("https://"));
       
       await setDoc(doc(db, "config", "live_event"), {
         active: !!liveForm.active,
@@ -2980,11 +2989,11 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Cloudinary Image URLs</h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div>
-                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Photo Links (one URL per line)</label>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Photo Links (URLs separated by space, comma, semicolon or newline)</label>
                       <textarea 
                         className="form-input" 
                         style={{ minHeight: '180px', fontFamily: 'monospace', fontSize: '0.75rem', lineHeight: '1.4' }}
-                        placeholder="https://res.cloudinary.com/...&#10;https://res.cloudinary.com/..."
+                        placeholder="https://res.cloudinary.com/... https://res.cloudinary.com/...&#10;or comma/semicolon separated..."
                         value={liveForm.photosRaw}
                         onChange={e => setLiveForm({...liveForm, photosRaw: e.target.value})}
                       />
