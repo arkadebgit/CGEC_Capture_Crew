@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+@import url('https://fonts.bunny.net/css?family=just-me-again-down-here:400');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1279,4 +1280,243 @@ section { padding: 7rem 0; }
 .premium-btn:hover {
   transform: scale(1.05) !important;
   box-shadow: 0 0 20px rgba(201, 169, 110, 0.3) !important;
+}
+
+/* Live Event Showcase Styling */
+.live-showcase-container {
+  position: relative;
+  width: 100%;
+  background: radial-gradient(circle at center, rgba(13, 13, 21, 0.95) 0%, rgba(8, 8, 12, 0.99) 100%);
+  overflow: visible;
+}
+
+.live-fixed-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.live-fixed-overlay * {
+  pointer-events: auto;
+}
+
+.live-header-box {
+  position: absolute;
+  top: 15%;
+  text-align: center;
+  color: #fff;
+  z-index: 10;
+  pointer-events: none;
+  animation: liveFadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.live-badge-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 0 15px rgba(255, 68, 68, 0.15);
+}
+
+.live-indicator {
+  width: 8px;
+  height: 8px;
+  background: #ff4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ff4444;
+  animation: livePulse 1.5s infinite;
+}
+
+.live-badge-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #ff4444;
+  font-family: var(--font-body);
+}
+
+.live-title {
+  font-size: clamp(2.5rem, 6vw + 1rem, 5.5rem);
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+.live-title em {
+  font-family: inherit;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--live-color, var(--gold));
+}
+
+.live-subtitle {
+  font-size: clamp(1.2rem, 2vw + 0.5rem, 2rem);
+  font-family: 'Just Me Again Down Here', handwriting, sans-serif;
+  color: #a0a0a8;
+  margin-top: 0.5rem;
+  letter-spacing: 0.05em;
+  animation: liveDelayFadeIn 1.8s ease forwards;
+}
+
+.live-wheel-wrapper {
+  --card-border-radius: 16px;
+  --card-width: max(160px, 15vw);
+  --card-height: calc(var(--card-width) * 6 / 4);
+  --radius: calc(var(--card-width) * var(--cards) / (2 * 3.1416));
+
+  position: absolute;
+  width: calc(var(--radius) * 2);
+  height: calc(var(--radius) * 2);
+  top: calc(50% + var(--radius) - var(--card-height) * 0.2);
+  left: 50%;
+  transform-origin: center center;
+  transform: translateX(-50%) rotate(calc(var(--rotate) * -360deg));
+  transition: transform 150ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+
+.live-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--card-width);
+  height: var(--card-height);
+  transform-origin: center calc(100% + var(--radius));
+  transform: translate(-50%, calc(-100% - var(--radius))) rotate(var(--card-angle));
+  border-radius: var(--card-border-radius);
+  overflow: visible;
+  transition: filter 300ms ease, opacity 300ms ease, transform 300ms ease;
+  cursor: pointer;
+  pointer-events: auto;
+
+  --card-grayscale: clamp(0, calc(var(--card-dist) * var(--cards) * 0.6), 1);
+  --card-opacity: clamp(0.05, calc(1 - (var(--card-dist) / 0.18)), 1);
+  
+  --card-focus-range: 0.1;
+  --card-max-blur: 8px;
+  --card-norm-dist: min(var(--card-dist), var(--card-focus-range));
+  --card-blur-progress: calc(var(--card-norm-dist) / var(--card-focus-range));
+  --card-blur: calc(var(--card-blur-progress) * var(--card-max-blur));
+  
+  --caption-active: clamp(0, calc(1 - (var(--card-dist) / 0.025)), 1);
+  --caption-opacity: var(--caption-active);
+  --caption-y: calc(-40px * (1 - var(--caption-active)));
+  --card-scale: calc(1.0 + 0.15 * var(--caption-active));
+
+  filter: blur(var(--card-blur)) grayscale(var(--card-grayscale));
+  opacity: var(--card-opacity);
+}
+
+.live-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transform: scale(var(--card-scale));
+  transition: transform 300ms ease, border-color 300ms ease;
+}
+
+.live-card:hover img {
+  border-color: var(--live-color, var(--gold));
+  box-shadow: 0 15px 40px rgba(201, 169, 110, 0.15);
+}
+
+.live-card::after {
+  content: attr(data-title);
+  position: absolute;
+  top: 105%;
+  left: 50%;
+  transform: translateX(-50%) translate3d(0, var(--caption-y), 0);
+  opacity: var(--caption-opacity);
+  color: var(--live-color, var(--gold));
+  font-family: 'Just Me Again Down Here', handwriting, sans-serif;
+  font-size: clamp(1.2rem, 1.5vw + 0.5rem, 2.2rem);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+.live-mouse-wrap {
+  position: absolute;
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  z-index: 10;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+.live-mouse-icon {
+  width: 26px;
+  height: 42px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 20px;
+  position: relative;
+  opacity: 0.8;
+}
+
+.live-mouse-wheel {
+  width: 4px;
+  height: 8px;
+  background: var(--live-color, var(--gold));
+  border-radius: 2px;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: liveScrollIndicator 1.5s infinite ease-in-out;
+}
+
+.live-mouse-text {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+}
+
+@keyframes livePulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes liveScrollIndicator {
+  0% { top: 6px; opacity: 1; }
+  50% { top: 16px; opacity: 0; }
+  100% { top: 6px; opacity: 1; }
+}
+
+@keyframes liveFadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes liveDelayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 0.8; }
 }

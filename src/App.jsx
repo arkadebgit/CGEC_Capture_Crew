@@ -424,6 +424,13 @@ export default function App() {
   const [adminData, setAdminData] = useState(null);
   const [isAuthChecking, setIsAuthChecking] = useState(false);
   const [archiveConfig, setArchiveConfig] = useState({ order: [], hidden: [] });
+  const [liveEventConfig, setLiveEventConfig] = useState({
+    active: false,
+    eventName: "",
+    subtitle: "",
+    color: "#ffcc00",
+    photos: []
+  });
   const [themeId, setThemeId] = useState("golden_elegance");
   const [coverPhotos, setCoverPhotos] = useState([]);
   const activeCovers = coverPhotos.length > 0 ? coverPhotos : HERO_COVERS;
@@ -586,6 +593,19 @@ export default function App() {
       if (doc.exists() && doc.data().urls) setCoverPhotos(doc.data().urls);
     });
 
+    const unsubLiveEvent = onSnapshot(doc(db, "config", "live_event"), (doc) => {
+      if (doc.exists()) {
+        const data = doc.data();
+        setLiveEventConfig({
+          active: !!data.active,
+          eventName: data.eventName || "",
+          subtitle: data.subtitle || "",
+          color: data.color || "#ffcc00",
+          photos: data.photos || []
+        });
+      }
+    });
+
     // 4. Site Config Listener
     const unsubSite = onSnapshot(doc(db, "config", "site"), (snap) => {
       if (snap.exists()) {
@@ -606,6 +626,7 @@ export default function App() {
       unsubConfig();
       unsubTheme();
       unsubCovers();
+      unsubLiveEvent();
       unsubSite();
       unsubGallery();
     };
@@ -859,8 +880,11 @@ export default function App() {
       {/* HERO */}
       <Routes>
         <Route path="/" element={
-          <>
-            <section id="home" className="hero">
+          liveEventConfig.active ? (
+            <LiveShowcase config={liveEventConfig} setLightboxItem={setLightboxItem} />
+          ) : (
+            <>
+              <section id="home" className="hero">
         <div className="hero-bg">
           {activeCovers.map((img, idx) => (
             (idx === currentHeroIndex || idx === (currentHeroIndex + 1) % activeCovers.length) && (
@@ -1057,8 +1081,8 @@ export default function App() {
 
         return sections.map(s => s.element);
       })()}
-
-          </>
+            </>
+          )
         } />
 
         {["/gallery", "/Weekly Captures", "/Monthly Captures", "/The Extra Frame", "/CC Event Winners", "/gallery/:category"].map(path => (
@@ -1592,6 +1616,7 @@ function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveCo
       updateTheme={updateTheme}
       siteConfig={siteConfig}
       gallery={gallery}
+      liveEventConfig={liveEventConfig}
     />
   );
 }
@@ -1662,8 +1687,29 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery }) {
+function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, liveEventConfig }) {
   const [tab, setTab] = useState(adminData?.role === 'core_member' ? 'profile' : 'week');
+  const [liveForm, setLiveForm] = useState({
+    active: false,
+    eventName: "",
+    subtitle: "",
+    color: "#ffcc00",
+    photosRaw: ""
+  });
+  const [isSavingLive, setIsSavingLive] = useState(false);
+
+  useEffect(() => {
+    if (liveEventConfig) {
+      setLiveForm({
+        active: !!liveEventConfig.active,
+        eventName: liveEventConfig.eventName || "",
+        subtitle: liveEventConfig.subtitle || "",
+        color: liveEventConfig.color || "#ffcc00",
+        photosRaw: (liveEventConfig.photos || []).join("\n")
+      });
+    }
+  }, [liveEventConfig]);
+
   const [editingEvent, setEditingEvent] = useState(null);
   const [eventFormData, setEventFormData] = useState({
     id: "", name: "", subtitle: "", date: "", color: "#C9A96E",
@@ -2016,6 +2062,30 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     }
   };
 
+  const handleSaveLive = async () => {
+    setIsSavingLive(true);
+    try {
+      const photosArray = liveForm.photosRaw
+        .split("\n")
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+      
+      await setDoc(doc(db, "config", "live_event"), {
+        active: !!liveForm.active,
+        eventName: liveForm.eventName,
+        subtitle: liveForm.subtitle,
+        color: liveForm.color,
+        photos: photosArray
+      });
+      alert("Live Showcase settings updated successfully!");
+    } catch (err) {
+      console.error("Error updating live event config: ", err);
+      alert("Failed to update settings: " + err.message);
+    } finally {
+      setIsSavingLive(false);
+    }
+  };
+
   const updateCovers = async (newUrls) => {
     try {
       await setDoc(doc(db, "config", "covers"), { urls: newUrls });
@@ -2072,6 +2142,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <button className={`filter-btn ${tab === 'archive' ? 'active' : ''}`} onClick={() => setTab('archive')}>Manage Archive</button>
               <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
               <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
+              <button className={`filter-btn ${tab === 'live_event' ? 'active' : ''}`} onClick={() => setTab('live_event')}>🔴 Live Showcase</button>
             </>
           )}
 
@@ -2839,6 +2910,108 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             </div>
           </div>
         )}
+        {tab === 'live_event' && adminData?.role !== 'core_member' && (
+          <div className="visible">
+            <h3 className="subcategory-title">🔴 Live Showcase <em>Settings</em></h3>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Configure the fullscreen live showcase overlay for campus fests on the home page.</p>
+            
+            <div className="glass-form" style={{ padding: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                {/* STATUS & IDENT */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Status & Identity</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div 
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', padding: '0.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '6px' }} 
+                      onClick={() => setLiveForm({...liveForm, active: !liveForm.active})}
+                    >
+                      <input 
+                        type="checkbox" 
+                        id="liveShowcaseActive"
+                        checked={liveForm.active}
+                        onChange={() => {}} // handled by parent div click
+                        style={{ cursor: 'pointer', transform: 'scale(1.2)' }}
+                      />
+                      <label htmlFor="liveShowcaseActive" style={{ fontSize: '0.9rem', cursor: 'pointer', color: liveForm.active ? 'var(--gold)' : 'inherit', fontWeight: 'bold' }}>
+                        {liveForm.active ? "🔴 SHOWCASE IS ACTIVE" : "Showcase is Offline"}
+                      </label>
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Event Name / Heading (animated)</label>
+                      <input 
+                        className="form-input" 
+                        placeholder="e.g. ESPARENZA"
+                        value={liveForm.eventName} 
+                        onChange={e => setLiveForm({...liveForm, eventName: e.target.value})} 
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Subheading / Day Text (e.g. Day 1, Final Day)</label>
+                      <input 
+                        className="form-input" 
+                        placeholder="e.g. Day 1 or Final Day"
+                        value={liveForm.subtitle} 
+                        onChange={e => setLiveForm({...liveForm, subtitle: e.target.value})} 
+                      />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Theme Color</label>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input 
+                          type="color" 
+                          style={{ border: 'none', background: 'none', width: '30px', height: '35px', cursor: 'pointer' }}
+                          value={liveForm.color}
+                          onChange={e => setLiveForm({...liveForm, color: e.target.value})}
+                        />
+                        <input 
+                          className="form-input" 
+                          value={liveForm.color} 
+                          onChange={e => setLiveForm({...liveForm, color: e.target.value})} 
+                          style={{ fontFamily: 'monospace' }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PHOTOS LIST */}
+                <div style={{ paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Cloudinary Image URLs</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Photo Links (one URL per line)</label>
+                      <textarea 
+                        className="form-input" 
+                        style={{ minHeight: '180px', fontFamily: 'monospace', fontSize: '0.75rem', lineHeight: '1.4' }}
+                        placeholder="https://res.cloudinary.com/...&#10;https://res.cloudinary.com/..."
+                        value={liveForm.photosRaw}
+                        onChange={e => setLiveForm({...liveForm, photosRaw: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(201,169,110,0.1)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem', border: '1px solid var(--gold)' }}>
+                <h5 style={{ color: 'var(--gold)', fontSize: '0.8rem', marginBottom: '0.5rem' }}>ℹ️ Live Event Showcase Guide</h5>
+                <p style={{ fontSize: '0.7rem', opacity: 0.8, lineHeight: '1.5' }}>
+                  • Enabling this checkbox overrides the normal Home page (Hero, Week Capture, Month Capture, Extra Frame).<br/>
+                  • The circular 3D interactive wheel gallery will display on the home screen.<br/>
+                  • Make sure to enter valid image URLs (Cloudinary, etc.) to showcase photos dynamically.
+                </p>
+              </div>
+
+              <button 
+                className="form-submit" 
+                style={{ marginTop: '2rem', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+                disabled={isSavingLive}
+                onClick={handleSaveLive}
+              >
+                {isSavingLive ? "Saving..." : "SAVE SHOWCASE CONFIGURATION"}
+              </button>
+            </div>
+          </div>
+        )}
         {tab === "admins" && (adminData?.role === "lead" || adminData?.canManageAdmins) && (
           <div className="visible">
             <h3 className="subcategory-title">Manage <em>Admin Access</em></h3>
@@ -3339,6 +3512,193 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
   );
 }
 
+// ✦✦✦ LIVE EVENT SHOWCASE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
+function LiveShowcase({ config, setLightboxItem }) {
+  const containerRef = useRef(null);
+  const wrapperRef = useRef(null);
+  const cardContainerRef = useRef(null);
+  const [scrollInfo, setScrollInfo] = useState({ progress: 0 });
+
+  const photos = config.photos || [];
+  const totalCards = photos.length;
+
+  useEffect(() => {
+    // Scroll to top when mounted
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!containerRef.current || !wrapperRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const scrollHeight = rect.height;
+      const viewportHeight = window.innerHeight;
+      
+      const scrollTop = -rect.top;
+      const maxScroll = scrollHeight - viewportHeight;
+      let progress = 0;
+      if (maxScroll > 0) {
+        progress = Math.max(0, Math.min(1, scrollTop / maxScroll));
+      }
+
+      setScrollInfo({ progress });
+
+      const wrapper = wrapperRef.current;
+      wrapper.style.setProperty('--rotate', progress);
+
+      const cards = cardContainerRef.current?.children;
+      if (cards && cards.length > 0) {
+        for (let idx = 0; idx < cards.length; idx++) {
+          const card = cards[idx];
+          const cardI = idx + 1;
+          const phase = (cardI - 1) / totalCards - 0.75;
+          const pos = (phase + progress + 1.0) % 1.0;
+          const dist = Math.min(pos, 1.0 - pos);
+          card.style.setProperty('--card-dist', dist);
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
+    
+    setTimeout(handleScroll, 100);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [totalCards]);
+
+  const handleCardClick = (idx) => {
+    const cardI = idx + 1;
+    const progress = scrollInfo.progress;
+    const phase = (cardI - 1) / totalCards - 0.75;
+    const pos = (phase + progress + 1.0) % 1.0;
+    const dist = Math.min(pos, 1.0 - pos);
+
+    if (dist < 0.03) {
+      setLightboxItem({
+        url: photos[idx],
+        title: `${config.eventName || "Live Event"} - Moment ${cardI}`,
+        photographer: config.eventName || "Live Team",
+        dept: config.subtitle || "Live Capture",
+        year: "Current Fest"
+      });
+    } else {
+      let targetProgress = 0.75 - (cardI - 1) / totalCards;
+      while (targetProgress < 0) targetProgress += 1.0;
+      targetProgress = targetProgress % 1.0;
+
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const scrollHeight = rect.height;
+        const viewportHeight = window.innerHeight;
+        const maxScroll = scrollHeight - viewportHeight;
+        const targetScrollTop = window.scrollY + rect.top + (targetProgress * maxScroll);
+
+        window.scrollTo({
+          top: targetScrollTop,
+          behavior: 'smooth'
+        });
+      }
+    }
+  };
+
+  if (totalCards === 0) {
+    return (
+      <div 
+        className="live-showcase-container" 
+        style={{ 
+          height: '100vh', 
+          display: 'flex', 
+          flexDirection: 'column', 
+          justifyContent: 'center', 
+          alignItems: 'center',
+          background: '#08080c',
+          color: '#fff',
+          '--live-color': config.color || '#ffcc00'
+        }}
+      >
+        <span className="live-badge" style={{ animation: 'pulse 2s infinite' }}>🔴 LIVE SHOWCASE</span>
+        <h2 style={{ fontFamily: "'Just Me Again Down Here', handwriting", fontSize: '3rem', margin: '1rem 0' }}>
+          {config.eventName || "Event"}
+        </h2>
+        <p style={{ opacity: 0.6 }}>No photos uploaded yet. Open Admin Console to manage photos.</p>
+      </div>
+    );
+  }
+
+  const mouseOpacity = Math.max(0, 1 - (scrollInfo.progress / 0.05));
+
+  return (
+    <div 
+      ref={containerRef} 
+      className="live-showcase-container" 
+      style={{ 
+        height: '450vh',
+        '--live-color': config.color || '#ffcc00'
+      }}
+    >
+      <div className="live-fixed-overlay">
+        <div className="live-header-box">
+          <div className="live-badge-wrap">
+            <span className="live-indicator"></span>
+            <span className="live-badge-text">LIVE SHOWCASE</span>
+          </div>
+          <h1 className="live-title">
+            {config.eventName || "Event"} <em>Live</em>
+          </h1>
+          <p className="live-subtitle">{config.subtitle || "Ongoing Fest"}</p>
+        </div>
+
+        <div 
+          ref={wrapperRef} 
+          className="live-wheel-wrapper"
+          style={{
+            '--cards': totalCards,
+            '--rotate': 0
+          }}
+        >
+          <div ref={cardContainerRef} style={{ width: '100%', height: '100%', position: 'relative' }}>
+            {photos.map((url, idx) => {
+              const cardI = idx + 1;
+              const angle = ((cardI - 1) / totalCards) * 360;
+              
+              const initialPhase = (cardI - 1) / totalCards - 0.75;
+              const initialPos = (initialPhase + 1.0) % 1.0;
+              const initialDist = Math.min(initialPos, 1.0 - initialPos);
+
+              return (
+                <div 
+                  key={idx} 
+                  className="live-card"
+                  data-title={`Snap #${cardI}`}
+                  onClick={() => handleCardClick(idx)}
+                  style={{
+                    '--card-i': cardI,
+                    '--card-angle': `${angle}deg`,
+                    '--card-dist': initialDist
+                  }}
+                >
+                  <img src={url} alt={`Live Event Captures #${cardI}`} referrerPolicy="no-referrer" />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="live-mouse-wrap" style={{ opacity: mouseOpacity, pointerEvents: mouseOpacity > 0 ? 'auto' : 'none' }}>
+          <div className="live-mouse-icon">
+            <div className="live-mouse-wheel"></div>
+          </div>
+          <span className="live-mouse-text">Scroll or Click to Navigate</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
   if (!data || !data.url) return <div className="winner-card empty" style={{ border: '1px dashed var(--border)', borderRadius: '24px', minHeight: '300px' }}></div>;
   
@@ -3412,7 +3772,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
           <button className="back-btn" onClick={onClose}><ArrowLeft /> Back to Home</button>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-            {logoUrl ? (
+            {!isGlobal && (logoUrl ? (
               <img 
                 src={logoUrl} 
                 alt={event.name} 
@@ -3428,7 +3788,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
               />
             ) : (
               <span style={{ fontSize: '3rem', lineHeight: 1 }}>{event.emoji || "📅"}</span>
-            )}
+            ))}
             <div>
               <div className="section-label" style={{ color: 'var(--c)', margin: 0 }}>
                 {isGlobal ? "Universal Archive" : (event.subtitle || "Event Showcase")}
