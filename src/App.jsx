@@ -1151,7 +1151,7 @@ export default function App() {
           </div>
           <div className="events-grid">
             {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => {
-              const logoUrl = (ev.iconUrl && ev.iconUrl.startsWith('http')) ? ev.iconUrl : (STATIC_EVENT_ICONS[ev.id] && STATIC_EVENT_ICONS[ev.id].startsWith('http') ? STATIC_EVENT_ICONS[ev.id] : null);
+              const logoUrl = (ev.iconUrl && ev.iconUrl.trim().startsWith('http')) ? ev.iconUrl.trim() : (STATIC_EVENT_ICONS[ev.id] && STATIC_EVENT_ICONS[ev.id].trim().startsWith('http') ? STATIC_EVENT_ICONS[ev.id].trim() : null);
               return (
                 <div
                   key={ev.id}
@@ -2342,25 +2342,29 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <div className="glass-form fade-in visible" style={{ padding: '2rem', marginBottom: '3rem' }}>
                 <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem' }}>{editingEvent === 'new' ? 'Add New' : 'Edit'} Event Details</h4>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                  <input className="form-input" placeholder="Event Slug (e.g. freshers-2026)" value={eventFormData.id} disabled={editingEvent !== 'new'} onChange={e => setEventFormData({...eventFormData, id: e.target.value.toLowerCase().replace(/ /g, '-')})} />
-                  <input className="form-input" placeholder="Event Name" value={eventFormData.name} onChange={e => setEventFormData({...eventFormData, name: e.target.value})} />
-                  <input className="form-input" placeholder="Sub-heading" value={eventFormData.subtitle} onChange={e => setEventFormData({...eventFormData, subtitle: e.target.value})} />
-                  <input className="form-input" placeholder="Date/Season" value={eventFormData.date} onChange={e => setEventFormData({...eventFormData, date: e.target.value})} />
-                  <input className="form-input" placeholder="Highlight Text" value={eventFormData.highlight} onChange={e => setEventFormData({...eventFormData, highlight: e.target.value})} />
-                  <input className="form-input" placeholder="Emoji (Fallback)" value={eventFormData.emoji} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
-                  <input className="form-input" placeholder="Icon Direct Link (Optional)" value={eventFormData.iconUrl} onChange={e => setEventFormData({...eventFormData, iconUrl: e.target.value})} />
-                  <input className="form-input" type="color" value={eventFormData.color} onChange={e => setEventFormData({...eventFormData, color: e.target.value})} title="Theme Color" />
+                  <input className="form-input" placeholder="Event Slug (e.g. freshers-2026)" value={eventFormData.id || ""} disabled={editingEvent !== 'new'} onChange={e => setEventFormData({...eventFormData, id: e.target.value.toLowerCase().replace(/ /g, '-')})} />
+                  <input className="form-input" placeholder="Event Name" value={eventFormData.name || ""} onChange={e => setEventFormData({...eventFormData, name: e.target.value})} />
+                  <input className="form-input" placeholder="Sub-heading" value={eventFormData.subtitle || ""} onChange={e => setEventFormData({...eventFormData, subtitle: e.target.value})} />
+                  <input className="form-input" placeholder="Date/Season" value={eventFormData.date || ""} onChange={e => setEventFormData({...eventFormData, date: e.target.value})} />
+                  <input className="form-input" placeholder="Highlight Text" value={eventFormData.highlight || ""} onChange={e => setEventFormData({...eventFormData, highlight: e.target.value})} />
+                  <input className="form-input" placeholder="Emoji (Fallback)" value={eventFormData.emoji || ""} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
+                  <input className="form-input" placeholder="Icon Direct Link (Optional)" value={eventFormData.iconUrl || ""} onChange={e => setEventFormData({...eventFormData, iconUrl: e.target.value})} />
+                  <input className="form-input" type="color" value={eventFormData.color || "#C9A96E"} onChange={e => setEventFormData({...eventFormData, color: e.target.value})} title="Theme Color" />
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <input type="checkbox" checked={eventFormData.comingSoon} onChange={e => setEventFormData({...eventFormData, comingSoon: e.target.checked})} />
+                    <input type="checkbox" checked={!!eventFormData.comingSoon} onChange={e => setEventFormData({...eventFormData, comingSoon: e.target.checked})} />
                     <label style={{ fontSize: '0.8rem' }}>Coming Soon?</label>
                   </div>
-                  <textarea className="form-input" style={{ gridColumn: '1 / -1', minHeight: '80px' }} placeholder="Description" value={eventFormData.desc} onChange={e => setEventFormData({...eventFormData, desc: e.target.value})} />
+                  <textarea className="form-input" style={{ gridColumn: '1 / -1', minHeight: '80px' }} placeholder="Description" value={eventFormData.desc || ""} onChange={e => setEventFormData({...eventFormData, desc: e.target.value})} />
                   
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem' }}>
                     <button className="form-submit" style={{ flex: 1 }} onClick={async () => {
                       if (!eventFormData.id || !eventFormData.name) return alert("Slug and Name are required.");
                       try {
-                        await setDoc(doc(db, "events", eventFormData.id), eventFormData, { merge: true });
+                        const cleanedData = {
+                          ...eventFormData,
+                          iconUrl: eventFormData.iconUrl ? eventFormData.iconUrl.trim() : ""
+                        };
+                        await setDoc(doc(db, "events", eventFormData.id), cleanedData, { merge: true });
                         setEditingEvent(null);
                         alert("Event Saved!");
                       } catch (err) { alert("Error: " + err.message); }
@@ -2473,7 +2477,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   <tbody>
                     {liveEventsList.map((ev, idx) => (
                       <tr key={ev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '1rem', fontSize: '1.2rem' }}>{ev.emoji}</td>
+                        <td style={{ padding: '1rem', fontSize: '1.2rem' }}>
+                          {ev.iconUrl && ev.iconUrl.trim().startsWith('http') ? (
+                            <img src={ev.iconUrl.trim()} alt="" style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--gold)', display: 'block' }} referrerPolicy="no-referrer" />
+                          ) : (
+                            ev.emoji
+                          )}
+                        </td>
                         <td style={{ padding: '1rem' }}>
                           <div style={{ fontWeight: '600' }}>{ev.name}</div>
                           <div style={{ fontSize: '0.7rem', opacity: 0.6 }}>{ev.id}</div>
@@ -3368,6 +3378,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
   };
 
   const photos = getEventPhotos();
+  const logoUrl = (event.iconUrl && event.iconUrl.trim().startsWith('http')) ? event.iconUrl.trim() : (STATIC_EVENT_ICONS[event.id] && STATIC_EVENT_ICONS[event.id].trim().startsWith('http') ? STATIC_EVENT_ICONS[event.id].trim() : null);
 
   // Get grouped events for global archive
   const getGroupedEvents = () => {
@@ -3395,13 +3406,54 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
   const groupedEvents = getGroupedEvents();
 
   return (
-    <div className="event-page-overlay">
+    <div className="event-page-overlay" style={{ '--c': event.color || 'var(--gold)' }}>
       <div className="container" style={{ paddingBottom: '8rem' }}>
         <header className="event-page-header">
           <button className="back-btn" onClick={onClose}><ArrowLeft /> Back to Home</button>
-          <div className="section-label">{isGlobal ? "Universal Archive" : "Event Showcase"}</div>
-          <h1 className="section-title">{event.name} <em>Glimpse</em></h1>
-          <p className="section-sub">{event.desc}</p>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            {logoUrl ? (
+              <img 
+                src={logoUrl} 
+                alt={event.name} 
+                style={{ 
+                  width: '60px', 
+                  height: '60px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover', 
+                  border: '2.5px solid var(--c)',
+                  boxShadow: '0 0 20px rgba(255,255,255,0.05)'
+                }} 
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <span style={{ fontSize: '3rem', lineHeight: 1 }}>{event.emoji || "📅"}</span>
+            )}
+            <div>
+              <div className="section-label" style={{ color: 'var(--c)', margin: 0 }}>
+                {isGlobal ? "Universal Archive" : (event.subtitle || "Event Showcase")}
+              </div>
+              <h1 className="section-title" style={{ margin: 0, fontSize: '2.5rem' }}>
+                {event.name} <em style={{ color: 'var(--c)' }}>Glimpse</em>
+              </h1>
+            </div>
+          </div>
+          
+          {event.date && (
+            <div className="event-date" style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '1.5rem', letterSpacing: '0.1em' }}>
+              🗓️ {event.date}
+            </div>
+          )}
+          
+          <p className="section-sub" style={{ fontSize: '1rem', lineHeight: '1.8', opacity: 0.9, maxWidth: '800px', margin: '0 0 1.5rem 0' }}>
+            {event.desc}
+          </p>
+
+          {!isGlobal && event.highlight && (
+            <div className="event-highlight" style={{ maxWidth: '600px' }}>
+              {event.highlight}
+            </div>
+          )}
         </header>
 
         {isGlobal ? (
@@ -3435,7 +3487,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
           </div>
         ) : (
           <>
-            <EventSection title="Gallery" subtitle="Highlights" photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Gallery" subtitle={event.subtitle || "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} />
           </>
         )}
       </div>

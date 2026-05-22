@@ -583,7 +583,7 @@ section { padding: 7rem 0; }
     display: flex; align-items: center; gap: 0.5rem;
     padding: 0.5rem 0;
   }
-  .back-btn:hover { color: var(--gold); transform: translateX(-5px); }
+  .back-btn:hover { color: var(--c, var(--gold)); transform: translateX(-5px); }
 
   .event-detail-section { margin-bottom: 5rem; }
 
@@ -600,9 +600,9 @@ section { padding: 7rem 0; }
   }
   .explorer-path { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; }
   .path-root { color: var(--muted); display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
-  .path-root:hover { color: var(--gold); }
+  .path-root:hover { color: var(--c, var(--gold)); }
   .path-sep { color: rgba(255,255,255,0.1); }
-  .path-folder { color: var(--gold); font-weight: 500; }
+  .path-folder { color: var(--c, var(--gold)); font-weight: 500; }
   .path-current { color: var(--white); opacity: 0.8; }
   
   .explorer-actions { display: flex; align-items: center; gap: 1.5rem; }
@@ -612,7 +612,7 @@ section { padding: 7rem 0; }
     padding: 0.5rem 1rem; border-radius: 100px;
     transition: all 0.3s var(--ease);
   }
-  .explorer-search:focus-within { border-color: var(--gold); background: rgba(0,0,0,0.5); }
+  .explorer-search:focus-within { border-color: var(--c, var(--gold)); background: rgba(0,0,0,0.5); }
   .explorer-search input {
     background: transparent; border: none; color: var(--white);
     font-size: 0.75rem; outline: none; width: 150px;
