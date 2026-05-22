@@ -1384,7 +1384,7 @@ section { padding: 7rem 0; }
   position: absolute;
   width: calc(var(--radius) * 2);
   height: calc(var(--radius) * 2);
-  top: calc(22vh + var(--card-height) + var(--radius));
+  top: calc(28vh + var(--card-height));
   left: 50%;
   transform-origin: center center;
   transform: translateX(-50%) rotate(calc(var(--rotate) * -360deg));
@@ -1397,7 +1397,7 @@ section { padding: 7rem 0; }
     --card-width: 35vh;
     --card-height: calc(var(--card-width) * 1.5); /* 52.5vh */
     --radius: max(500px, calc(var(--card-width) * var(--cards) / (2 * 3.1416)));
-    top: calc(20vh + var(--card-height) + var(--radius));
+    top: calc(26vh + var(--card-height));
   }
 }
 
