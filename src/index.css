@@ -561,11 +561,14 @@ section { padding: 7rem 0; }
   
   .event-dive-btn {
     margin-top: 1.5rem; padding: 0.6rem 1.5rem;
-    background: transparent; border: 1px solid var(--gold);
-    color: var(--gold); font-size: 0.72rem; letter-spacing: 0.1em;
+    background: transparent; border: 1px solid var(--c, var(--gold));
+    color: var(--c, var(--gold)); font-size: 0.72rem; letter-spacing: 0.1em;
     text-transform: uppercase; cursor: pointer; transition: all 0.3s;
   }
-  .event-dive-btn:hover { background: var(--gold); color: var(--ink); }
+  .event-dive-btn:hover, .event-card:hover .event-dive-btn {
+    background: var(--c, var(--gold));
+    color: var(--ink);
+  }
 
   /* EVENT PAGE */
   .event-page-overlay {

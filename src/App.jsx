@@ -1181,6 +1181,7 @@ export default function App() {
                   key={ev.id}
                   className="event-card fade-in"
                   style={{ "--c": ev.color }}
+                  onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
                 >
                   {logoUrl ? (
                     <img src={logoUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
@@ -1194,7 +1195,6 @@ export default function App() {
                   <div className="event-highlight">{ev.highlight}</div>
                   <button 
                     className="event-dive-btn" 
-                    onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
                   >
                     {ev.comingSoon ? "Coming Soon " : "Dive In "}
                   </button>
