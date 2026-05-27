@@ -857,9 +857,9 @@ export default function App() {
             ["home", "Home"],
             ["gallery", "Gallery"],
             ["events", "Events"],
+            ["events/archive", "Events Gallery"],
             ["team", "Team"],
             ["verify", "Verify"],
-            ["events/archive", "Events Gallery"],
             ["join", "Join"],
             ["contributors", "Contributors"],
             ["admin", "Admin Console"]
