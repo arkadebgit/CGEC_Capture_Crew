@@ -871,8 +871,11 @@ export default function App() {
               </li>
             );
           })}
-          <li className="nav-btn-wrapper">
-            <button className="admin-nav-btn" onClick={() => navigate('/admin')}>Admin Console</button>
+          <li className="nav-btn-wrapper" style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <button className="nav-action-btn" onClick={() => { setMobileMenuOpen(false); navigate('/events/archive'); }}>Events Gallery</button>
+            <button className="nav-action-btn gold-btn" onClick={() => { setMobileMenuOpen(false); navigate('/join'); }}>Join</button>
+            <button className="nav-action-btn" onClick={() => { setMobileMenuOpen(false); navigate('/contributors'); }}>Contributors</button>
+            <button className="nav-action-btn gold-btn" onClick={() => { setMobileMenuOpen(false); navigate('/admin'); }}>Admin Console</button>
           </li>
         </ul>
       </nav>
@@ -1341,37 +1344,7 @@ export default function App() {
               </div>
             )}
 
-            {/* MEMBERS */}
-            <div className="team-subcategory" style={{ marginTop: '4rem' }}>
-              <h3 className="subcategory-title"><em>Members</em></h3>
-              <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '2rem', fontStyle: 'italic', opacity: 0.8 }}>
-                *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.
-              </p>
-              <div className="team-grid">
-                {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
-                  <div key={m.name} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
-                    <div className="team-avatar" style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem' }}>
-                      📸
-                    </div>
-                    <div className="team-name" style={{ fontSize: '0.95rem' }}>{m.name}</div>
-                    <div className="team-role" style={{ fontSize: '0.65rem', color: 'var(--gold)', marginBottom: '0.3rem' }}>{m.role || 'Member'}</div>
-                    <div className="team-dept" style={{ fontSize: '0.65rem', opacity: 0.8 }}>{m.dept}</div>
-                    <div className="team-dept" style={{ fontSize: '0.65rem', opacity: 0.6, marginTop: '2px' }}>{m.year}</div>
-                  </div>
-                ))}
-
-                {!expandedMembers && shuffledMembers.length > (isMobile ? 6 : 8) && (
-                  <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', padding: '1.5rem 1rem' }} onClick={() => setExpandedMembers(true)}>
-                    <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)', width: '50px', height: '50px', fontSize: '1rem' }}>
-                      📂
-                    </div>
-                    <div className="team-name" style={{ color: 'var(--gold)', fontSize: '0.95rem' }}>Show All</div>
-                    <div className="team-role" style={{ fontSize: '0.65rem' }}>Full Member List</div>
-                    <div className="team-dept" style={{ fontSize: '0.65rem' }}>{shuffledMembers.length} Members</div>
-                  </div>
-                )}
-              </div>
-            </div>
+            {/* Members section moved to Contributors page */}
           </div>
         </div>
       </section>
@@ -1379,6 +1352,7 @@ export default function App() {
 
         <Route path="/join" element={<RecruitmentPage />} />
         <Route path="/apply" element={<RecruitmentPage />} />
+        <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} />} />
 
         <Route path="/verify" element={
           <section id="verify" className="verify-section">
@@ -4362,6 +4336,54 @@ function RecruitmentPage() {
               {isSubmitting ? "PROCESSING..." : <>SUBMIT APPLICATION <ArrowRight /></>}
             </button>
           </form>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers, isMobile }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <section className="team-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
+      <div className="container">
+        <div className="fade-in" style={{ marginBottom: "3.5rem" }}>
+          <div className="section-label">✧ The Crew Supporters</div>
+          <h2 className="section-title">Club <em>Contributors</em></h2>
+          <p className="section-sub">The active photographers, editors, and volunteers who contribute to the Capture Crew legacy.</p>
+        </div>
+
+        <div className="team-subcategory">
+          <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '2rem', fontStyle: 'italic', opacity: 0.8 }}>
+            *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.
+          </p>
+          <div className="team-grid">
+            {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
+              <div key={m.name || m.id} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
+                <div className="team-avatar" style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem' }}>
+                  📸
+                </div>
+                <div className="team-name" style={{ fontSize: '0.95rem' }}>{m.name}</div>
+                <div className="team-role" style={{ fontSize: '0.65rem', color: 'var(--gold)', marginBottom: '0.3rem' }}>{m.role || 'Member'}</div>
+                <div className="team-dept" style={{ fontSize: '0.65rem', opacity: 0.8 }}>{m.dept}</div>
+                <div className="team-dept" style={{ fontSize: '0.65rem', opacity: 0.6, marginTop: '2px' }}>{m.year}</div>
+              </div>
+            ))}
+
+            {!expandedMembers && shuffledMembers.length > (isMobile ? 6 : 8) && (
+              <div className="team-card fade-in" style={{ cursor: 'pointer', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', padding: '1.5rem 1rem' }} onClick={() => setExpandedMembers(true)}>
+                <div className="team-avatar" style={{ background: 'var(--gold)', color: 'var(--ink)', width: '50px', height: '50px', fontSize: '1rem' }}>
+                  📂
+                </div>
+                <div className="team-name" style={{ color: 'var(--gold)', fontSize: '0.95rem' }}>Show All</div>
+                <div className="team-role" style={{ fontSize: '0.65rem' }}>Full Contributor List</div>
+                <div className="team-dept" style={{ fontSize: '0.65rem' }}>{shuffledMembers.length} Contributors</div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </section>

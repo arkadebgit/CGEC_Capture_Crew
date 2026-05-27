@@ -1592,3 +1592,46 @@ section { padding: 7rem 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
+/* Navigation Action Buttons */
+.nav-action-btn {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--white);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1.2rem;
+  border-radius: 100px;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(255,255,255,0.02);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(201,169,110,0.1);
+}
+
+.nav-action-btn.gold-btn {
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  box-shadow: 0 4px 15px rgba(201,169,110,0.25);
+}
+
+.nav-action-btn.gold-btn:hover {
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: 0 8px 25px rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+}
+
+
