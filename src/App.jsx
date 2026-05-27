@@ -934,7 +934,7 @@ export default function App() {
               <section id="week" className="week-section" key="week">
                 <div className="container">
                   <div className="fade-in" style={{ marginBottom: "4rem" }}>
-                    <div className="section-label">✧ Featured</div>
+                    <div className="section-label"></div>
                     <h2 className="section-title">Capture of the <em>Week</em></h2>
                     <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
                   </div>
@@ -944,7 +944,7 @@ export default function App() {
                       <div className="week-badge">This Week's Pick</div>
                     </div>
                     <div className="week-info">
-                      <div className="week-date">Featured</div>
+                      <div className="week-date"></div>
                       <p className="week-story">{weekCapture.title || "Fetching the latest capture..."}</p>
                       <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
                         By <span>{weekCapture.photographer}</span> ({weekCapture.dept} · {weekCapture.year})
@@ -963,7 +963,7 @@ export default function App() {
               <section id="week" className="week-section" key="week">
                 <div className="container">
                   <div className="fade-in" style={{ marginBottom: "4rem" }}>
-                    <div className="section-label">✧ Featured</div>
+                    <div className="section-label"></div>
                     <h2 className="section-title">Capture of the <em>Week</em></h2>
                     <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
                   </div>
@@ -973,7 +973,7 @@ export default function App() {
                       <div className="week-badge">This Week's Pick</div>
                     </div>
                     <div className="week-info">
-                      <div className="week-date">Featured</div>
+                      <div className="week-date"></div>
                       <p className="week-story">Fetching the latest capture...</p>
                     </div>
                   </div>
@@ -992,7 +992,7 @@ export default function App() {
                 <div className="container">
                   <div className="month-header fade-in">
                     <div>
-                      <div className="section-label">✧ Premium Showcase</div>
+                      <div className="section-label"></div>
                       <h2 className="section-title">Capture of the <em>Month</em></h2>
                     </div>
                   </div>
@@ -1005,7 +1005,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="month-info">
-                      <div className="month-of">Premium Selection</div>
+                      <div className="month-of"></div>
                       <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{monthCapture.title}</h3>
                       <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
                         By <span>{monthCapture.photographer}</span> ({monthCapture.dept} · {monthCapture.year})
@@ -1025,7 +1025,7 @@ export default function App() {
                 <div className="container">
                   <div className="month-header fade-in">
                     <div>
-                      <div className="section-label">✧ Premium Showcase</div>
+                      <div className="section-label"></div>
                       <h2 className="section-title">Capture of the <em>Month</em></h2>
                     </div>
                   </div>
@@ -1038,7 +1038,7 @@ export default function App() {
                       </div>
                     </div>
                     <div className="month-info">
-                      <div className="month-of">Premium Selection</div>
+                      <div className="month-of"></div>
                       <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>Fetching the latest capture...</h3>
                     </div>
                   </div>
@@ -1056,7 +1056,7 @@ export default function App() {
               <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }} key="extra">
                 <div className="container">
                   <div className="fade-in" style={{ marginBottom: "4rem" }}>
-                    <div className="section-label">✧ Bonus Frame</div>
+                    <div className="section-label"></div>
                     <h2 className="section-title">The <em>Extra Frame</em></h2>
                   </div>
                   <div className="week-inner fade-in">
@@ -1065,7 +1065,7 @@ export default function App() {
                       <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
                     </div>
                     <div className="week-info" style={{ padding: '0' }}>
-                      <div className="week-date">Bonus Feature</div>
+                      <div className="week-date"></div>
                       <h3 className="week-title" style={{ fontSize: '2.2rem', marginBottom: '1.2rem' }}>{extraFrameCapture.title}</h3>
                       <div className="month-photographer" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
                         By <span>{extraFrameCapture.photographer}</span> ({extraFrameCapture.dept} · {extraFrameCapture.year})
