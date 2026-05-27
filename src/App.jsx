@@ -398,7 +398,7 @@ export default function App() {
   const pathParts = location.pathname.split('/').filter(Boolean);
   const isGallerySub = pathParts[0] === 'gallery' && pathParts[1];
   
-  const activeSection = location.pathname === "/" ? "home" : (isGalleryCategory || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]);
+  const activeSection = location.pathname === "/" ? "home" : (location.pathname === "/events/archive" ? "events/archive" : (isGalleryCategory || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]));
   const galleryFilter = isGalleryCategory ? decodedPath : (isGallerySub ? decodeURIComponent(pathParts[1]) : "All");
 
   const setGalleryFilterRoute = (cat) => {
@@ -853,7 +853,17 @@ export default function App() {
         </button>
 
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
-          {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => {
+          {[
+            ["home", "Home"],
+            ["gallery", "Gallery"],
+            ["events", "Events"],
+            ["team", "Team"],
+            ["verify", "Verify"],
+            ["events/archive", "Events Gallery"],
+            ["join", "Join"],
+            ["contributors", "Contributors"],
+            ["admin", "Admin Console"]
+          ].map(([id, label]) => {
             let route = id === "home" ? "/" : `/${id}`;
             return (
               <li key={id} className={activeSection === id ? "active" : ""}>
@@ -871,12 +881,6 @@ export default function App() {
               </li>
             );
           })}
-          <li className="nav-btn-wrapper" style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-            <button className="nav-action-btn" onClick={() => { setMobileMenuOpen(false); navigate('/events/archive'); }}>Events Gallery</button>
-            <button className="nav-action-btn gold-btn" onClick={() => { setMobileMenuOpen(false); navigate('/join'); }}>Join</button>
-            <button className="nav-action-btn" onClick={() => { setMobileMenuOpen(false); navigate('/contributors'); }}>Contributors</button>
-            <button className="nav-action-btn gold-btn" onClick={() => { setMobileMenuOpen(false); navigate('/admin'); }}>Admin Console</button>
-          </li>
         </ul>
       </nav>
 
