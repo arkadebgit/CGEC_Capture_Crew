@@ -1327,7 +1327,7 @@ export default function App() {
                   
                   {/* RECRUITMENT CARD */}
                   {(expandedTeam || !isMobile) && (
-                    <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => setShowRecruitment(true)}>
+                    <div className="team-card fade-in" style={{ cursor: 'pointer', border: '1px dashed var(--gold)', background: 'rgba(201,169,110,0.03)' }} onClick={() => navigate('/join')}>
                       <div className="team-avatar" style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold2))', color: 'var(--ink)' }}>
                         ➕
                       </div>
@@ -1376,6 +1376,9 @@ export default function App() {
         </div>
       </section>
         } />
+
+        <Route path="/join" element={<RecruitmentPage />} />
+        <Route path="/apply" element={<RecruitmentPage />} />
 
         <Route path="/verify" element={
           <section id="verify" className="verify-section">
@@ -4052,7 +4055,20 @@ function RecruitmentModal({ onClose }) {
     }));
   };
 
-  const POSITIONS = ["Graphic Designer", "Video Editor", "Videographer", "Photographer", "Photo Editor", "PR Manager", "Content Writer", "Social Media Manager"];
+  const POSITIONS = [
+    "Graphic Designer",
+    "Video Editor",
+    "Videographer",
+    "Photographer",
+    "Photo Editor",
+    "PR Manager",
+    "Content Writer",
+    "Co-ordinator",
+    "Moderator",
+    "Videography Lead",
+    "Photography Lead",
+    "Authenticity Verifier"
+  ];
 
   if (submitted) {
     return (
@@ -4140,5 +4156,154 @@ function RecruitmentModal({ onClose }) {
         </form>
       </div>
     </div>
+  );
+}
+
+function RecruitmentPage() {
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '', email: '', phone: '', dept: '', year: '', positions: [], portfolio: ''
+  });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.positions.length === 0) {
+      alert("Please select at least one position.");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await addDoc(collection(db, "applications"), {
+        ...formData,
+        position: formData.positions.join(', '),
+        timestamp: serverTimestamp()
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Submission error:", err);
+      alert("Submission failed. Please check your internet.");
+    } finally { setIsSubmitting(false); }
+  };
+
+  const togglePosition = (pos) => {
+    setFormData(prev => ({
+      ...prev,
+      positions: prev.positions.includes(pos)
+        ? prev.positions.filter(p => p !== pos)
+        : [...prev.positions, pos]
+    }));
+  };
+
+  const POSITIONS = [
+    "Graphic Designer",
+    "Video Editor",
+    "Videographer",
+    "Photographer",
+    "Photo Editor",
+    "PR Manager",
+    "Content Writer",
+    "Co-ordinator",
+    "Moderator",
+    "Videography Lead",
+    "Photography Lead",
+    "Authenticity Verifier"
+  ];
+
+  if (submitted) {
+    return (
+      <section className="verify-section" style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8rem 0' }}>
+        <div className="container" style={{ maxWidth: '600px' }}>
+          <div className="admin-modal glass-form fade-in visible" style={{ textAlign: 'center', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>✨</div>
+            <h2 className="section-title">Application <em>Sent!</em></h2>
+            <p className="section-sub">Your application has been received. We'll be in touch soon!</p>
+            <button className="form-submit" onClick={() => navigate('/team')} style={{ marginTop: '2.5rem', width: '100%' }}>Return to Team</button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
+      <div className="container" style={{ maxWidth: '700px' }}>
+        <div className="admin-modal glass-form fade-in visible" style={{ padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+          <button className="lightbox-close" onClick={() => navigate('/team')} style={{ top: '2rem', right: '2rem', position: 'absolute', background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+          <div className="section-label">✧ Join our legacy</div>
+          <h2 className="section-title" style={{ fontSize: '2.5rem' }}>The <em>Core Team</em></h2>
+          <p className="section-sub" style={{ marginBottom: '3rem' }}>We are looking for creative souls. Apply below.</p>
+          
+          <form className="feedback-form" style={{ background: 'transparent', padding: '0', boxShadow: 'none' }} onSubmit={handleSubmit}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', textAlign: 'left' }}>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Full Name</label>
+                <input className="form-input" placeholder="e.g. John Doe" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Email Address</label>
+                <input className="form-input" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>WhatsApp No.</label>
+                <input className="form-input" placeholder="+91 XXXX" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} />
+              </div>
+              <div className="form-group">
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Department</label>
+                <select className="form-input" style={{ appearance: 'none' }} required value={formData.dept} onChange={e => setFormData({...formData, dept: e.target.value})}>
+                  <option value="" style={{ background: '#111' }}>Select Dept</option>
+                  <option style={{ background: '#111' }}>CSE</option><option style={{ background: '#111' }}>ECE</option><option style={{ background: '#111' }}>EE</option><option style={{ background: '#111' }}>ME</option><option style={{ background: '#111' }}>CE</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Academic Year</label>
+                <select className="form-input" style={{ appearance: 'none' }} required value={formData.year} onChange={e => setFormData({...formData, year: e.target.value})}>
+                  <option value="" style={{ background: '#111' }}>Select Year</option>
+                  <option style={{ background: '#111' }}>1st Year</option><option style={{ background: '#111' }}>2nd Year</option><option style={{ background: '#111' }}>3rd Year</option><option style={{ background: '#111' }}>4th Year</option>
+                </select>
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '1rem', color: 'var(--gold)', fontSize: '0.75rem', fontWeight: 'bold' }}>Positions you're applying for (Select all that apply)</label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '0.8rem' }}>
+                  {POSITIONS.map(pos => (
+                    <div 
+                      key={pos} 
+                      onClick={() => togglePosition(pos)}
+                      style={{ 
+                        padding: '0.8rem 1rem', 
+                        borderRadius: '8px', 
+                        background: formData.positions.includes(pos) ? 'var(--gold)' : 'rgba(255,255,255,0.03)',
+                        color: formData.positions.includes(pos) ? 'var(--ink)' : 'var(--white)',
+                        fontSize: '0.75rem',
+                        cursor: 'pointer',
+                        border: '1px solid',
+                        borderColor: formData.positions.includes(pos) ? 'var(--gold)' : 'rgba(255,255,255,0.1)',
+                        transition: 'all 0.2s ease',
+                        textAlign: 'center',
+                        fontWeight: formData.positions.includes(pos) ? 'bold' : 'normal'
+                      }}
+                    >
+                      {pos}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Portfolio Link (G-Drive / Behance)</label>
+                <input className="form-input" placeholder="https://..." required value={formData.portfolio} onChange={e => setFormData({...formData, portfolio: e.target.value})} />
+              </div>
+            </div>
+            <button className="form-submit" type="submit" disabled={isSubmitting} style={{ marginTop: '2.5rem', width: '100%' }}>
+              {isSubmitting ? "PROCESSING..." : <>SUBMIT APPLICATION <ArrowRight /></>}
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
   );
 }
