@@ -1701,6 +1701,23 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
     photosRaw: ""
   });
   const [isSavingLive, setIsSavingLive] = useState(false);
+  const [unseenCount, setUnseenCount] = useState(0);
+
+  useEffect(() => {
+    if (adminData?.role === 'core_member') return;
+    const q = query(collection(db, "applications"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let count = 0;
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.seen === false) {
+          count++;
+        }
+      });
+      setUnseenCount(count);
+    });
+    return unsubscribe;
+  }, [adminData]);
 
   useEffect(() => {
     if (liveEventConfig) {
@@ -2148,7 +2165,10 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <button className={`filter-btn ${tab === 'month' ? 'active' : ''}`} onClick={() => setTab('month')}>Set Month</button>
               <button className={`filter-btn ${tab === 'extra' ? 'active' : ''}`} onClick={() => setTab('extra')}>Set Extra Frame</button>
               <button className={`filter-btn ${tab === 'gallery' ? 'active' : ''}`} onClick={() => setTab('gallery')}>Manage Gallery</button>
-              <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>Applications</button>
+              <button className={`filter-btn ${tab === 'apps' ? 'active' : ''}`} onClick={() => setTab('apps')}>
+                Applications
+                {unseenCount > 0 && <span className="app-notification-badge">{unseenCount}</span>}
+              </button>
               <button className={`filter-btn ${tab === 'certs' ? 'active' : ''}`} onClick={() => setTab('certs')}>Certificates</button>
               <button className={`filter-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>Manage Members</button>
               <button className={`filter-btn ${tab === 'events' ? 'active' : ''}`} onClick={() => setTab('events')}>Manage Events</button>
@@ -3938,8 +3958,43 @@ function AdminApplications() {
     return onSnapshot(q, (s) => setApps(s.docs.map(d => ({ id: d.id, ...d.data() }))));
   }, []);
 
+  const unseenApps = apps.filter(app => app.seen === false);
+
+  useEffect(() => {
+    const unseenIds = apps.filter(a => a.seen === false).map(a => a.id);
+    if (unseenIds.length > 0) {
+      const timer = setTimeout(async () => {
+        const batch = writeBatch(db);
+        unseenIds.forEach(id => {
+          batch.update(doc(db, "applications", id), { seen: true });
+        });
+        try {
+          await batch.commit();
+        } catch (err) {
+          console.error("Error marking applications as seen:", err);
+        }
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [apps]);
+
   return (
     <div className="admin-grid-view">
+      {unseenApps.length > 0 && (
+        <div className="new-app-banner fade-in">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+            <span style={{ fontSize: '1.2rem' }}>✨</span>
+            <div>
+              <strong style={{ color: 'var(--gold)' }}>New Applications Received!</strong>
+              <div style={{ fontSize: '0.75rem', opacity: 0.8, marginTop: '2px' }}>
+                You have {unseenApps.length} new candidate{unseenApps.length > 1 ? 's' : ''} to review.
+              </div>
+            </div>
+          </div>
+          <span className="app-notification-badge" style={{ margin: 0 }}>NEW</span>
+        </div>
+      )}
+
       <div className="admin-table-wrap" style={{ overflowX: 'auto', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', padding: '1rem' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', color: '#fff', fontSize: '0.85rem' }}>
           <thead>
@@ -3955,7 +4010,10 @@ function AdminApplications() {
             {apps.map(app => (
               <tr key={app.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <td style={{ padding: '1rem' }}>
-                  <div style={{ fontWeight: '600' }}>{app.name}</div>
+                  <div style={{ fontWeight: '600', display: 'flex', alignItems: 'center' }}>
+                    {app.seen === false && <span className="new-app-dot" title="New Application" />}
+                    {app.name}
+                  </div>
                   <div style={{ fontSize: '0.7rem', color: 'var(--gold)' }}>{app.dept} · {app.year}</div>
                 </td>
                 <td style={{ padding: '1rem' }}>{app.position}</td>
@@ -4037,7 +4095,8 @@ function RecruitmentModal({ onClose }) {
       await addDoc(collection(db, "applications"), {
         ...formData,
         position: formData.positions.join(', '),
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        seen: false
       });
       setSubmitted(true);
     } catch (err) {
@@ -4182,7 +4241,8 @@ function RecruitmentPage() {
       await addDoc(collection(db, "applications"), {
         ...formData,
         position: formData.positions.join(', '),
-        timestamp: serverTimestamp()
+        timestamp: serverTimestamp(),
+        seen: false
       });
       setSubmitted(true);
     } catch (err) {

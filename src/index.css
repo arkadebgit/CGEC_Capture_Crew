@@ -1528,3 +1528,67 @@ section { padding: 7rem 0; }
   from { opacity: 0; }
   to { opacity: 0.8; }
 }
+
+/* Custom App Notification Badge */
+.app-notification-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ff4d4d;
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: bold;
+  height: 16px;
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 10px;
+  margin-left: 8px;
+  vertical-align: middle;
+  box-shadow: 0 0 8px rgba(255, 77, 77, 0.6);
+  animation: badgePulse 2.0s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+  0% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 77, 77, 0.6); }
+  50% { transform: scale(1.15); box-shadow: 0 0 15px rgba(255, 77, 77, 0.9); }
+  100% { transform: scale(1); box-shadow: 0 0 8px rgba(255, 77, 77, 0.6); }
+}
+
+/* Eye catching banner in Applications section */
+.new-app-banner {
+  background: linear-gradient(135deg, rgba(201, 169, 110, 0.1) 0%, rgba(255, 77, 77, 0.08) 100%);
+  border: 1px solid rgba(255, 77, 77, 0.3);
+  box-shadow: 0 4px 20px rgba(255, 77, 77, 0.15);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: bannerGlow 3s infinite ease-in-out;
+}
+
+@keyframes bannerGlow {
+  0% { border-color: rgba(255, 77, 77, 0.3); box-shadow: 0 4px 20px rgba(255, 77, 77, 0.15); }
+  50% { border-color: rgba(201, 169, 110, 0.6); box-shadow: 0 4px 25px rgba(201, 169, 110, 0.3); }
+  100% { border-color: rgba(255, 77, 77, 0.3); box-shadow: 0 4px 20px rgba(255, 77, 77, 0.15); }
+}
+
+/* Red dot next to new applications inside table */
+.new-app-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: #ff4d4d;
+  border-radius: 50%;
+  margin-right: 8px;
+  box-shadow: 0 0 6px #ff4d4d;
+  animation: dotPulse 1.5s infinite;
+}
+
+@keyframes dotPulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
