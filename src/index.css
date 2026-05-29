@@ -580,11 +580,9 @@ section { padding: 7rem 0; }
 
   /* EVENT PAGE */
   .event-page-overlay {
-    position: fixed; inset: 0; z-index: 500;
-    background: #0A0A0B; overflow-y: auto;
-    padding-top: 5rem; padding-bottom: 5rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--gold) transparent;
+    background: #0A0A0B;
+    padding-top: 8rem; padding-bottom: 5rem;
+    min-height: 80vh;
   }
   .event-page-header { margin-bottom: 4rem; position: relative; }
   .back-btn {
