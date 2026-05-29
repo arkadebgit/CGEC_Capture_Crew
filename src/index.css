@@ -887,6 +887,9 @@ section { padding: 7rem 0; }
 .footer-links {
   display: flex; gap: 2.5rem; flex-wrap: wrap; justify-content: center;
 }
+@media(max-width: 768px) {
+  .footer-links { gap: 1.2rem 1.8rem; }
+}
 .footer-link {
   font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
   color: var(--muted); cursor: pointer; transition: all 0.3s; 

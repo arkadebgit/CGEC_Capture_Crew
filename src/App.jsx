@@ -1469,10 +1469,32 @@ export default function App() {
           
           <div className="footer-mid">
             <div className="footer-links">
-              {[["home","Home"],["gallery","Gallery"],["events","Events"],["team","Team"],["verify","Verify"]].map(([id, label]) => (
-                <a key={id} onClick={() => scrollTo(id)} className="footer-link">{label}</a>
-              ))}
-              <a onClick={() => navigate('/admin')} className="footer-link">Admin Console</a>
+              {[
+                ["home", "Home"],
+                ["gallery", "Gallery"],
+                ["events", "Events"],
+                ["events/archive", "Events Gallery"],
+                ["team", "Team"],
+                ["verify", "Verify"],
+                ["join", "Join"],
+                ["contributors", "Contributors"],
+                ["admin", "Admin Console"]
+              ].map(([id, label]) => {
+                let route = id === "home" ? "/" : `/${id}`;
+                return (
+                  <Link 
+                    key={id}
+                    to={route} 
+                    onClick={(e) => {
+                      if (selectedEvent) setSelectedEvent(null);
+                      setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+                    }}
+                    className="footer-link"
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
             </div>
             
             <div className="footer-socials">
