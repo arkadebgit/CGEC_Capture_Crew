@@ -3370,49 +3370,6 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
   const [formData, setFormData] = useState({
     name: "", role: "", email: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99
   });
-  const [isSeeding, setIsSeeding] = useState(false);
-  const [isPromoting, setIsPromoting] = useState(false);
-
-  const handlePromoteYears = async () => {
-    if (!window.confirm("CRITICAL: This will increment the year for ALL members and team members (1st -> 2nd, 2nd -> 3rd, 3rd -> 4th, 4th -> Passout). Proceed?")) return;
-    
-    setIsPromoting(true);
-    try {
-      const colls = ["members", "team_members"];
-      let totalUpdated = 0;
-
-      for (const collName of colls) {
-        const snap = await getDocs(collection(db, collName));
-        const batch = writeBatch(db);
-        let batchCount = 0;
-
-        snap.forEach(d => {
-          const data = d.data();
-          let newYear = data.year || "";
-          
-          if (newYear === "1st Year") newYear = "2nd Year";
-          else if (newYear === "2nd Year") newYear = "3rd Year";
-          else if (newYear === "3rd Year") newYear = "4th Year";
-          else if (newYear === "4th Year") newYear = "Passout";
-          
-          if (newYear !== data.year) {
-            batch.update(doc(db, collName, d.id), { year: newYear });
-            batchCount++;
-          }
-        });
-
-        if (batchCount > 0) {
-          await batch.commit();
-          totalUpdated += batchCount;
-        }
-      }
-      alert(`Successfully promoted years for ${totalUpdated} members!`);
-    } catch (err) {
-      alert("Promotion failed: " + err.message);
-    } finally {
-      setIsPromoting(false);
-    }
-  };
 
   const save = async () => {
     if (!formData.name || !formData.img) return alert("Name and Image URL are required");
@@ -3472,25 +3429,6 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
     }
   };
 
-  const seedData = async () => {
-    if (!window.confirm("This will initialize the database with current hardcoded team data. Continue?")) return;
-    setIsSeeding(true);
-    try {
-      const batch = writeBatch(db);
-      const categories = ['founders', 'incharge', 'coordinators', 'core'];
-      
-      for (const cat of categories) {
-        TEAM_DATA[cat].forEach((m, idx) => {
-          const docRef = doc(collection(db, "team_members"));
-          batch.set(docRef, { ...m, category: cat, order: idx, createdAt: serverTimestamp() });
-        });
-      }
-      await batch.commit();
-      alert("Team data initialized successfully!");
-    } catch (err) { alert("Seed failed: " + err.message); }
-    finally { setIsSeeding(false); }
-  };
-
   const categories = [
     { id: 'founders', label: 'Founders' },
     { id: 'incharge', label: 'Incharges' },
@@ -3505,12 +3443,6 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
           setEditing('new');
           setFormData({ name: "", role: "", email: "", category: "core", dept: DEPTS[0], year: YEARS[0], img: "", insta: "", order: 99 });
         }}>➕ ADD TEAM MEMBER</button>
-        <button className="admin-nav-btn" style={{ opacity: 0.5 }} onClick={seedData} disabled={isSeeding}>
-          {isSeeding ? "Initializing..." : "🚀 INITIALIZE FROM CODE (Run Once)"}
-        </button>
-        <button className="admin-nav-btn" style={{ background: '#4CAF50', color: '#fff', border: 'none' }} onClick={handlePromoteYears} disabled={isPromoting}>
-          {isPromoting ? "Promoting..." : "📅 PROMOTE ALL YEARS (Academic Session Start)"}
-        </button>
       </div>
 
       {editing ? (
