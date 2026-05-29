@@ -388,6 +388,26 @@ const ArrowRight = () => (
   </svg>
 );
 
+const InstagramIcon = ({ size = 18, ...props }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    style={{ display: 'inline-block', verticalAlign: 'middle', ...props.style }}
+    {...props}
+  >
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
   const location = useLocation();
@@ -1250,13 +1270,23 @@ export default function App() {
                 <h3 className="subcategory-title"><em>Founders</em></h3>
                 <div className="team-grid">
                   {teamMembers.founders.map(m => (
-                    <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                      <div className="team-avatar">
+                    <div key={m.id || m.name} className="team-card fade-in">
+                      <div 
+                        className={`team-avatar ${m.img ? 'clickable' : ''}`}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                      >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
                       <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
+                      {m.insta && (
+                        <div className="team-socials">
+                          <a href={m.insta} target="_blank" rel="noopener noreferrer" className="team-social-icon" title="Instagram">
+                            <InstagramIcon />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1269,13 +1299,23 @@ export default function App() {
                 <h3 className="subcategory-title"><em>Incharges</em></h3>
                 <div className="team-grid incharge-grid">
                   {teamMembers.incharge.map(m => (
-                    <div key={m.id || m.name} className="team-card incharge-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                      <div className="team-avatar highlight-silver">
+                    <div key={m.id || m.name} className="team-card incharge-card fade-in">
+                      <div 
+                        className={`team-avatar highlight-silver ${m.img ? 'clickable' : ''}`}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                      >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
                       <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
+                      {m.insta && (
+                        <div className="team-socials">
+                          <a href={m.insta} target="_blank" rel="noopener noreferrer" className="team-social-icon" title="Instagram">
+                            <InstagramIcon />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1288,13 +1328,23 @@ export default function App() {
                 <h3 className="subcategory-title"><em>Co-Ordinators</em></h3>
                 <div className="team-grid">
                   {teamMembers.coordinators.map(m => (
-                    <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                      <div className="team-avatar">
+                    <div key={m.id || m.name} className="team-card fade-in">
+                      <div 
+                        className={`team-avatar ${m.img ? 'clickable' : ''}`}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                      >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
                       <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
+                      {m.insta && (
+                        <div className="team-socials">
+                          <a href={m.insta} target="_blank" rel="noopener noreferrer" className="team-social-icon" title="Instagram">
+                            <InstagramIcon />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1307,8 +1357,11 @@ export default function App() {
                 <h3 className="subcategory-title"><em>Core Team</em></h3>
                 <div className="team-grid">
                   {(isMobile && !expandedTeam ? teamMembers.core.slice(0, 3) : teamMembers.core).map(m => (
-                    <div key={m.id || m.name} className="team-card fade-in" onClick={() => m.insta && window.open(m.insta, "_blank")} style={{ cursor: m.insta ? 'pointer' : 'default' }}>
-                      <div className="team-avatar">
+                    <div key={m.id || m.name} className="team-card fade-in">
+                      <div 
+                        className={`team-avatar ${m.img ? 'clickable' : ''}`}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                      >
                         {m.img ? (
                           <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                         ) : (
@@ -1318,6 +1371,13 @@ export default function App() {
                       <div className="team-name">{m.name}</div>
                       <div className="team-role">{m.role}</div>
                       <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
+                      {m.insta && (
+                        <div className="team-socials">
+                          <a href={m.insta} target="_blank" rel="noopener noreferrer" className="team-social-icon" title="Instagram">
+                            <InstagramIcon />
+                          </a>
+                        </div>
+                      )}
                     </div>
                   ))}
                   
