@@ -2559,7 +2559,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)', marginBottom: '2rem' }}>
                       <h5 style={{ fontSize: '0.8rem', color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         🚀 Bulk Image Uploader 
-                        <a href="https://cloudinary.com/" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Open Cloudinary </a>
+                        <a href="https://bulk-cloudinary-url-generator.vercel.app/" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Cloudinary Bulk</a>
                       </h5>
                       <p style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '1rem' }}>Upload your images to Cloudinary, copy the <strong>Direct Links/Delivery URLs</strong>, and paste them all below (separated by spaces or lines).</p>
                       <textarea 
