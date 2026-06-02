@@ -1216,7 +1216,7 @@ export default function App() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--gold)', fontSize: '1rem' }}>✦</span>
                   <span style={{ fontSize: '0.82rem', color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                    Upcoming Challenge: {ccEvents.filter(e => e.upcoming).length}
+                    Upcoming Events: {ccEvents.filter(e => e.upcoming).length}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -1529,6 +1529,7 @@ export default function App() {
             navigate={navigate}
             eventsLoaded={eventsLoaded}
             ccEvents={ccEvents}
+            isMobile={isMobile}
           />
         } />
         <Route path="/admin" element={
@@ -1638,7 +1639,7 @@ export default function App() {
   );
 }
 
-function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate, eventsLoaded, ccEvents }) {
+function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate, eventsLoaded, ccEvents, isMobile }) {
   if (!eventsLoaded) {
     return (
       <div className="lightbox open" style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 3000 }}>
@@ -1658,6 +1659,7 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
         ccEvents={ccEvents} 
         onClose={() => navigate('/events')} 
         setLightboxItem={setLightboxItem} 
+        isMobile={isMobile}
       />
     );
   }
@@ -3855,7 +3857,7 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
 }
 
 // ✦✦✦ CC EVENTS PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
-function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
+function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -3867,13 +3869,17 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
   return (
     <div className="event-page-overlay" style={{ '--c': 'var(--gold)', minHeight: '100vh', paddingBottom: '8rem' }}>
       <div className="container">
-        <header className="event-page-header">
-          <button className="back-btn" onClick={onClose} style={{ top: '-1rem' }}><ArrowLeft /> Back to Events</button>
+        <header className="event-page-header" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'block', width: '100%' }}>
+            <button className="back-btn" onClick={onClose} style={{ position: 'static', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 0', margin: 0 }}>
+              <ArrowLeft /> Back to Events
+            </button>
+          </div>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '3rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '3rem', lineHeight: 1 }}>🏆</span>
             <div>
-              <div className="section-label" style={{ color: 'var(--gold)', margin: 0 }}>
+              <div className="section-label" style={{ color: 'var(--gold)', margin: '0 0 0.2rem 0' }}>
                 Exclusive Club Competitions
               </div>
               <h1 className="section-title" style={{ margin: 0, fontSize: '2.5rem' }}>
@@ -3882,7 +3888,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
             </div>
           </div>
           
-          <p className="section-sub" style={{ fontSize: '1.05rem', lineHeight: '1.8', opacity: 0.9, maxWidth: '800px', margin: '0 0 2rem 0' }}>
+          <p className="section-sub" style={{ fontSize: '1.05rem', lineHeight: '1.8', opacity: 0.9, maxWidth: '800px', margin: 0 }}>
             Welcome to the official arena of Capture Crew. Here we host internal themed photography challenges, showcase upcoming events, and immortalize the top captures in our Hall of Fame.
           </p>
         </header>
@@ -3891,7 +3897,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
         <div className="cc-section-wrapper" style={{ marginBottom: '5rem', marginTop: '3.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem' }}>
             <span style={{ color: 'var(--gold)', fontSize: '1.2rem' }}>✦</span>
-            <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>Upcoming <em>Challenges</em></h2>
+            <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>Upcoming <em>Events</em></h2>
           </div>
 
           {upcomingEvents.length > 0 ? (
@@ -3901,35 +3907,36 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
                   key={event.id} 
                   className="glass-form fade-in visible" 
                   style={{ 
-                    padding: '2.5rem', 
+                    padding: isMobile ? '1.5rem' : '2.5rem', 
                     borderRadius: '24px', 
                     border: '1px solid rgba(201, 169, 110, 0.25)',
                     background: 'rgba(255, 255, 255, 0.02)',
-                    display: 'grid',
-                    gridTemplateColumns: event.bannerUrl ? '1fr 300px' : '1fr',
+                    display: 'flex',
+                    flexDirection: (isMobile || !event.bannerUrl) ? 'column' : 'row',
                     gap: '2.5rem',
                     alignItems: 'center'
                   }}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                       <span style={{ background: '#ff4444', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '0.3rem 0.8rem', borderRadius: '50px', letterSpacing: '1px', textTransform: 'uppercase' }}>Upcoming</span>
                       {event.date && <span style={{ color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 500 }}>🗓️ {event.date}</span>}
                     </div>
-                    <h3 style={{ fontSize: '1.8rem', fontWeight: 600, color: 'var(--white)', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-display)' }}>{event.title}</h3>
+                    <h3 style={{ fontSize: isMobile ? '1.5rem' : '1.8rem', fontWeight: 600, color: 'var(--white)', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-display)' }}>{event.title}</h3>
                     {event.subtitle && <p style={{ color: 'var(--gold)', fontSize: '0.9rem', margin: '0 0 1rem 0', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>{event.subtitle}</p>}
-                    {event.desc && <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: '1.7', margin: 0 }}>{event.desc}</p>}
+                    {event.desc && <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: '1.75', margin: 0 }}>{event.desc}</p>}
                   </div>
                   {event.bannerUrl && (
                     <div 
                       style={{ 
-                        width: '100%', 
-                        height: '200px', 
+                        width: isMobile ? '100%' : '320px', 
+                        height: isMobile ? '220px' : '240px', 
                         borderRadius: '16px', 
                         overflow: 'hidden', 
                         border: '1px solid var(--border)',
-                        boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
-                        cursor: 'pointer'
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.4)',
+                        cursor: 'pointer',
+                        flexShrink: 0
                       }}
                       onClick={() => setLightboxItem({ url: event.bannerUrl, title: `${event.title} - Announcement`, photographer: "Capture Crew", dept: event.subtitle, year: "Upcoming" })}
                     >
@@ -3937,6 +3944,8 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
                         src={event.bannerUrl} 
                         alt={event.title} 
                         style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s' }}
+                        onMouseOver={e => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                         referrerPolicy="no-referrer"
                       />
                     </div>
@@ -3947,7 +3956,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
           ) : (
             <div className="glass-form" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📢</div>
-              <p style={{ margin: 0, fontSize: '0.95rem' }}>No upcoming competitions at the moment. Keep practicing, the next challenge is just around the corner!</p>
+              <p style={{ margin: 0, fontSize: '0.95rem' }}>No upcoming events at the moment. Keep practicing, the next challenge is just around the corner!</p>
             </div>
           )}
         </div>
