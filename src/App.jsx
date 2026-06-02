@@ -1214,9 +1214,9 @@ export default function App() {
               
               <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span className="live-indicator" style={{ display: 'inline-block' }}></span>
+                  <span style={{ color: 'var(--gold)', fontSize: '1rem' }}>✦</span>
                   <span style={{ fontSize: '0.82rem', color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                    Upcoming: {ccEvents.filter(e => e.upcoming).length} Challenges
+                    Upcoming Challenge: {ccEvents.filter(e => e.upcoming).length}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -3438,7 +3438,7 @@ function AdminCCEvents({ ccEvents }) {
                   <td style={{ padding: '1rem', fontWeight: 'bold' }}>{ev.title}</td>
                   <td style={{ padding: '1rem' }}>
                     {ev.upcoming ? (
-                      <span style={{ color: '#ff4444', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><span className="live-indicator" style={{ width: '6px', height: '6px', margin: 0 }}></span> Upcoming</span>
+                      <span style={{ color: '#ff9900', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>✦ Upcoming</span>
                     ) : (
                       <span style={{ color: 'var(--gold)' }}>🏆 Past Event</span>
                     )}
@@ -3890,7 +3890,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
         {/* UPCOMING EVENTS SECTION */}
         <div className="cc-section-wrapper" style={{ marginBottom: '5rem', marginTop: '3.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem' }}>
-            <span className="live-indicator" style={{ display: 'inline-block', boxShadow: '0 0 12px #ff4444' }}></span>
+            <span style={{ color: 'var(--gold)', fontSize: '1.2rem' }}>✦</span>
             <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>Upcoming <em>Challenges</em></h2>
           </div>
 
