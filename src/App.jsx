@@ -412,7 +412,7 @@ export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const topLevelCategories = ["Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event Winners"];
+  const topLevelCategories = ["Weekly Captures", "Monthly Captures", "The Extra Frame"];
   const decodedPath = decodeURIComponent(location.pathname.substring(1));
   const isGalleryCategory = topLevelCategories.includes(decodedPath);
   const pathParts = location.pathname.split('/').filter(Boolean);
@@ -1112,7 +1112,7 @@ export default function App() {
           )
         } />
 
-        {["/gallery", "/Weekly Captures", "/Monthly Captures", "/The Extra Frame", "/CC Event Winners", "/gallery/:category"].map(path => (
+        {["/gallery", "/Weekly Captures", "/Monthly Captures", "/The Extra Frame", "/gallery/:category"].map(path => (
           <Route key={path} path={path} element={
           <section id="gallery" className="gallery-section">
         <div className="container">
@@ -1122,10 +1122,10 @@ export default function App() {
             <p className="section-sub">Curated captures from our photographers — click any image to view full screen.</p>
           </div>
           <div className="gallery-filter fade-in">
-            {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame", "CC Event Winners"].map(cat => (
+            {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"].map(cat => (
               <button 
                 key={cat} 
-                className={`filter-btn ${galleryFilter === cat ? "active" : ""} ${cat === "CC Event Winners" ? "premium-btn" : ""}`} 
+                className={`filter-btn ${galleryFilter === cat ? "active" : ""}`} 
                 onClick={() => setGalleryFilterRoute(cat)}
               >
                 {cat}
@@ -1133,59 +1133,33 @@ export default function App() {
             ))}
           </div>
 
-          {galleryFilter === "CC Event Winners" ? (
-            <div className="cc-events-container fade-in">
-              {ccEvents.map(event => (
-                <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem' }}>
-                  <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '4rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    <div className="section-label" style={{ margin: '0 0 1rem' }}>✧ Competition Results</div>
-                    <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.5rem', margin: '0' }}>{event.title} <em>Winners</em></h3>
-                    <p className="section-sub" style={{ margin: '1rem 0 0', opacity: 0.8 }}>{event.subtitle}</p>
-                  </div>
-                  
-                  <div className="podium-grid">
-                    {/* 2nd Place */}
-                    <WinnerCard rank="2nd" data={event.winners?.["2nd"]} color="#A8A8A8" setLightboxItem={setLightboxItem} />
-                    {/* 1st Place */}
-                    <WinnerCard rank="1st" data={event.winners?.["1st"]} color="var(--gold)" isFeatured={true} setLightboxItem={setLightboxItem} />
-                    {/* 3rd Place */}
-                    <WinnerCard rank="3rd" data={event.winners?.["3rd"]} color="#CD7F32" setLightboxItem={setLightboxItem} />
+          <div className="gallery-masonry fade-in">
+            {filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
+              <div
+                key={item.id}
+                className="gallery-item"
+                onClick={() => setLightboxItem(item)}
+              >
+                <img 
+                  src={item.url} 
+                  alt={item.title} 
+                  className="gallery-thumb" 
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+                <div className="gallery-overlay">
+                  <div>
+                    <div className="gallery-item-title">{item.title}</div>
+                    <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
                   </div>
                 </div>
-              ))}
-              {ccEvents.length === 0 && <div className="no-results">No CC Event winners posted yet. Check back soon!</div>}
-            </div>
-          ) : (
-            <>
-              <div className="gallery-masonry fade-in">
-                {filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
-                  <div
-                    key={item.id}
-                    className="gallery-item"
-                    onClick={() => setLightboxItem(item)}
-                  >
-                    <img 
-                      src={item.url} 
-                      alt={item.title} 
-                      className="gallery-thumb" 
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                    />
-                    <div className="gallery-overlay">
-                      <div>
-                        <div className="gallery-item-title">{item.title}</div>
-                        <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
               </div>
-              {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
-                <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-                  <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures </button>
-                </div>
-              )}
-            </>
+            ))}
+          </div>
+          {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
+            <div style={{ textAlign: 'center', marginTop: '3rem' }}>
+              <button className="event-dive-btn" onClick={() => setExpandedGallery(true)}>View All Captures </button>
+            </div>
           )}
         </div>
       </section>
@@ -1200,6 +1174,65 @@ export default function App() {
             <h2 className="section-title">College <em>Events</em></h2>
             <p className="section-sub">From vibrant campus fests to unforgettable college moments — every event, immortalized through our lenses.</p>
           </div>
+
+          {/* Capture Crew Events Featured Card */}
+          <div 
+            className="event-card fade-in" 
+            onClick={() => navigate('/events/cc-events')}
+            style={{ 
+              marginBottom: '4rem', 
+              cursor: 'pointer',
+              background: 'linear-gradient(135deg, rgba(201, 169, 110, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)',
+              border: '1px solid rgba(201, 169, 110, 0.2)',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+              borderRadius: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            {/* Glow design decoration */}
+            <div style={{
+              position: 'absolute',
+              top: '-30%',
+              right: '-10%',
+              width: '300px',
+              height: '300px',
+              background: 'radial-gradient(circle, rgba(201, 169, 110, 0.12) 0%, transparent 70%)',
+              pointerEvents: 'none',
+              zIndex: 1
+            }}></div>
+
+            <div style={{ position: 'relative', zIndex: 2 }}>
+              <span className="event-emoji" style={{ fontSize: '3rem', display: 'inline-block', marginBottom: '1rem' }}>🏆</span>
+              <div className="event-subtitle" style={{ color: 'var(--gold)', fontWeight: 600 }}>Exclusive Club Competitions</div>
+              <div className="event-name" style={{ fontSize: '2.2rem', marginTop: '0.2rem' }}>Capture Crew <em>Events</em></div>
+              <p className="event-desc" style={{ maxWidth: '800px', fontSize: '0.92rem', marginTop: '0.8rem', marginBottom: '1.5rem', opacity: 0.85 }}>
+                Dive into our internal theme-based photography challenges, view competition rules, keep up with upcoming events, and explore the Hall of Fame celebrating our top winners.
+              </p>
+              
+              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span className="live-indicator" style={{ display: 'inline-block' }}></span>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                    Upcoming: {ccEvents.filter(e => e.upcoming).length} Challenges
+                  </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ color: 'var(--gold)', fontSize: '1rem' }}>🏆</span>
+                  <span style={{ fontSize: '0.82rem', color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                    Hall of Fame: {ccEvents.filter(e => !e.upcoming).length} Competitions
+                  </span>
+                </div>
+              </div>
+
+              <button className="event-dive-btn" style={{ margin: 0, background: 'var(--gold)', color: 'var(--ink)', border: 'none', fontWeight: 'bold' }}>
+                Explore CC Events
+              </button>
+            </div>
+          </div>
+
           <div className="events-grid">
             {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => {
               const logoUrl = (ev.iconUrl && ev.iconUrl.trim().startsWith('http')) ? ev.iconUrl.trim() : (STATIC_EVENT_ICONS[ev.id] && STATIC_EVENT_ICONS[ev.id].trim().startsWith('http') ? STATIC_EVENT_ICONS[ev.id].trim() : null);
@@ -1495,6 +1528,7 @@ export default function App() {
             archiveConfig={archiveConfig}
             navigate={navigate}
             eventsLoaded={eventsLoaded}
+            ccEvents={ccEvents}
           />
         } />
         <Route path="/admin" element={
@@ -1604,7 +1638,7 @@ export default function App() {
   );
 }
 
-function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate, eventsLoaded }) {
+function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiveConfig, navigate, eventsLoaded, ccEvents }) {
   if (!eventsLoaded) {
     return (
       <div className="lightbox open" style={{ color: '#fff', background: 'rgba(0,0,0,0.95)', zIndex: 3000 }}>
@@ -1618,6 +1652,16 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
 
   const { eventId } = useParams();
   
+  if (eventId === 'cc-events' || eventId === 'capture-crew-events') {
+    return (
+      <CCEventsPage 
+        ccEvents={ccEvents} 
+        onClose={() => navigate('/events')} 
+        setLightboxItem={setLightboxItem} 
+      />
+    );
+  }
+
   if (eventId === 'archive') {
     return (
       <EventPage 
@@ -3259,6 +3303,7 @@ function AdminCCEvents({ ccEvents }) {
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({
     title: "", subtitle: "", order: 1,
+    upcoming: false, date: "", desc: "", bannerUrl: "",
     winners: {
       "1st": { name: "", dept: "", year: "1st Year", url: "" },
       "2nd": { name: "", dept: "", year: "1st Year", url: "" },
@@ -3272,62 +3317,105 @@ function AdminCCEvents({ ccEvents }) {
       const id = editing === 'new' ? formData.title.toLowerCase().replace(/ /g, '-') : editing;
       await setDoc(doc(db, "cc_events", id), formData, { merge: true });
       setEditing(null);
-      alert("CC Event Winners Saved!");
+      alert("CC Event Saved!");
     } catch (err) { alert(err.message); }
   };
 
   return (
     <div className="fade-in visible">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-        <h3 className="subcategory-title" style={{ margin: 0 }}>CC Event <em>Winners Panel</em></h3>
+        <h3 className="subcategory-title" style={{ margin: 0 }}>CC Event <em>Winners & Panel</em></h3>
         <button className="admin-nav-btn" style={{ background: 'var(--gold)', color: 'var(--ink)' }} onClick={() => {
           setEditing('new');
-          setFormData({ title: "", subtitle: "", order: ccEvents.length + 1, winners: { "1st": { name: "", dept: "", year: "1st Year", url: "" }, "2nd": { name: "", dept: "", year: "1st Year", url: "" }, "3rd": { name: "", dept: "", year: "1st Year", url: "" } } });
-        }}>➕ ADD EVENT WINNERS</button>
+          setFormData({ 
+            title: "", subtitle: "", order: ccEvents.length + 1, 
+            upcoming: false, date: "", desc: "", bannerUrl: "", 
+            winners: { 
+              "1st": { name: "", dept: "", year: "1st Year", url: "" }, 
+              "2nd": { name: "", dept: "", year: "1st Year", url: "" }, 
+              "3rd": { name: "", dept: "", year: "1st Year", url: "" } 
+            } 
+          });
+        }}>➕ ADD CC EVENT</button>
       </div>
 
       {editing ? (
         <div className="glass-form fade-in visible" style={{ padding: '2rem', marginBottom: '3rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
-            <input className="form-input" placeholder="Event Title (e.g. Varnakriti 2026)" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
-            <input className="form-input" placeholder="Subtitle" value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
-            <input className="form-input" type="number" placeholder="Order" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value)})} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>EVENT TITLE</label>
+              <input className="form-input" placeholder="e.g. Varnakriti 2026" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>SUBTITLE</label>
+              <input className="form-input" placeholder="e.g. Annual photo competition" value={formData.subtitle} onChange={e => setFormData({...formData, subtitle: e.target.value})} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>DATE / TIMING</label>
+              <input className="form-input" placeholder="e.g. June 2026" value={formData.date || ""} onChange={e => setFormData({...formData, date: e.target.value})} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>EVENT STATUS</label>
+              <select className="form-input" value={formData.upcoming ? "upcoming" : "past"} onChange={e => setFormData({...formData, upcoming: e.target.value === "upcoming"})}>
+                <option value="past">Past Event (Show Winners)</option>
+                <option value="upcoming">Upcoming Event (No Winners Yet)</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>DISPLAY ORDER</label>
+              <input className="form-input" type="number" placeholder="Order" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value) || 1})} />
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-            {["1st", "2nd", "3rd"].map(rank => (
-              <div key={rank} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
-                <h4 style={{ color: rank === '1st' ? 'var(--gold)' : '#fff', marginBottom: '1rem' }}>{rank} Place Winner</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                  <input className="form-input" placeholder="Student Name" value={formData.winners[rank].name} onChange={e => {
-                    const w = {...formData.winners}; w[rank].name = e.target.value; setFormData({...formData, winners: w});
-                  }} />
-                  <select className="form-input" value={formData.winners[rank].dept} onChange={e => {
-                    const w = {...formData.winners}; w[rank].dept = e.target.value; setFormData({...formData, winners: w});
-                  }}>
-                    <option value="">Select Dept</option>
-                    {["Computer Science & Engineering", "Electronics & Communication Engineering", "Electrical Engineering", "Mechanical Engineering", "Civil Engineering"].map(d => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                  <select className="form-input" value={formData.winners[rank].year} onChange={e => {
-                    const w = {...formData.winners}; w[rank].year = e.target.value; setFormData({...formData, winners: w});
-                  }}>
-                    <option value="">Select Year</option>
-                    {["1st Year", "2nd Year", "3rd Year", "4th Year", "Passout"].map(y => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
-                  <input className="form-input" placeholder="Image Direct Link" value={formData.winners[rank].url} onChange={e => {
-                    const w = {...formData.winners}; w[rank].url = e.target.value; setFormData({...formData, winners: w});
-                  }} />
-                </div>
+          <div style={{ marginBottom: '2rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>DESCRIPTION / RULES</label>
+            <textarea className="form-input" style={{ minHeight: '100px', resize: 'vertical' }} placeholder="Rules, guidelines, or details about the theme..." value={formData.desc || ""} onChange={e => setFormData({...formData, desc: e.target.value})} />
+          </div>
+
+          {formData.upcoming ? (
+            <div className="glass-form" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--border)', borderRadius: '12px', marginBottom: '2rem' }}>
+              <h4 style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Upcoming Event Details</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)' }}>BANNER IMAGE LINK</label>
+                <input className="form-input" placeholder="Direct link to event banner or poster image" value={formData.bannerUrl || ""} onChange={e => setFormData({...formData, bannerUrl: e.target.value})} />
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '2rem' }}>
+              {["1st", "2nd", "3rd"].map(rank => (
+                <div key={rank} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                  <h4 style={{ color: rank === '1st' ? 'var(--gold)' : '#fff', marginBottom: '1rem' }}>{rank} Place Winner</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+                    <input className="form-input" placeholder="Student Name" value={formData.winners?.[rank]?.name || ""} onChange={e => {
+                      const w = {...formData.winners}; if(!w[rank]) w[rank] = {}; w[rank].name = e.target.value; setFormData({...formData, winners: w});
+                    }} />
+                    <select className="form-input" value={formData.winners?.[rank]?.dept || ""} onChange={e => {
+                      const w = {...formData.winners}; if(!w[rank]) w[rank] = {}; w[rank].dept = e.target.value; setFormData({...formData, winners: w});
+                    }}>
+                      <option value="">Select Dept</option>
+                      {["Computer Science & Engineering", "Electronics & Communication Engineering", "Electrical Engineering", "Mechanical Engineering", "Civil Engineering"].map(d => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <select className="form-input" value={formData.winners?.[rank]?.year || ""} onChange={e => {
+                      const w = {...formData.winners}; if(!w[rank]) w[rank] = {}; w[rank].year = e.target.value; setFormData({...formData, winners: w});
+                    }}>
+                      <option value="">Select Year</option>
+                      {["1st Year", "2nd Year", "3rd Year", "4th Year", "Passout"].map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                    <input className="form-input" placeholder="Image Direct Link" value={formData.winners?.[rank]?.url || ""} onChange={e => {
+                      const w = {...formData.winners}; if(!w[rank]) w[rank] = {}; w[rank].url = e.target.value; setFormData({...formData, winners: w});
+                    }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
-          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
-            <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE WINNERS </button>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE EVENT</button>
             <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditing(null)}>CANCEL</button>
           </div>
         </div>
@@ -3337,20 +3425,49 @@ function AdminCCEvents({ ccEvents }) {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left' }}>
                 <th style={{ padding: '1rem' }}>Event Title</th>
-                <th style={{ padding: '1rem' }}>1st Place</th>
+                <th style={{ padding: '1rem' }}>Status</th>
+                <th style={{ padding: '1rem' }}>Date</th>
+                <th style={{ padding: '1rem' }}>Winner / Banner Details</th>
+                <th style={{ padding: '1rem' }}>Order</th>
                 <th style={{ padding: '1rem' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {ccEvents.map(ev => (
                 <tr key={ev.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td style={{ padding: '1rem' }}>{ev.title}</td>
-                  <td style={{ padding: '1rem' }}>{ev.winners?.["1st"]?.name || "N/A"}</td>
+                  <td style={{ padding: '1rem', fontWeight: 'bold' }}>{ev.title}</td>
+                  <td style={{ padding: '1rem' }}>
+                    {ev.upcoming ? (
+                      <span style={{ color: '#ff4444', display: 'flex', alignItems: 'center', gap: '0.3rem' }}><span className="live-indicator" style={{ width: '6px', height: '6px', margin: 0 }}></span> Upcoming</span>
+                    ) : (
+                      <span style={{ color: 'var(--gold)' }}>🏆 Past Event</span>
+                    )}
+                  </td>
+                  <td style={{ padding: '1rem', color: 'var(--muted)' }}>{ev.date || "N/A"}</td>
+                  <td style={{ padding: '1rem', fontSize: '0.85rem' }}>
+                    {ev.upcoming ? (
+                      ev.bannerUrl ? <a href={ev.bannerUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'lightblue', textDecoration: 'underline' }}>View Banner</a> : "No Banner"
+                    ) : (
+                      `1st: ${ev.winners?.["1st"]?.name || "N/A"}`
+                    )}
+                  </td>
+                  <td style={{ padding: '1rem' }}>{ev.order}</td>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button className="admin-nav-btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem' }} onClick={() => { setEditing(ev.id); setFormData(ev); }}>Edit</button>
+                      <button className="admin-nav-btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem' }} onClick={() => { 
+                        setEditing(ev.id); 
+                        setFormData({
+                          upcoming: false, date: "", desc: "", bannerUrl: "",
+                          winners: {
+                            "1st": { name: "", dept: "", year: "1st Year", url: "" },
+                            "2nd": { name: "", dept: "", year: "1st Year", url: "" },
+                            "3rd": { name: "", dept: "", year: "1st Year", url: "" }
+                          },
+                          ...ev 
+                        }); 
+                      }}>Edit</button>
                       <button className="admin-nav-btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.7rem', background: '#ff4444' }} onClick={async () => {
-                        if (window.confirm("Delete this event result?")) await deleteDoc(doc(db, "cc_events", ev.id));
+                        if (window.confirm("Delete this event?")) await deleteDoc(doc(db, "cc_events", ev.id));
                       }}>Delete</button>
                     </div>
                   </td>
@@ -3732,6 +3849,142 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
       <div className="winner-info">
         <h4 className="winner-name">{data.name}</h4>
         <p className="winner-dept">{data.dept} · {data.year}</p>
+      </div>
+    </div>
+  );
+}
+
+// ✦✦✦ CC EVENTS PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
+function CCEventsPage({ ccEvents, onClose, setLightboxItem }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Filter events into upcoming and past
+  const upcomingEvents = ccEvents.filter(e => e.upcoming === true);
+  const pastEvents = ccEvents.filter(e => !e.upcoming);
+
+  return (
+    <div className="event-page-overlay" style={{ '--c': 'var(--gold)', minHeight: '100vh', paddingBottom: '8rem' }}>
+      <div className="container">
+        <header className="event-page-header">
+          <button className="back-btn" onClick={onClose} style={{ top: '-1rem' }}><ArrowLeft /> Back to Events</button>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginTop: '3rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '3rem', lineHeight: 1 }}>🏆</span>
+            <div>
+              <div className="section-label" style={{ color: 'var(--gold)', margin: 0 }}>
+                Exclusive Club Competitions
+              </div>
+              <h1 className="section-title" style={{ margin: 0, fontSize: '2.5rem' }}>
+                Capture Crew <em>Events</em>
+              </h1>
+            </div>
+          </div>
+          
+          <p className="section-sub" style={{ fontSize: '1.05rem', lineHeight: '1.8', opacity: 0.9, maxWidth: '800px', margin: '0 0 2rem 0' }}>
+            Welcome to the official arena of Capture Crew. Here we host internal themed photography challenges, showcase upcoming events, and immortalize the top captures in our Hall of Fame.
+          </p>
+        </header>
+
+        {/* UPCOMING EVENTS SECTION */}
+        <div className="cc-section-wrapper" style={{ marginBottom: '5rem', marginTop: '3.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem' }}>
+            <span className="live-indicator" style={{ display: 'inline-block', boxShadow: '0 0 12px #ff4444' }}></span>
+            <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>Upcoming <em>Challenges</em></h2>
+          </div>
+
+          {upcomingEvents.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+              {upcomingEvents.map(event => (
+                <div 
+                  key={event.id} 
+                  className="glass-form fade-in visible" 
+                  style={{ 
+                    padding: '2.5rem', 
+                    borderRadius: '24px', 
+                    border: '1px solid rgba(201, 169, 110, 0.25)',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    display: 'grid',
+                    gridTemplateColumns: event.bannerUrl ? '1fr 300px' : '1fr',
+                    gap: '2.5rem',
+                    alignItems: 'center'
+                  }}
+                >
+                  <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
+                      <span style={{ background: '#ff4444', color: '#fff', fontSize: '0.65rem', fontWeight: 800, padding: '0.3rem 0.8rem', borderRadius: '50px', letterSpacing: '1px', textTransform: 'uppercase' }}>Upcoming</span>
+                      {event.date && <span style={{ color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 500 }}>🗓️ {event.date}</span>}
+                    </div>
+                    <h3 style={{ fontSize: '1.8rem', fontWeight: 600, color: 'var(--white)', margin: '0 0 0.5rem 0', fontFamily: 'var(--font-display)' }}>{event.title}</h3>
+                    {event.subtitle && <p style={{ color: 'var(--gold)', fontSize: '0.9rem', margin: '0 0 1rem 0', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 500 }}>{event.subtitle}</p>}
+                    {event.desc && <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: '1.7', margin: 0 }}>{event.desc}</p>}
+                  </div>
+                  {event.bannerUrl && (
+                    <div 
+                      style={{ 
+                        width: '100%', 
+                        height: '200px', 
+                        borderRadius: '16px', 
+                        overflow: 'hidden', 
+                        border: '1px solid var(--border)',
+                        boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => setLightboxItem({ url: event.bannerUrl, title: `${event.title} - Announcement`, photographer: "Capture Crew", dept: event.subtitle, year: "Upcoming" })}
+                    >
+                      <img 
+                        src={event.bannerUrl} 
+                        alt={event.title} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s' }}
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="glass-form" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
+              <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📢</div>
+              <p style={{ margin: 0, fontSize: '0.95rem' }}>No upcoming competitions at the moment. Keep practicing, the next challenge is just around the corner!</p>
+            </div>
+          )}
+        </div>
+
+        {/* PAST EVENTS SECTION */}
+        <div className="cc-section-wrapper" style={{ marginTop: '4rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '3rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.8rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>🏆</span>
+            <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>Hall of <em>Fame</em></h2>
+          </div>
+
+          {pastEvents.length > 0 ? (
+            <div className="cc-events-container" style={{ padding: 0 }}>
+              {pastEvents.map(event => (
+                <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem', background: 'rgba(255,255,255,0.01)', padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                  <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div className="section-label" style={{ margin: '0 0 0.8rem' }}>✧ Competition Results</div>
+                    <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.2rem', margin: '0' }}>{event.title} <em>Winners</em></h3>
+                    {event.date && <div style={{ color: 'var(--muted)', fontSize: '0.8rem', letterSpacing: '0.05em', marginTop: '0.4rem' }}>🗓️ {event.date}</div>}
+                    {event.subtitle && <p className="section-sub" style={{ margin: '0.8rem 0 0', opacity: 0.8, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{event.subtitle}</p>}
+                    {event.desc && <p style={{ color: 'var(--muted)', fontSize: '0.92rem', maxWidth: '650px', margin: '1rem auto 0', lineHeight: '1.6' }}>{event.desc}</p>}
+                  </div>
+                  
+                  <div className="podium-grid">
+                    <WinnerCard rank="2nd" data={event.winners?.["2nd"]} color="#A8A8A8" setLightboxItem={setLightboxItem} />
+                    <WinnerCard rank="1st" data={event.winners?.["1st"]} color="var(--gold)" isFeatured={true} setLightboxItem={setLightboxItem} />
+                    <WinnerCard rank="3rd" data={event.winners?.["3rd"]} color="#CD7F32" setLightboxItem={setLightboxItem} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="glass-form" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
+              <p style={{ margin: 0 }}>No past event winners posted yet. Check back soon!</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
