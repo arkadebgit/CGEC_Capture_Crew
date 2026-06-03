@@ -408,9 +408,9 @@ const InstagramIcon = ({ size = 18, ...props }) => (
   </svg>
 );
 
-function PastEditionsSection({ siteConfig }) {
-  const pastWebsites = siteConfig.pastWebsites || [];
-  if (pastWebsites.length === 0) return null;
+function EditionsSwitcherSection({ siteConfig, selectedYear, setSelectedYear }) {
+  const availableYears = siteConfig.availableYears || ["2026"];
+  if (availableYears.length <= 1) return null;
 
   return (
     <section className="past-editions-section" style={{
@@ -432,58 +432,59 @@ function PastEditionsSection({ siteConfig }) {
 
       <div className="container" style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
         <div className="fade-in visible" style={{ marginBottom: '3rem' }}>
-          <div className="section-label">✧ History & Timeline</div>
-          <h2 className="section-title" style={{ fontSize: '2.5rem' }}>Explore Past <em>Editions</em></h2>
+          <div className="section-label">✧ Explore History</div>
+          <h2 className="section-title" style={{ fontSize: '2.5rem' }}>Switch Website <em>Editions</em></h2>
           <p className="section-sub" style={{ maxWidth: '600px', margin: '0.5rem auto 0 auto' }}>
-            Take a trip down memory lane and view full websites from previous years including their events and student galleries.
+            Currently viewing the <strong>{selectedYear}</strong> edition. Select any previous year to view its photos and events.
           </p>
         </div>
 
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '2rem',
+          gap: '1.5rem',
           flexWrap: 'wrap',
           marginTop: '2rem'
         }}>
-          {pastWebsites.map(web => (
-            <a
-              key={web.year}
-              href={web.url}
-              target="_blank"
-              rel="noreferrer"
+          {availableYears.map(yr => (
+            <button
+              key={yr}
+              onClick={() => {
+                setSelectedYear(yr);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               className="event-dive-btn"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '0.8rem',
-                textDecoration: 'none',
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid var(--border)',
-                color: '#fff',
-                padding: '1rem 2rem',
-                borderRadius: '16px',
+                gap: '0.6rem',
+                background: selectedYear === yr ? 'var(--gold)' : 'rgba(255, 255, 255, 0.02)',
+                border: selectedYear === yr ? '1px solid var(--gold)' : '1px solid var(--border)',
+                color: selectedYear === yr ? 'var(--ink)' : '#fff',
+                padding: '0.8rem 1.8rem',
+                borderRadius: '12px',
                 transition: 'all 0.3s ease',
                 cursor: 'pointer',
+                fontWeight: 'bold',
                 margin: 0
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--gold)';
-                e.currentTarget.style.background = 'rgba(201, 169, 110, 0.05)';
-                e.currentTarget.style.transform = 'translateY(-3px)';
-                e.currentTarget.style.boxShadow = '0 10px 20px rgba(201, 169, 110, 0.1)';
+                if (selectedYear !== yr) {
+                  e.currentTarget.style.borderColor = 'var(--gold)';
+                  e.currentTarget.style.background = 'rgba(201, 169, 110, 0.05)';
+                }
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
+                if (selectedYear !== yr) {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                }
               }}
             >
-              <span style={{ fontSize: '1.2rem' }}>📸</span>
-              <span style={{ fontWeight: 'bold', fontSize: '1rem', letterSpacing: '0.05em' }}>{web.year} EDITION</span>
-              <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>↗</span>
-            </a>
+              <span>📸</span>
+              <span>{yr} EDITION</span>
+              {selectedYear === yr && <span style={{ fontSize: '0.75rem' }}>✓</span>}
+            </button>
           ))}
         </div>
       </div>
@@ -575,7 +576,7 @@ export default function App() {
     waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
     fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
     activeYear: "2026",
-    pastWebsites: []
+    availableYears: ["2026"]
   });
 
   // Live Data State
@@ -735,7 +736,7 @@ export default function App() {
           ...prev,
           ...data,
           activeYear: data.activeYear || "2026",
-          pastWebsites: data.pastWebsites || []
+          availableYears: data.availableYears || ["2026"]
         }));
         // Dismiss splash once site config is ready
         setTimeout(() => setIsInitializing(false), 800);
@@ -759,7 +760,15 @@ export default function App() {
     };
   }, []);
 
-  const filteredGalleryByYear = gallery.filter(item => (item.calendarYear || "2026") === (siteConfig.activeYear || "2026"));
+  const [selectedYear, setSelectedYear] = useState("2026");
+
+  useEffect(() => {
+    if (siteConfig?.activeYear) {
+      setSelectedYear(siteConfig.activeYear);
+    }
+  }, [siteConfig.activeYear]);
+
+  const filteredGalleryByYear = gallery.filter(item => (item.calendarYear || "2026") === selectedYear);
 
   // Derive Featured Captures Dynamically from Gallery
   useEffect(() => {
@@ -787,7 +796,7 @@ export default function App() {
     setWeekCapture(latestWeek || null);
     setMonthCapture(latestMonth || null);
     setExtraFrameCapture(latestExtra || null);
-  }, [gallery, siteConfig.activeYear]);
+  }, [gallery, selectedYear]);
 
 
 
@@ -943,8 +952,8 @@ export default function App() {
     ? sortedGallery
     : sortedGallery.filter(g => g.category === galleryFilter);
 
-  const filteredEventsList = liveEventsList.filter(ev => (ev.calendarYear || "2026") === (siteConfig.activeYear || "2026"));
-  const filteredCcEvents = ccEvents.filter(ev => (ev.calendarYear || "2026") === (siteConfig.activeYear || "2026"));
+  const filteredEventsList = liveEventsList.filter(ev => (ev.calendarYear || "2026") === selectedYear);
+  const filteredCcEvents = ccEvents.filter(ev => (ev.calendarYear || "2026") === selectedYear);
 
   if (isInitializing) {
     return (
@@ -1006,6 +1015,34 @@ export default function App() {
               </li>
             );
           })}
+          {siteConfig.availableYears && siteConfig.availableYears.length > 1 && (
+            <li className="nav-year-selector" style={{ display: 'flex', alignItems: 'center', margin: isMobile ? '1rem 0 0 0' : '0 0 0 1rem' }}>
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid var(--border)',
+                  color: '#fff',
+                  padding: '0.4rem 0.8rem',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {siteConfig.availableYears.map(yr => (
+                  <option key={yr} value={yr} style={{ background: '#111', color: '#fff' }}>
+                    {yr} Edition
+                  </option>
+                ))}
+              </select>
+            </li>
+          )}
         </ul>
       </nav>
 
@@ -1213,7 +1250,7 @@ export default function App() {
 
         return sections.map(s => s.element);
       })()}
-              <PastEditionsSection siteConfig={siteConfig} />
+              <EditionsSwitcherSection siteConfig={siteConfig} selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
             </>
           )
         } />
@@ -1714,13 +1751,30 @@ export default function App() {
               })}
             </div>
             
-            {siteConfig.pastWebsites && siteConfig.pastWebsites.length > 0 && (
+            {siteConfig.availableYears && siteConfig.availableYears.length > 1 && (
               <div className="footer-links" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--gold)', fontWeight: 'bold', marginBottom: '0.5rem' }}>Past Editions</div>
-                {siteConfig.pastWebsites.map(web => (
-                  <a key={web.year} href={web.url} target="_blank" rel="noreferrer" className="footer-link" style={{ fontSize: '0.8rem' }}>
-                    {web.year} Website ↗
-                  </a>
+                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--gold)', fontWeight: 'bold', marginBottom: '0.5rem' }}>Switch Edition</div>
+                {siteConfig.availableYears.map(yr => (
+                  <button
+                    key={yr}
+                    onClick={() => {
+                      setSelectedYear(yr);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className="footer-link"
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: selectedYear === yr ? 'var(--gold)' : 'inherit',
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      padding: 0,
+                      fontWeight: selectedYear === yr ? 'bold' : 'normal'
+                    }}
+                  >
+                    {yr} Edition {selectedYear === yr ? "✓" : ""}
+                  </button>
                 ))}
               </div>
             )}
@@ -1733,7 +1787,7 @@ export default function App() {
           </div>
           
           <div className="footer-bottom">
-            <div className="footer-copy">© {siteConfig.activeYear || "2026"} {siteConfig.siteName} · All Rights Reserved</div>
+            <div className="footer-copy">© {selectedYear} {siteConfig.siteName} · All Rights Reserved</div>
             <div className="footer-credit">
               Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
             </div>
@@ -3173,72 +3227,59 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         onChange={e => setSiteForm({...siteForm, activeYear: e.target.value})} 
                       />
                       <p style={{ fontSize: '0.65rem', opacity: 0.5, marginTop: '0.5rem', lineHeight: '1.4' }}>
-                        Changing this will immediately filter the homepage, gallery, and event sections to only show items tagged with this year. Un-tagged/existing items belong to 2026.
+                        Changing this will immediately configure the year for new uploads. The primary year visitors see by default is controlled here.
                       </p>
                     </div>
 
                     <div>
-                      <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '0.5rem' }}>Add Past Year Website Link</label>
+                      <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '0.5rem' }}>Add Available Year to Switcher</label>
                       <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1rem' }}>
                         <input 
-                          id="new-past-year"
+                          id="new-available-year"
                           type="text" 
                           className="form-input" 
-                          style={{ width: '80px' }} 
-                          placeholder="Year" 
-                        />
-                        <input 
-                          id="new-past-url"
-                          type="url" 
-                          className="form-input" 
-                          placeholder="https://2026.example.com" 
+                          style={{ width: '120px' }} 
+                          placeholder="e.g. 2027" 
                         />
                         <button 
                           type="button"
                           className="admin-nav-btn" 
                           style={{ background: 'var(--gold)', color: 'var(--ink)', padding: '0.5rem 1rem', fontSize: '0.7rem' }}
                           onClick={() => {
-                            const yearInput = document.getElementById('new-past-year');
-                            const urlInput = document.getElementById('new-past-url');
+                            const yearInput = document.getElementById('new-available-year');
                             const yearVal = yearInput.value.trim();
-                            const urlVal = urlInput.value.trim();
-                            if (!yearVal || !urlVal) return alert("Please specify both Year and URL.");
+                            if (!yearVal) return alert("Please specify a Year.");
                             
-                            const currentWebs = siteForm.pastWebsites || [];
-                            if (currentWebs.some(w => w.year === yearVal)) return alert("This year already has a configured link.");
+                            const currentYears = siteForm.availableYears || ["2026"];
+                            if (currentYears.includes(yearVal)) return alert("This year is already in the list.");
                             
-                            const updatedWebs = [...currentWebs, { year: yearVal, url: urlVal }].sort((a,b) => b.year.localeCompare(a.year));
-                            setSiteForm({ ...siteForm, pastWebsites: updatedWebs });
+                            const updatedYears = [...currentYears, yearVal].sort((a,b) => b.localeCompare(a));
+                            setSiteForm({ ...siteForm, availableYears: updatedYears });
                             yearInput.value = "";
-                            urlInput.value = "";
                           }}
-                        >Add</button>
+                        >Add Year</button>
                       </div>
 
-                      <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '0.5rem' }}>Configured Past Websites</label>
-                      {(!siteForm.pastWebsites || siteForm.pastWebsites.length === 0) ? (
-                        <div style={{ fontSize: '0.7rem', opacity: 0.4, fontStyle: 'italic', padding: '0.5rem', border: '1px dashed var(--border)', borderRadius: '6px' }}>
-                          No past websites configured yet.
-                        </div>
-                      ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          {siteForm.pastWebsites.map(web => (
-                            <div key={web.year} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
-                              <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{web.year}: <a href={web.url} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', fontWeight: 'normal', textDecoration: 'none' }}>{web.url}</a></span>
+                      <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '0.5rem' }}>Selectable Years List</label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {(siteForm.availableYears || ["2026"]).map(yr => (
+                          <div key={yr} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{yr} Edition {siteForm.activeYear === yr ? "(Active)" : ""}</span>
+                            {siteForm.activeYear !== yr && (
                               <button 
                                 type="button"
                                 style={{ background: 'transparent', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '0.8rem' }}
                                 onClick={() => {
-                                  if (window.confirm(`Remove link for ${web.year}?`)) {
-                                    const updatedWebs = (siteForm.pastWebsites || []).filter(w => w.year !== web.year);
-                                    setSiteForm({ ...siteForm, pastWebsites: updatedWebs });
+                                  if (window.confirm(`Remove ${yr} from the selectable years switcher?`)) {
+                                    const updatedYears = (siteForm.availableYears || ["2026"]).filter(y => y !== yr);
+                                    setSiteForm({ ...siteForm, availableYears: updatedYears });
                                   }
                                 }}
                               >🗑️</button>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
