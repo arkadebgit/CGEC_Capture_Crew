@@ -564,6 +564,20 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [adminSection, setAdminSection] = useState("certificates");
 
+  const [siteConfig, setSiteConfig] = useState({
+    logoUrl: "/logo.jpg",
+    faviconUrl: "/logo.jpg",
+    siteName: "Capture Crew",
+    heroEyebrow: "Capture Crew · CGEC Photography Club",
+    heroTitle: "CAPTURING MOMENTS,\nCREATING MEMORIES.",
+    heroTagline: "Exploring the World through the CGEC lens",
+    instaLink: "https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==",
+    waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
+    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
+    activeYear: "2026",
+    pastWebsites: []
+  });
+
   // Live Data State
   const [gallery, setGallery] = useState(GALLERY);
   const [weekCapture, setWeekCapture] = useState(null);
@@ -774,20 +788,6 @@ export default function App() {
     setMonthCapture(latestMonth || null);
     setExtraFrameCapture(latestExtra || null);
   }, [gallery, siteConfig.activeYear]);
-
-  const [siteConfig, setSiteConfig] = useState({
-    logoUrl: "/logo.jpg",
-    faviconUrl: "/logo.jpg",
-    siteName: "Capture Crew",
-    heroEyebrow: "Capture Crew · CGEC Photography Club",
-    heroTitle: "CAPTURING MOMENTS,\nCREATING MEMORIES.",
-    heroTagline: "Exploring the World through the CGEC lens",
-    instaLink: "https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==",
-    waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
-    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
-    activeYear: "2026",
-    pastWebsites: []
-  });
 
 
 
