@@ -408,89 +408,7 @@ const InstagramIcon = ({ size = 18, ...props }) => (
   </svg>
 );
 
-function EditionsSwitcherSection({ siteConfig, selectedYear, setSelectedYear }) {
-  const availableYears = siteConfig.availableYears || ["2026"];
-  if (availableYears.length <= 1) return null;
 
-  return (
-    <section className="past-editions-section" style={{
-      background: 'linear-gradient(180deg, var(--surface) 0%, rgba(201, 169, 110, 0.03) 100%)',
-      padding: '6rem 0',
-      borderTop: '1px solid var(--border)',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
-      <div style={{
-        position: 'absolute',
-        bottom: '-10%',
-        left: '5%',
-        width: '250px',
-        height: '250px',
-        background: 'radial-gradient(circle, rgba(201, 169, 110, 0.05) 0%, transparent 70%)',
-        pointerEvents: 'none'
-      }}></div>
-
-      <div className="container" style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
-        <div className="fade-in visible" style={{ marginBottom: '3rem' }}>
-          <div className="section-label">✧ Explore History</div>
-          <h2 className="section-title" style={{ fontSize: '2.5rem' }}>Switch Website <em>Editions</em></h2>
-          <p className="section-sub" style={{ maxWidth: '600px', margin: '0.5rem auto 0 auto' }}>
-            Currently viewing the <strong>{selectedYear}</strong> edition. Select any previous year to view its photos and events.
-          </p>
-        </div>
-
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '1.5rem',
-          flexWrap: 'wrap',
-          marginTop: '2rem'
-        }}>
-          {availableYears.map(yr => (
-            <button
-              key={yr}
-              onClick={() => {
-                setSelectedYear(yr);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="event-dive-btn"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.6rem',
-                background: selectedYear === yr ? 'var(--gold)' : 'rgba(255, 255, 255, 0.02)',
-                border: selectedYear === yr ? '1px solid var(--gold)' : '1px solid var(--border)',
-                color: selectedYear === yr ? 'var(--ink)' : '#fff',
-                padding: '0.8rem 1.8rem',
-                borderRadius: '12px',
-                transition: 'all 0.3s ease',
-                cursor: 'pointer',
-                fontWeight: 'bold',
-                margin: 0
-              }}
-              onMouseEnter={(e) => {
-                if (selectedYear !== yr) {
-                  e.currentTarget.style.borderColor = 'var(--gold)';
-                  e.currentTarget.style.background = 'rgba(201, 169, 110, 0.05)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedYear !== yr) {
-                  e.currentTarget.style.borderColor = 'var(--border)';
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
-                }
-              }}
-            >
-              <span>📸</span>
-              <span>{yr} EDITION</span>
-              {selectedYear === yr && <span style={{ fontSize: '0.75rem' }}>✓</span>}
-            </button>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 
 export default function App() {
@@ -1250,7 +1168,6 @@ export default function App() {
 
         return sections.map(s => s.element);
       })()}
-              <EditionsSwitcherSection siteConfig={siteConfig} selectedYear={selectedYear} setSelectedYear={setSelectedYear} />
             </>
           )
         } />
