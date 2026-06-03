@@ -408,6 +408,90 @@ const InstagramIcon = ({ size = 18, ...props }) => (
   </svg>
 );
 
+function PastEditionsSection({ siteConfig }) {
+  const pastWebsites = siteConfig.pastWebsites || [];
+  if (pastWebsites.length === 0) return null;
+
+  return (
+    <section className="past-editions-section" style={{
+      background: 'linear-gradient(180deg, var(--surface) 0%, rgba(201, 169, 110, 0.03) 100%)',
+      padding: '6rem 0',
+      borderTop: '1px solid var(--border)',
+      position: 'relative',
+      overflow: 'hidden'
+    }}>
+      <div style={{
+        position: 'absolute',
+        bottom: '-10%',
+        left: '5%',
+        width: '250px',
+        height: '250px',
+        background: 'radial-gradient(circle, rgba(201, 169, 110, 0.05) 0%, transparent 70%)',
+        pointerEvents: 'none'
+      }}></div>
+
+      <div className="container" style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
+        <div className="fade-in visible" style={{ marginBottom: '3rem' }}>
+          <div className="section-label">✧ History & Timeline</div>
+          <h2 className="section-title" style={{ fontSize: '2.5rem' }}>Explore Past <em>Editions</em></h2>
+          <p className="section-sub" style={{ maxWidth: '600px', margin: '0.5rem auto 0 auto' }}>
+            Take a trip down memory lane and view full websites from previous years including their events and student galleries.
+          </p>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '2rem',
+          flexWrap: 'wrap',
+          marginTop: '2rem'
+        }}>
+          {pastWebsites.map(web => (
+            <a
+              key={web.year}
+              href={web.url}
+              target="_blank"
+              rel="noreferrer"
+              className="event-dive-btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.8rem',
+                textDecoration: 'none',
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid var(--border)',
+                color: '#fff',
+                padding: '1rem 2rem',
+                borderRadius: '16px',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                margin: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--gold)';
+                e.currentTarget.style.background = 'rgba(201, 169, 110, 0.05)';
+                e.currentTarget.style.transform = 'translateY(-3px)';
+                e.currentTarget.style.boxShadow = '0 10px 20px rgba(201, 169, 110, 0.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
+              <span style={{ fontSize: '1.2rem' }}>📸</span>
+              <span style={{ fontWeight: 'bold', fontSize: '1rem', letterSpacing: '0.05em' }}>{web.year} EDITION</span>
+              <span style={{ color: 'var(--gold)', fontSize: '0.8rem' }}>↗</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
   const location = useLocation();
@@ -578,7 +662,10 @@ export default function App() {
       // Seeding for static events
       for (const ev of STATIC_EVENTS) {
         if (!eventList.find(e => e.id === ev.id)) {
-          await setDoc(doc(db, "events", ev.id), ev);
+          await setDoc(doc(db, "events", ev.id), {
+            ...ev,
+            calendarYear: "2026"
+          });
         }
       }
 
@@ -629,7 +716,13 @@ export default function App() {
     // 4. Site Config Listener
     const unsubSite = onSnapshot(doc(db, "config", "site"), (snap) => {
       if (snap.exists()) {
-        setSiteConfig(snap.data());
+        const data = snap.data();
+        setSiteConfig(prev => ({
+          ...prev,
+          ...data,
+          activeYear: data.activeYear || "2026",
+          pastWebsites: data.pastWebsites || []
+        }));
         // Dismiss splash once site config is ready
         setTimeout(() => setIsInitializing(false), 800);
       } else {
@@ -652,11 +745,18 @@ export default function App() {
     };
   }, []);
 
+  const filteredGalleryByYear = gallery.filter(item => (item.calendarYear || "2026") === (siteConfig.activeYear || "2026"));
+
   // Derive Featured Captures Dynamically from Gallery
   useEffect(() => {
-    if (!gallery || gallery.length === 0) return;
+    if (!filteredGalleryByYear || filteredGalleryByYear.length === 0) {
+      setWeekCapture(null);
+      setMonthCapture(null);
+      setExtraFrameCapture(null);
+      return;
+    }
 
-    const sorted = [...gallery].sort((a, b) => {
+    const sorted = [...filteredGalleryByYear].sort((a, b) => {
       const dateA = a.captureDate || "";
       const dateB = b.captureDate || "";
       if (dateB !== dateA) return dateB.localeCompare(dateA);
@@ -673,7 +773,7 @@ export default function App() {
     setWeekCapture(latestWeek || null);
     setMonthCapture(latestMonth || null);
     setExtraFrameCapture(latestExtra || null);
-  }, [gallery]);
+  }, [gallery, siteConfig.activeYear]);
 
   const [siteConfig, setSiteConfig] = useState({
     logoUrl: "/logo.jpg",
@@ -684,7 +784,9 @@ export default function App() {
     heroTagline: "Exploring the World through the CGEC lens",
     instaLink: "https://instagram.com/cgec_capture_crew?igshid=NGVhN2U2NjQ0Yg==",
     waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
-    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony"
+    fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
+    activeYear: "2026",
+    pastWebsites: []
   });
 
 
@@ -831,7 +933,7 @@ export default function App() {
     }, 100);
   };
 
-  const sortedGallery = [...gallery].sort((a, b) => {
+  const sortedGallery = [...filteredGalleryByYear].sort((a, b) => {
     const dateA = a.captureDate || "";
     const dateB = b.captureDate || "";
     return dateB.localeCompare(dateA);
@@ -840,6 +942,9 @@ export default function App() {
   const filteredGallery = galleryFilter === "All"
     ? sortedGallery
     : sortedGallery.filter(g => g.category === galleryFilter);
+
+  const filteredEventsList = liveEventsList.filter(ev => (ev.calendarYear || "2026") === (siteConfig.activeYear || "2026"));
+  const filteredCcEvents = ccEvents.filter(ev => (ev.calendarYear || "2026") === (siteConfig.activeYear || "2026"));
 
   if (isInitializing) {
     return (
@@ -1108,6 +1213,7 @@ export default function App() {
 
         return sections.map(s => s.element);
       })()}
+              <PastEditionsSection siteConfig={siteConfig} />
             </>
           )
         } />
@@ -1134,27 +1240,35 @@ export default function App() {
           </div>
 
           <div className="gallery-masonry fade-in">
-            {filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
-              <div
-                key={item.id}
-                className="gallery-item"
-                onClick={() => setLightboxItem(item)}
-              >
-                <img 
-                  src={item.url} 
-                  alt={item.title} 
-                  className="gallery-thumb" 
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="gallery-overlay">
-                  <div>
-                    <div className="gallery-item-title">{item.title}</div>
-                    <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
+            {filteredGallery.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '5rem 2rem', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '16px', gridColumn: '1 / -1', width: '100%' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>📸</div>
+                <h4 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>No Captures Yet for {siteConfig.activeYear || "2026"}</h4>
+                <p style={{ fontSize: '0.85rem' }}>The shutter is waiting! Upload new photos in the Admin Console to fill this space.</p>
+              </div>
+            ) : (
+              filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
+                <div
+                  key={item.id}
+                  className="gallery-item"
+                  onClick={() => setLightboxItem(item)}
+                >
+                  <img 
+                    src={item.url} 
+                    alt={item.title} 
+                    className="gallery-thumb" 
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="gallery-overlay">
+                    <div>
+                      <div className="gallery-item-title">{item.title}</div>
+                      <div className="gallery-item-photo">by {item.photographer} · {item.dept}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
           {!expandedGallery && filteredGallery.length > (isMobile ? 3 : 12) && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
@@ -1216,13 +1330,13 @@ export default function App() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--gold)', fontSize: '1rem' }}>✦</span>
                   <span style={{ fontSize: '0.82rem', color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                    Upcoming Events: {ccEvents.filter(e => e.upcoming).length}
+                    Upcoming Events: {filteredCcEvents.filter(e => e.upcoming).length}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <span style={{ color: 'var(--gold)', fontSize: '1rem' }}>🏆</span>
                   <span style={{ fontSize: '0.82rem', color: 'var(--muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                    Hall of Fame: {ccEvents.filter(e => !e.upcoming).length} Competitions
+                    Hall of Fame: {filteredCcEvents.filter(e => !e.upcoming).length} Competitions
                   </span>
                 </div>
               </div>
@@ -1234,33 +1348,41 @@ export default function App() {
           </div>
 
           <div className="events-grid">
-            {liveEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => {
-              const logoUrl = (ev.iconUrl && ev.iconUrl.trim().startsWith('http')) ? ev.iconUrl.trim() : (STATIC_EVENT_ICONS[ev.id] && STATIC_EVENT_ICONS[ev.id].trim().startsWith('http') ? STATIC_EVENT_ICONS[ev.id].trim() : null);
-              return (
-                <div
-                  key={ev.id}
-                  className="event-card fade-in"
-                  style={{ "--c": ev.color }}
-                  onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
-                >
-                  {logoUrl ? (
-                    <img src={logoUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
-                  ) : (
-                    <span className="event-emoji">{ev.emoji}</span>
-                  )}
-                  <div className="event-name">{ev.name}</div>
-                  <div className="event-subtitle" style={{ color: ev.color }}>{ev.subtitle}</div>
-                  <div className="event-date">{ev.date}</div>
-                  <div className="event-desc">{ev.desc}</div>
-                  <div className="event-highlight">{ev.highlight}</div>
-                  <button 
-                    className="event-dive-btn" 
+            {filteredEventsList.length === 0 ? (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem 2rem', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '16px', marginBottom: '2rem' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+                <h4 style={{ color: 'var(--gold)', marginBottom: '0.5rem' }}>No Events Scheduled for {siteConfig.activeYear || "2026"}</h4>
+                <p style={{ fontSize: '0.85rem' }}>Exciting events are being planned. Stay tuned for the shutter release!</p>
+              </div>
+            ) : (
+              filteredEventsList.slice(0, (isMobile && !expandedEvents) ? 3 : undefined).map(ev => {
+                const logoUrl = (ev.iconUrl && ev.iconUrl.trim().startsWith('http')) ? ev.iconUrl.trim() : (STATIC_EVENT_ICONS[ev.id] && STATIC_EVENT_ICONS[ev.id].trim().startsWith('http') ? STATIC_EVENT_ICONS[ev.id].trim() : null);
+                return (
+                  <div
+                    key={ev.id}
+                    className="event-card fade-in"
+                    style={{ "--c": ev.color }}
+                    onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
                   >
-                    {ev.comingSoon ? "Coming Soon " : "Dive In "}
-                  </button>
-                </div>
-              );
-            })}
+                    {logoUrl ? (
+                      <img src={logoUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
+                    ) : (
+                      <span className="event-emoji">{ev.emoji}</span>
+                    )}
+                    <div className="event-name">{ev.name}</div>
+                    <div className="event-subtitle" style={{ color: ev.color }}>{ev.subtitle}</div>
+                    <div className="event-date">{ev.date}</div>
+                    <div className="event-desc">{ev.desc}</div>
+                    <div className="event-highlight">{ev.highlight}</div>
+                    <button 
+                      className="event-dive-btn" 
+                    >
+                      {ev.comingSoon ? "Coming Soon " : "Dive In "}
+                    </button>
+                  </div>
+                );
+              })
+            )}
             
             {/* Global Gallery Card */}
             <div 
@@ -1279,7 +1401,7 @@ export default function App() {
               <div className="global-card-bg"></div>
             </div>
           </div>
-          {isMobile && !expandedEvents && liveEventsList.length > 3 && (
+          {isMobile && !expandedEvents && filteredEventsList.length > 3 && (
             <div style={{ textAlign: 'center', marginTop: '3rem' }}>
               <button className="event-dive-btn" onClick={() => setExpandedEvents(true)}>View All Events </button>
             </div>
@@ -1522,13 +1644,13 @@ export default function App() {
         } />
         <Route path="/events/:eventId" element={
           <EventRouteWrapper 
-            liveEventsList={liveEventsList}
+            liveEventsList={filteredEventsList}
             liveEvents={liveEvents}
             setLightboxItem={setLightboxItem}
             archiveConfig={archiveConfig}
             navigate={navigate}
             eventsLoaded={eventsLoaded}
-            ccEvents={ccEvents}
+            ccEvents={filteredCcEvents}
             isMobile={isMobile}
           />
         } />
@@ -1592,6 +1714,17 @@ export default function App() {
               })}
             </div>
             
+            {siteConfig.pastWebsites && siteConfig.pastWebsites.length > 0 && (
+              <div className="footer-links" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--gold)', fontWeight: 'bold', marginBottom: '0.5rem' }}>Past Editions</div>
+                {siteConfig.pastWebsites.map(web => (
+                  <a key={web.year} href={web.url} target="_blank" rel="noreferrer" className="footer-link" style={{ fontSize: '0.8rem' }}>
+                    {web.year} Website ↗
+                  </a>
+                ))}
+              </div>
+            )}
+
             <div className="footer-socials">
               <a href={siteConfig.instaLink} target="_blank" rel="noreferrer" className="social-icon">Instagram</a>
               <a href={siteConfig.waLink} target="_blank" rel="noreferrer" className="social-icon">WhatsApp</a>
@@ -1600,7 +1733,7 @@ export default function App() {
           </div>
           
           <div className="footer-bottom">
-            <div className="footer-copy">© 2026 {siteConfig.siteName} · All Rights Reserved</div>
+            <div className="footer-copy">© {siteConfig.activeYear || "2026"} {siteConfig.siteName} · All Rights Reserved</div>
             <div className="footer-credit">
               Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
             </div>
@@ -2108,7 +2241,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       const newPhoto = {
         ...featuredData,
         category: type === "week" ? "Weekly Captures" : type === "month" ? "Monthly Captures" : "The Extra Frame",
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        calendarYear: siteConfig.activeYear || "2026"
       };
 
       // 1. Add to the public Gallery
@@ -2544,7 +2678,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <h3 className="subcategory-title" style={{ margin: 0 }}>Manage <em>Events</em></h3>
               <button onClick={() => {
                 setEditingEvent("new");
-                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: liveEventsList.length + 1 });
+                setEventFormData({ id: "", name: "", subtitle: "", date: "", color: "#C9A96E", desc: "", highlight: "", emoji: "📅", iconUrl: "", comingSoon: false, order: liveEventsList.length + 1, calendarYear: siteConfig.activeYear || "2026" });
               }} style={{ background: 'var(--gold)', color: 'var(--ink)', border: 'none', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 'bold', cursor: 'pointer' }}>➕ ADD NEW EVENT</button>
             </div>
 
@@ -2560,6 +2694,10 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   <input className="form-input" placeholder="Emoji (Fallback)" value={eventFormData.emoji || ""} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
                   <input className="form-input" placeholder="Icon Direct Link (Optional)" value={eventFormData.iconUrl || ""} onChange={e => setEventFormData({...eventFormData, iconUrl: e.target.value})} />
                   <input className="form-input" type="color" value={eventFormData.color || "#C9A96E"} onChange={e => setEventFormData({...eventFormData, color: e.target.value})} title="Theme Color" />
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>CALENDAR YEAR</label>
+                    <input className="form-input" placeholder="e.g. 2026" value={eventFormData.calendarYear || ""} onChange={e => setEventFormData({...eventFormData, calendarYear: e.target.value})} />
+                  </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <input type="checkbox" checked={!!eventFormData.comingSoon} onChange={e => setEventFormData({...eventFormData, comingSoon: e.target.checked})} />
                     <label style={{ fontSize: '0.8rem' }}>Coming Soon?</label>
@@ -2572,6 +2710,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       try {
                         const cleanedData = {
                           ...eventFormData,
+                          calendarYear: eventFormData.calendarYear || siteConfig.activeYear || "2026",
                           iconUrl: eventFormData.iconUrl ? eventFormData.iconUrl.trim() : ""
                         };
                         await setDoc(doc(db, "events", eventFormData.id), cleanedData, { merge: true });
@@ -2740,7 +2879,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             )}
           </div>
         )}
-        {adminData?.role !== 'core_member' && tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} />}
+         {adminData?.role !== 'core_member' && tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} siteConfig={siteConfig} />}
         {adminData?.role !== 'core_member' && tab === 'archive' && (
           <div className="visible">
             <h3 className="subcategory-title">Manage <em>Archive Timeline</em></h3>
@@ -3017,6 +3156,89 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <div>
                       <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Facebook Link</label>
                       <input className="form-input" value={siteForm.fbLink} onChange={e => setSiteForm({...siteForm, fbLink: e.target.value})} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* YEAR & ARCHIVES */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem', gridColumn: '1 / -1' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>Year & Archive Settings</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.75rem', opacity: 0.6 }}>Active Website Year</label>
+                      <input 
+                        className="form-input" 
+                        placeholder="e.g. 2026" 
+                        value={siteForm.activeYear || "2026"} 
+                        onChange={e => setSiteForm({...siteForm, activeYear: e.target.value})} 
+                      />
+                      <p style={{ fontSize: '0.65rem', opacity: 0.5, marginTop: '0.5rem', lineHeight: '1.4' }}>
+                        Changing this will immediately filter the homepage, gallery, and event sections to only show items tagged with this year. Un-tagged/existing items belong to 2026.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '0.5rem' }}>Add Past Year Website Link</label>
+                      <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1rem' }}>
+                        <input 
+                          id="new-past-year"
+                          type="text" 
+                          className="form-input" 
+                          style={{ width: '80px' }} 
+                          placeholder="Year" 
+                        />
+                        <input 
+                          id="new-past-url"
+                          type="url" 
+                          className="form-input" 
+                          placeholder="https://2026.example.com" 
+                        />
+                        <button 
+                          type="button"
+                          className="admin-nav-btn" 
+                          style={{ background: 'var(--gold)', color: 'var(--ink)', padding: '0.5rem 1rem', fontSize: '0.7rem' }}
+                          onClick={() => {
+                            const yearInput = document.getElementById('new-past-year');
+                            const urlInput = document.getElementById('new-past-url');
+                            const yearVal = yearInput.value.trim();
+                            const urlVal = urlInput.value.trim();
+                            if (!yearVal || !urlVal) return alert("Please specify both Year and URL.");
+                            
+                            const currentWebs = siteForm.pastWebsites || [];
+                            if (currentWebs.some(w => w.year === yearVal)) return alert("This year already has a configured link.");
+                            
+                            const updatedWebs = [...currentWebs, { year: yearVal, url: urlVal }].sort((a,b) => b.year.localeCompare(a.year));
+                            setSiteForm({ ...siteForm, pastWebsites: updatedWebs });
+                            yearInput.value = "";
+                            urlInput.value = "";
+                          }}
+                        >Add</button>
+                      </div>
+
+                      <label style={{ fontSize: '0.75rem', opacity: 0.6, display: 'block', marginBottom: '0.5rem' }}>Configured Past Websites</label>
+                      {(!siteForm.pastWebsites || siteForm.pastWebsites.length === 0) ? (
+                        <div style={{ fontSize: '0.7rem', opacity: 0.4, fontStyle: 'italic', padding: '0.5rem', border: '1px dashed var(--border)', borderRadius: '6px' }}>
+                          No past websites configured yet.
+                        </div>
+                      ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          {siteForm.pastWebsites.map(web => (
+                            <div key={web.year} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.02)', padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                              <span style={{ fontSize: '0.75rem', fontWeight: 'bold' }}>{web.year}: <a href={web.url} target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', fontWeight: 'normal', textDecoration: 'none' }}>{web.url}</a></span>
+                              <button 
+                                type="button"
+                                style={{ background: 'transparent', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '0.8rem' }}
+                                onClick={() => {
+                                  if (window.confirm(`Remove link for ${web.year}?`)) {
+                                    const updatedWebs = (siteForm.pastWebsites || []).filter(w => w.year !== web.year);
+                                    setSiteForm({ ...siteForm, pastWebsites: updatedWebs });
+                                  }
+                                }}
+                              >🗑️</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -3301,7 +3523,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   );
 }
 
-function AdminCCEvents({ ccEvents }) {
+function AdminCCEvents({ ccEvents, siteConfig }) {
   const [editing, setEditing] = useState(null);
   const [formData, setFormData] = useState({
     title: "", subtitle: "", order: 1,
@@ -3317,7 +3539,11 @@ function AdminCCEvents({ ccEvents }) {
     if (!formData.title) return alert("Title required");
     try {
       const id = editing === 'new' ? formData.title.toLowerCase().replace(/ /g, '-') : editing;
-      await setDoc(doc(db, "cc_events", id), formData, { merge: true });
+      const dataToSave = {
+        ...formData,
+        calendarYear: formData.calendarYear || siteConfig?.activeYear || "2026"
+      };
+      await setDoc(doc(db, "cc_events", id), dataToSave, { merge: true });
       setEditing(null);
       alert("CC Event Saved!");
     } catch (err) { alert(err.message); }
@@ -3332,6 +3558,7 @@ function AdminCCEvents({ ccEvents }) {
           setFormData({ 
             title: "", subtitle: "", order: ccEvents.length + 1, 
             upcoming: false, date: "", desc: "", bannerUrl: "", 
+            calendarYear: siteConfig?.activeYear || "2026",
             winners: { 
               "1st": { name: "", dept: "", year: "1st Year", url: "" }, 
               "2nd": { name: "", dept: "", year: "1st Year", url: "" }, 
@@ -3366,6 +3593,10 @@ function AdminCCEvents({ ccEvents }) {
             <div>
               <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>DISPLAY ORDER</label>
               <input className="form-input" type="number" placeholder="Order" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value) || 1})} />
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>CALENDAR YEAR</label>
+              <input className="form-input" placeholder="e.g. 2026" value={formData.calendarYear || ""} onChange={e => setFormData({...formData, calendarYear: e.target.value})} />
             </div>
           </div>
 
@@ -4182,7 +4413,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
               title: title,
               photographer: "Capture Crew",
               dept: subtitle,
-              year: "2026"
+              year: event.calendarYear || "2026"
             })}
           >
             <div className="grid-item-inner">
