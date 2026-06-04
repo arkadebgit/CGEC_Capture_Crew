@@ -3858,7 +3858,8 @@ function LiveShowcase({ config, setLightboxItem }) {
   const containerRef = useRef(null);
   const wrapperRef = useRef(null);
   const cardContainerRef = useRef(null);
-  const [scrollInfo, setScrollInfo] = useState({ progress: 0 });
+  const mouseRef = useRef(null);
+  const progressRef = useRef(0);
 
   const photos = config.photos || [];
   const totalCards = photos.length;
@@ -3882,8 +3883,9 @@ function LiveShowcase({ config, setLightboxItem }) {
         progress = Math.max(0, Math.min(1, scrollTop / maxScroll));
       }
 
-      setScrollInfo({ progress });
+      progressRef.current = progress;
 
+      // Direct DOM style updates to bypass React re-renders during scrolling
       const wrapper = wrapperRef.current;
       wrapper.style.setProperty('--rotate', progress);
 
@@ -3896,6 +3898,12 @@ function LiveShowcase({ config, setLightboxItem }) {
           const dist = Math.min(pos, 1.0 - pos);
           card.style.setProperty('--card-dist', dist);
         }
+      }
+
+      if (mouseRef.current) {
+        const mouseOpacity = Math.max(0, 1 - (progress / 0.05));
+        mouseRef.current.style.opacity = mouseOpacity;
+        mouseRef.current.style.pointerEvents = mouseOpacity > 0 ? 'auto' : 'none';
       }
     };
 
@@ -3912,13 +3920,13 @@ function LiveShowcase({ config, setLightboxItem }) {
 
   const handleCardClick = (idx) => {
     const cardI = idx + 1;
-    const progress = scrollInfo.progress;
+    const progress = progressRef.current;
     const pos = (progress - (cardI - 1) / totalCards + 1.0) % 1.0;
     const dist = Math.min(pos, 1.0 - pos);
 
     if (dist < 0.05) {
       setLightboxItem({
-        url: photos[idx],
+        url: photos[idx], // Full quality original image URL
         title: `${config.eventName || "Live Event"} - Moment ${cardI}`,
         photographer: config.eventName || "Live Team",
         dept: config.subtitle || "Live Capture",
@@ -3940,6 +3948,14 @@ function LiveShowcase({ config, setLightboxItem }) {
         });
       }
     }
+  };
+
+  const getShowcaseThumbnailUrl = (url) => {
+    if (!url || typeof url !== "string" || !url.includes("res.cloudinary.com")) return url;
+    const uploadIndex = url.indexOf("/upload");
+    if (uploadIndex === -1) return url;
+    // Optimize size to 600px width at 50% quality to ensure buttery smooth rendering
+    return `${url.substring(0, uploadIndex + 7)}/w_600,q_50,f_auto${url.substring(uploadIndex + 7)}`;
   };
 
   if (totalCards === 0) {
@@ -3965,8 +3981,6 @@ function LiveShowcase({ config, setLightboxItem }) {
       </div>
     );
   }
-
-  const mouseOpacity = Math.max(0, 1 - (scrollInfo.progress / 0.05));
 
   return (
     <div 
@@ -4017,14 +4031,14 @@ function LiveShowcase({ config, setLightboxItem }) {
                     '--card-dist': initialDist
                   }}
                 >
-                  <img src={url} alt={`Live Event Captures #${cardI}`} referrerPolicy="no-referrer" />
+                  <img src={getShowcaseThumbnailUrl(url)} alt={`Live Event Captures #${cardI}`} referrerPolicy="no-referrer" />
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className="live-mouse-wrap" style={{ opacity: mouseOpacity, pointerEvents: mouseOpacity > 0 ? 'auto' : 'none' }}>
+        <div ref={mouseRef} className="live-mouse-wrap" style={{ opacity: 1, pointerEvents: 'auto' }}>
           <div className="live-mouse-icon">
             <div className="live-mouse-wheel"></div>
           </div>
