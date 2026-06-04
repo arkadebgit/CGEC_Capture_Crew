@@ -420,6 +420,25 @@ const getOptimizedUrl = (url) => {
   return `${url.substring(0, uploadIndex + 7)}/f_auto,q_auto${url.substring(uploadIndex + 7)}`;
 };
 
+const reorderPhotosForMasonry = (items, isMobile) => {
+  if (!items || items.length === 0) return [];
+  const cols = isMobile ? 2 : 3;
+  if (cols <= 1) return items;
+
+  const reordered = [];
+  const itemsPerCol = Math.ceil(items.length / cols);
+
+  for (let c = 0; c < cols; c++) {
+    for (let r = 0; r < itemsPerCol; r++) {
+      const idx = r * cols + c;
+      if (idx < items.length) {
+        reordered.push(items[idx]);
+      }
+    }
+  }
+  return reordered;
+};
+
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
   const location = useLocation();
@@ -1210,7 +1229,7 @@ export default function App() {
                 <p style={{ fontSize: '0.85rem' }}>The shutter is waiting! Upload new photos in the Admin Console to fill this space.</p>
               </div>
             ) : (
-              filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined).map(item => (
+              reorderPhotosForMasonry(filteredGallery.slice(0, !expandedGallery ? (isMobile ? 3 : 12) : undefined), isMobile).map(item => (
                 <div
                   key={item.id}
                   className="gallery-item"
@@ -1786,6 +1805,7 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
         liveEvents={liveEvents}
         archiveConfig={archiveConfig}
         liveEventsList={liveEventsList}
+        isMobile={isMobile}
       />
     );
   }
@@ -1801,6 +1821,7 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
       onClose={() => navigate('/events')}
       setLightboxItem={setLightboxItem} 
       liveEvents={liveEvents}
+      isMobile={isMobile}
     />
   );
 }
@@ -4212,7 +4233,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
 
 // ✦✦✦ EVENT PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 
-function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, archiveConfig, liveEventsList }) {
+function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, archiveConfig, liveEventsList, isMobile }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -4332,6 +4353,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
                   setLightboxItem={setLightboxItem} 
                   onClose={onClose} 
                   eventYear={ev.calendarYear || "2026"}
+                  isMobile={isMobile}
                 />
               </div>
             ))}
@@ -4341,7 +4363,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
           </div>
         ) : (
           <>
-            <EventSection title="Gallery" subtitle={event.subtitle || "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} eventYear={event.calendarYear || "2026"} />
+            <EventSection title="Gallery" subtitle={event.subtitle || "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} eventYear={event.calendarYear || "2026"} isMobile={isMobile} />
           </>
         )}
       </div>
@@ -4349,13 +4371,15 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
   );
 }
 
-function EventSection({ title, subtitle, photos, setLightboxItem, onClose, eventYear }) {
+function EventSection({ title, subtitle, photos, setLightboxItem, onClose, eventYear, isMobile }) {
   const [searchTerm, setSearchTerm] = useState("");
   if (!photos || photos.length === 0) return null;
 
   const filteredPhotos = photos.filter((_, i) => 
     `IMG_${1000 + i}.JPG`.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const displayedPhotos = reorderPhotosForMasonry(filteredPhotos, isMobile);
 
   return (
     <div className="event-detail-section fade-in visible">
@@ -4384,7 +4408,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose, event
       </div>
       
       <div className="gallery-grid-system">
-        {filteredPhotos.map((p, i) => (
+        {displayedPhotos.map((p, i) => (
           <div 
             key={i} 
             className="gallery-grid-item" 
