@@ -4,6 +4,8 @@ import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
+import BlurUpImage from "./components/BlurUpImage";
+
 
 // ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
 
@@ -410,6 +412,13 @@ const InstagramIcon = ({ size = 18, ...props }) => (
 
 
 
+
+const getOptimizedUrl = (url) => {
+  if (!url || typeof url !== "string" || !url.includes("res.cloudinary.com")) return url;
+  const uploadIndex = url.indexOf("/upload");
+  if (uploadIndex === -1) return url;
+  return `${url.substring(0, uploadIndex + 7)}/f_auto,q_auto${url.substring(uploadIndex + 7)}`;
+};
 
 export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
@@ -1020,7 +1029,7 @@ export default function App() {
                   </div>
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap">
-                      <img src={weekCapture.url || "/placeholder.jpg"} alt={weekCapture.title} className="week-img" referrerPolicy="no-referrer" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(weekCapture)} />
+                      <BlurUpImage src={weekCapture.url || "/placeholder.jpg"} alt={weekCapture.title} className="week-img" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(weekCapture)} />
                       <div className="week-badge">This Week's Pick</div>
                     </div>
                     <div className="week-info">
@@ -1049,7 +1058,7 @@ export default function App() {
                   </div>
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap">
-                      <img src="/placeholder.jpg" alt="Placeholder" className="week-img" referrerPolicy="no-referrer" style={{ cursor: 'default' }} />
+                      <BlurUpImage src="/placeholder.jpg" alt="Placeholder" className="week-img" style={{ cursor: 'default' }} />
                       <div className="week-badge">This Week's Pick</div>
                     </div>
                     <div className="week-info">
@@ -1078,7 +1087,7 @@ export default function App() {
                   </div>
                   <div className="month-slide fade-in">
                     <div className="month-image-wrap">
-                      <img src={monthCapture.url || "/placeholder.jpg"} alt={monthCapture.title} className="month-img" referrerPolicy="no-referrer" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(monthCapture)} />
+                      <BlurUpImage src={monthCapture.url || "/placeholder.jpg"} alt={monthCapture.title} className="month-img" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(monthCapture)} />
                       <div className="month-frame" />
                       <div className="month-award">
                         <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -1111,7 +1120,7 @@ export default function App() {
                   </div>
                   <div className="month-slide fade-in">
                     <div className="month-image-wrap">
-                      <img src="/placeholder.jpg" alt="Placeholder" className="month-img" referrerPolicy="no-referrer" style={{ cursor: 'default' }} />
+                      <BlurUpImage src="/placeholder.jpg" alt="Placeholder" className="month-img" style={{ cursor: 'default' }} />
                       <div className="month-frame" />
                       <div className="month-award">
                         <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
@@ -1141,7 +1150,7 @@ export default function App() {
                   </div>
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                      <img src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0', cursor: 'pointer' }} referrerPolicy="no-referrer" onClick={() => setLightboxItem(extraFrameCapture)} />
+                      <BlurUpImage src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0', cursor: 'pointer' }} onClick={() => setLightboxItem(extraFrameCapture)} />
                       <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
                     </div>
                     <div className="week-info" style={{ padding: '0' }}>
@@ -1207,12 +1216,11 @@ export default function App() {
                   className="gallery-item"
                   onClick={() => setLightboxItem(item)}
                 >
-                  <img 
+                  <BlurUpImage 
                     src={item.url} 
                     alt={item.title} 
                     className="gallery-thumb" 
-                    loading="lazy"
-                    referrerPolicy="no-referrer"
+                    aspectRatio={item.aspect}
                   />
                   <div className="gallery-overlay">
                     <div>
@@ -1718,7 +1726,7 @@ export default function App() {
         {lightboxItem && (
           <div className="lightbox-content" onClick={e => e.stopPropagation()}>
             <img
-              src={lightboxItem.url}
+              src={getOptimizedUrl(lightboxItem.url)}
               alt={lightboxItem.title}
               className="lightbox-img-tag"
               referrerPolicy="no-referrer"
@@ -4309,6 +4317,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
                   } 
                   setLightboxItem={setLightboxItem} 
                   onClose={onClose} 
+                  eventYear={ev.calendarYear || "2026"}
                 />
               </div>
             ))}
@@ -4318,7 +4327,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
           </div>
         ) : (
           <>
-            <EventSection title="Gallery" subtitle={event.subtitle || "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} />
+            <EventSection title="Gallery" subtitle={event.subtitle || "Highlights"} photos={photos} setLightboxItem={setLightboxItem} onClose={onClose} eventYear={event.calendarYear || "2026"} />
           </>
         )}
       </div>
@@ -4326,7 +4335,7 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
   );
 }
 
-function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
+function EventSection({ title, subtitle, photos, setLightboxItem, onClose, eventYear }) {
   const [searchTerm, setSearchTerm] = useState("");
   if (!photos || photos.length === 0) return null;
 
@@ -4371,11 +4380,11 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose }) {
               title: title,
               photographer: "Capture Crew",
               dept: subtitle,
-              year: event.calendarYear || "2026"
+              year: eventYear || "2026"
             })}
           >
             <div className="grid-item-inner">
-              <img src={p} alt={title} loading="lazy" referrerPolicy="no-referrer" />
+              <BlurUpImage src={p} alt={title} />
               <div className="grid-item-meta">
                 <span className="file-icon">📷</span>
                 <span className="file-name">IMG_{1000 + photos.indexOf(p)}.JPG</span>
