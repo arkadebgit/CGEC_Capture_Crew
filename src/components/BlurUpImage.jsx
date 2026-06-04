@@ -70,17 +70,10 @@ export default function BlurUpImage({
   // Determine aspect ratio for reserving space (default to 1.5 if not known)
   const currentAspect = aspectRatio || measuredAspect || 1.5;
 
-  const isFixedGalleryThumb = className.includes("gallery-thumb");
-  const isWeekOrMonthImg = className.includes("week-img") || className.includes("month-img");
-
   const containerStyle = {
     ...style,
+    aspectRatio: currentAspect,
   };
-
-  // Only apply inline aspectRatio if this isn't a fixed aspect/height grid item
-  if (!isFixedGalleryThumb && !isWeekOrMonthImg) {
-    containerStyle.aspectRatio = currentAspect;
-  }
 
   // Handle low-quality image loading to measure its natural aspect ratio
   const handleThumbLoad = (e) => {
