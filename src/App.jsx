@@ -4075,7 +4075,7 @@ function LiveShowcase({ config, setLightboxItem }) {
               <polyline points="19 12 12 19 5 12"></polyline>
             </svg>
           </div>
-          <span className="live-mouse-text">Scroll or Click to Navigate</span>
+          <span className="live-mouse-text">Scroll to navigate</span>
           <span className="live-resolution-text">✦ Click centered photo to view in max resolution ✦</span>
         </div>
       </div>
