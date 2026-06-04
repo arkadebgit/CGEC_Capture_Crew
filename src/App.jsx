@@ -4423,7 +4423,7 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose, event
       <div className="gallery-grid-system">
         {displayedPhotos.map((p, i) => (
           <div 
-            key={i} 
+            key={`${p}-${i}`} 
             className="gallery-grid-item" 
             style={{ "--delay": `${(i % 12) * 0.05}s` }}
             onClick={() => setLightboxItem({

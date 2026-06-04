@@ -44,6 +44,12 @@ export default function BlurUpImage({
   const { thumbUrl, fullUrl } = getCloudinaryUrls(src);
 
   useEffect(() => {
+    setThumbLoaded(false);
+    setFullLoaded(false);
+    setMeasuredAspect(null);
+  }, [src]);
+
+  useEffect(() => {
     // Setup intersection observer to only load when approaching viewport
     const observer = new IntersectionObserver(
       ([entry]) => {
