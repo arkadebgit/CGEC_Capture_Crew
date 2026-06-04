@@ -1535,25 +1535,14 @@ section { padding: 7rem 0; }
   transition: opacity 300ms ease;
 }
 
-.live-mouse-icon {
-  width: 26px;
-  height: 42px;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-radius: 20px;
-  position: relative;
-  opacity: 0.8;
-}
-
-.live-mouse-wheel {
-  width: 4px;
-  height: 8px;
-  background: var(--live-color, var(--gold));
-  border-radius: 2px;
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: liveScrollIndicator 1.5s infinite ease-in-out;
+.live-scroll-arrow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  color: var(--live-color, var(--gold));
+  animation: liveArrowBounce 2s infinite ease-in-out;
 }
 
 .live-mouse-text {
@@ -1564,16 +1553,38 @@ section { padding: 7rem 0; }
   font-family: var(--font-body);
 }
 
+.live-resolution-text {
+  font-size: 0.6rem;
+  color: var(--live-color, var(--gold));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  opacity: 0.8;
+  margin-top: 0.2rem;
+  animation: livePulseOpacity 2s infinite ease-in-out;
+}
+
 @keyframes livePulse {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.3); opacity: 0.5; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes liveScrollIndicator {
-  0% { top: 6px; opacity: 1; }
-  50% { top: 16px; opacity: 0; }
-  100% { top: 6px; opacity: 1; }
+@keyframes liveArrowBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(8px);
+  }
+  60% {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes livePulseOpacity {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
 }
 
 @keyframes liveFadeInUp {
