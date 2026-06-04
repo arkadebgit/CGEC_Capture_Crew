@@ -67,8 +67,8 @@ export default function BlurUpImage({
     };
   }, []);
 
-  // Determine aspect ratio for reserving space (default to 1.5 if not known)
-  const currentAspect = aspectRatio || measuredAspect || 1.5;
+  // Determine aspect ratio for reserving space (priority: actual measured > passed metadata > fallback)
+  const currentAspect = measuredAspect || aspectRatio || 1.5;
 
   const containerStyle = {
     ...style,
@@ -78,13 +78,16 @@ export default function BlurUpImage({
   // Handle low-quality image loading to measure its natural aspect ratio
   const handleThumbLoad = (e) => {
     setThumbLoaded(true);
-    if (!aspectRatio && e.target.naturalWidth && e.target.naturalHeight) {
+    if (e.target.naturalWidth && e.target.naturalHeight) {
       setMeasuredAspect(e.target.naturalWidth / e.target.naturalHeight);
     }
   };
 
-  const handleFullLoad = () => {
+  const handleFullLoad = (e) => {
     setFullLoaded(true);
+    if (e.target.naturalWidth && e.target.naturalHeight) {
+      setMeasuredAspect(e.target.naturalWidth / e.target.naturalHeight);
+    }
   };
 
   return (
