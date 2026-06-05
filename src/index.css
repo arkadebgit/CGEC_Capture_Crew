@@ -1984,54 +1984,7 @@ section { padding: 7rem 0; }
   to { transform: rotate(360deg); }
 }
 
-/* ADMIN PANEL SUBSCRIBERS TABLE & SETTINGS */
-.subscriber-count-badge {
-  background: var(--gold);
-  color: var(--ink);
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  margin-left: 0.5rem;
-}
-.newsletter-settings-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 3rem;
-  align-items: start;
-}
-@media(max-width: 1024px) {
-  .newsletter-settings-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-}
-.instruction-box {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 2rem;
-}
-.instruction-box h4 {
-  color: var(--gold);
-  margin-bottom: 1rem;
-}
-.instruction-box ul {
-  padding-left: 1.2rem;
-  margin: 1rem 0;
-}
-.instruction-box li {
-  margin-bottom: 0.5rem;
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-.instruction-box code {
-  background: rgba(255,255,255,0.05);
-  color: var(--gold2);
-  padding: 0.1rem 0.3rem;
-  border-radius: 4px;
-  font-family: monospace;
-}
+
 
 
 

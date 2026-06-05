@@ -552,19 +552,7 @@ export default function App() {
 
   const sendResendNotification = async ({ subject, title, description, imageUrl, link, photographer }) => {
     try {
-      // 1. Fetch Resend Config
-      const configSnap = await getDoc(doc(db, "config", "newsletter"));
-      if (!configSnap.exists()) {
-        console.warn("Newsletter configuration is missing in Firestore.");
-        return;
-      }
-      const config = configSnap.data();
-      if (!config.enabled || !config.resendApiKey || !config.senderEmail) {
-        console.warn("Newsletter notifications are disabled or missing Resend settings.");
-        return;
-      }
-
-      // 2. Fetch active subscribers
+      // 1. Fetch active subscribers
       const subsSnap = await getDocs(query(collection(db, "subscribers"), where("active", "==", true)));
       if (subsSnap.empty) {
         console.log("No active subscribers found.");
@@ -574,7 +562,7 @@ export default function App() {
       const subscribersList = subsSnap.docs.map(d => d.data());
       const totalRecipients = subscribersList.length;
 
-      // 3. Set progress state
+      // 2. Set progress state
       setBroadcastProgress({
         sending: true,
         current: 0,
@@ -582,7 +570,7 @@ export default function App() {
         subject
       });
 
-      // 4. Create HTML template
+      // 3. Create HTML template
       const htmlContent = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
           <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
@@ -603,7 +591,7 @@ export default function App() {
         </div>
       `;
 
-      // 5. Send in chunks of 100
+      // 4. Send in chunks of 100
       const batchSize = 100;
       let sentCount = 0;
 
@@ -617,9 +605,7 @@ export default function App() {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              apiKey: config.resendApiKey,
-              from: config.senderEmail,
-              to: config.senderEmail,
+              to: 'newsletter@capturecrew.site',
               bcc: batch,
               subject,
               html: htmlContent
@@ -2384,16 +2370,14 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       
       alert(`Saved to Gallery and Featured automatically!`);
 
-      if (notifySubscribers) {
-        sendResendNotification({
-          subject: `New Featured Capture: ${newPhoto.title}`,
-          title: `Featured Capture of the ${type === 'week' ? 'Week' : type === 'month' ? 'Month' : 'Frame'}`,
-          description: `A new photograph under the category "${newPhoto.category}" by ${newPhoto.photographer} (${newPhoto.dept} · ${newPhoto.year}) has been published to CGEC Capture Crew! Check it out in the gallery.`,
-          imageUrl: newPhoto.url,
-          link: 'https://cgec-capture-crew.vercel.app/gallery',
-          photographer: newPhoto.photographer
-        });
-      }
+      sendResendNotification({
+        subject: `New Featured Capture: ${newPhoto.title}`,
+        title: `Featured Capture of the ${type === 'week' ? 'Week' : type === 'month' ? 'Month' : 'Frame'}`,
+        description: `A new photograph under the category "${newPhoto.category}" by ${newPhoto.photographer} (${newPhoto.dept} · ${newPhoto.year}) has been published to CGEC Capture Crew! Check it out in the gallery.`,
+        imageUrl: newPhoto.url,
+        link: 'https://cgec-capture-crew.vercel.app/gallery',
+        photographer: newPhoto.photographer
+      });
 
       setFeaturedData({ url: "", title: "", photographer: "", captureDate: new Date().toISOString().split('T')[0], dept: DEPTS[0], year: YEARS[0] });
     } catch (err) {
@@ -2406,10 +2390,19 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const addCert = async (e) => {
     e.preventDefault();
     try {
-      await addDoc(collection(db, "certificates"), newCert);
+      const certData = { ...newCert };
+      await addDoc(collection(db, "certificates"), certData);
       setNewCert({ name: "", serialNo: "", date: "", event: "", link: "" });
       fetchCerts();
       alert("Certificate Issued!");
+      
+      sendResendNotification({
+        subject: `New Certificate Issued - ${certData.name}`,
+        title: `Certificate Issued: ${certData.name}`,
+        description: `A new certificate for "${certData.event}" has been issued to ${certData.name} (Serial No: ${certData.serialNo}). You can verify it on our verification portal.`,
+        imageUrl: null,
+        link: 'https://cgec-capture-crew.vercel.app/verify'
+      });
     } catch (err) {
       alert("Failed to Issue: " + err.message);
     }
@@ -2485,14 +2478,25 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         })
         .filter(p => p.startsWith("http://") || p.startsWith("https://"));
       
+      const isActive = !!liveForm.active;
       await setDoc(doc(db, "config", "live_event"), {
-        active: !!liveForm.active,
+        active: isActive,
         eventName: liveForm.eventName,
         subtitle: liveForm.subtitle,
         color: liveForm.color,
         photos: photosArray
       });
       alert("Live Showcase settings updated successfully!");
+      
+      if (isActive) {
+        sendResendNotification({
+          subject: `Live Fest Showcase: ${liveForm.eventName}`,
+          title: `🔴 Live Showcase Active: ${liveForm.eventName}`,
+          description: `We are running a live showcase for the fest "${liveForm.eventName}" (${liveForm.subtitle}). See real-time photography captures directly on our home page!`,
+          imageUrl: photosArray.length > 0 ? photosArray[0] : null,
+          link: 'https://cgec-capture-crew.vercel.app'
+        });
+      }
     } catch (err) {
       console.error("Error updating live event config: ", err);
       alert("Failed to update settings: " + err.message);
@@ -2561,7 +2565,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
               <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
               <button className={`filter-btn ${tab === 'live_event' ? 'active' : ''}`} onClick={() => setTab('live_event')}>🔴 Live Showcase</button>
-              <button className={`filter-btn ${tab === 'newsletter' ? 'active' : ''}`} onClick={() => setTab('newsletter')}>Newsletter</button>
             </>
           )}
 
@@ -2642,18 +2645,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
               <input type="date" className="form-input" placeholder="Capture Date" value={featuredData.captureDate} onChange={e => setFeaturedData({...featuredData, captureDate: e.target.value})} />
               
-              <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <input 
-                  type="checkbox" 
-                  id="notifyFeatured" 
-                  checked={notifySubscribers} 
-                  onChange={e => setNotifySubscribers(e.target.checked)} 
-                />
-                <label htmlFor="notifyFeatured" style={{ fontSize: '0.85rem', cursor: 'pointer' }}>
-                  Notify newsletter subscribers about this new photo?
-                </label>
-              </div>
-              
+
               <button className="form-submit" style={{ gridColumn: '1 / -1' }} onClick={() => updateFeatured(tab)}>
                 {isUpdating ? "Updating..." : `Update & Save to Gallery `}
               </button>
@@ -2862,18 +2854,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   </div>
                   <textarea className="form-input" style={{ gridColumn: '1 / -1', minHeight: '80px' }} placeholder="Description" value={eventFormData.desc || ""} onChange={e => setEventFormData({...eventFormData, desc: e.target.value})} />
                   
-                  <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.5rem 0' }}>
-                    <input 
-                      type="checkbox" 
-                      id="notifyEvent" 
-                      checked={notifySubscribers} 
-                      onChange={e => setNotifySubscribers(e.target.checked)} 
-                    />
-                    <label htmlFor="notifyEvent" style={{ fontSize: '0.85rem', cursor: 'pointer' }}>
-                      Notify newsletter subscribers about this event?
-                    </label>
-                  </div>
-                  
                   <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem' }}>
                     <button className="form-submit" style={{ flex: 1 }} onClick={async () => {
                       if (!eventFormData.id || !eventFormData.name) return alert("Slug and Name are required.");
@@ -2887,15 +2867,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         setEditingEvent(null);
                         alert("Event Saved!");
                         
-                        if (notifySubscribers) {
-                          sendResendNotification({
-                            subject: `New Event Announcement: ${cleanedData.name}`,
-                            title: `Campus Event: ${cleanedData.name}`,
-                            description: `${cleanedData.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${cleanedData.subtitle || ''}`,
-                            imageUrl: (cleanedData.iconUrl && cleanedData.iconUrl.trim().startsWith('http')) ? cleanedData.iconUrl.trim() : null,
-                            link: 'https://cgec-capture-crew.vercel.app/events'
-                          });
-                        }
+                        sendResendNotification({
+                          subject: `New Event Announcement: ${cleanedData.name}`,
+                          title: `Campus Event: ${cleanedData.name}`,
+                          description: `${cleanedData.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${cleanedData.subtitle || ''}`,
+                          imageUrl: (cleanedData.iconUrl && cleanedData.iconUrl.trim().startsWith('http')) ? cleanedData.iconUrl.trim() : null,
+                          link: 'https://cgec-capture-crew.vercel.app/events'
+                        });
                       } catch (err) { alert("Error: " + err.message); }
                     }}>SAVE EVENT </button>
                     <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditingEvent(null)}>CANCEL</button>
@@ -3622,11 +3600,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             </div>
           </div>
         )}
-
-        {tab === 'newsletter' && adminData?.role !== 'core_member' && (
-          <AdminNewsletter sendResendNotification={sendResendNotification} />
-        )}
-
         {tab === 'profile' && (
           <div className="visible">
             <h3 className="subcategory-title">Profile <em>Settings</em></h3>
@@ -3719,15 +3692,13 @@ function AdminCCEvents({ ccEvents, siteConfig, sendResendNotification }) {
       setEditing(null);
       alert("CC Event Saved!");
       
-      if (notify) {
-        sendResendNotification({
-          subject: `New Competition Announcement: ${dataToSave.title}`,
-          title: `Capture Crew Challenge: ${dataToSave.title}`,
-          description: `${dataToSave.desc || 'Check out our new internal photography challenge!'}\n\nSubtitle: ${dataToSave.subtitle || ''}`,
-          imageUrl: dataToSave.bannerUrl || null,
-          link: 'https://cgec-capture-crew.vercel.app/events'
-        });
-      }
+      sendResendNotification({
+        subject: `New Competition Announcement: ${dataToSave.title}`,
+        title: `Capture Crew Challenge: ${dataToSave.title}`,
+        description: `${dataToSave.desc || 'Check out our new internal photography challenge!'}\n\nSubtitle: ${dataToSave.subtitle || ''}`,
+        imageUrl: dataToSave.bannerUrl || null,
+        link: 'https://cgec-capture-crew.vercel.app/events'
+      });
     } catch (err) { alert(err.message); }
   };
 
@@ -3828,18 +3799,6 @@ function AdminCCEvents({ ccEvents, siteConfig, sendResendNotification }) {
               ))}
             </div>
           )}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-            <input 
-              type="checkbox" 
-              id="notifyCCEvent" 
-              checked={notify} 
-              onChange={e => setNotify(e.target.checked)} 
-            />
-            <label htmlFor="notifyCCEvent" style={{ fontSize: '0.85rem', cursor: 'pointer' }}>
-              Notify newsletter subscribers about this CC Event?
-            </label>
-          </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
             <button className="form-submit" style={{ flex: 1 }} onClick={save}>SAVE EVENT</button>
@@ -5560,362 +5519,4 @@ function NewsletterSection() {
   );
 }
 
-// ✦✦✦ ADMIN NEWSLETTER MANAGEMENT COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
-function AdminNewsletter({ sendResendNotification }) {
-  const [subscribers, setSubscribers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [config, setConfig] = useState({
-    resendApiKey: "",
-    senderEmail: "",
-    enabled: false
-  });
-  const [savingConfig, setSavingConfig] = useState(false);
-  
-  // Manual Broadcast State
-  const [broadcastForm, setBroadcastForm] = useState({
-    subject: "",
-    title: "",
-    description: "",
-    imageUrl: "",
-    link: ""
-  });
-  const [sendingBroadcast, setSendingBroadcast] = useState(false);
 
-  // Fetch Subscribers & Config
-  useEffect(() => {
-    const unsubSubs = onSnapshot(collection(db, "subscribers"), (snap) => {
-      const list = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      list.sort((a, b) => (b.subscribedAt || "").localeCompare(a.subscribedAt || ""));
-      setSubscribers(list);
-      setLoading(false);
-    });
-
-    const unsubConfig = onSnapshot(doc(db, "config", "newsletter"), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setConfig({
-          resendApiKey: data.resendApiKey || "",
-          senderEmail: data.senderEmail || "",
-          enabled: !!data.enabled
-        });
-      }
-    });
-
-    return () => {
-      unsubSubs();
-      unsubConfig();
-    };
-  }, []);
-
-  const handleSaveConfig = async (e) => {
-    e.preventDefault();
-    setSavingConfig(true);
-    try {
-      await setDoc(doc(db, "config", "newsletter"), config, { merge: true });
-      alert("Resend settings saved successfully!");
-    } catch (err) {
-      alert("Failed to save configuration: " + err.message);
-    } finally {
-      setSavingConfig(false);
-    }
-  };
-
-  const handleDeleteSub = async (id, email) => {
-    if (window.confirm(`Are you sure you want to remove ${email} from the subscribers list?`)) {
-      try {
-        await deleteDoc(doc(db, "subscribers", id));
-        alert("Subscriber removed.");
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
-    }
-  };
-
-  const handleManualBroadcast = async (e) => {
-    e.preventDefault();
-    if (!broadcastForm.subject || !broadcastForm.title || !broadcastForm.description) {
-      alert("Subject, Title, and Description are required.");
-      return;
-    }
-
-    const activeSubs = subscribers.filter(s => s.active);
-    if (activeSubs.length === 0) {
-      alert("There are no active subscribers to notify.");
-      return;
-    }
-
-    if (!config.enabled || !config.resendApiKey || !config.senderEmail) {
-      alert("Please configure and enable Resend settings first.");
-      return;
-    }
-
-    if (window.confirm(`Broadcast this email to all active subscribers?`)) {
-      setSendingBroadcast(true);
-      try {
-        await sendResendNotification({
-          subject: broadcastForm.subject,
-          title: broadcastForm.title,
-          description: broadcastForm.description,
-          imageUrl: broadcastForm.imageUrl || null,
-          link: broadcastForm.link || null
-        });
-        setBroadcastForm({
-          subject: "",
-          title: "",
-          description: "",
-          imageUrl: "",
-          link: ""
-        });
-        alert("Broadcast started in the background!");
-      } catch (err) {
-        alert("Broadcast failed: " + err.message);
-      } finally {
-        setSendingBroadcast(false);
-      }
-    }
-  };
-
-  const filteredSubs = subscribers.filter(s => 
-    (s.email || "").toLowerCase().includes(search.toLowerCase()) ||
-    (s.name || "").toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="fade-in visible">
-      <h3 className="subcategory-title">Newsletter <em>& Subscribers</em></h3>
-      <p className="section-sub" style={{ marginBottom: "2rem" }}>
-        Manage newsletter subscribers and configure the Resend API settings to notify subscribers when new content is added.
-      </p>
-
-      <div className="newsletter-settings-grid">
-        {/* Left Side: Config & Manual Send */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
-          
-          {/* Settings Form */}
-          <div className="glass-form" style={{ padding: '2rem' }}>
-            <h4 style={{ color: 'var(--gold)', marginBottom: '1.2rem', fontSize: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
-              Resend Configuration Settings
-            </h4>
-            <form onSubmit={handleSaveConfig} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>RESEND API KEY</label>
-                <input 
-                  type="password" 
-                  className="form-input" 
-                  placeholder="re_xxxxxxxxxxxxxxxxxxxxxxxx" 
-                  value={config.resendApiKey} 
-                  onChange={e => setConfig({ ...config, resendApiKey: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>SENDER EMAIL (Verified Resend Domain or onboarding@resend.dev)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="e.g. CGEC Capture Crew <newsletter@yourdomain.com>" 
-                  value={config.senderEmail} 
-                  onChange={e => setConfig({ ...config, senderEmail: e.target.value })}
-                />
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <input 
-                  type="checkbox" 
-                  id="resendEnabled" 
-                  checked={config.enabled} 
-                  onChange={e => setConfig({ ...config, enabled: e.target.checked })} 
-                />
-                <label htmlFor="resendEnabled" style={{ fontSize: '0.85rem', cursor: 'pointer', fontWeight: 'bold', color: config.enabled ? 'var(--gold)' : 'inherit' }}>
-                  Enable newsletter and notifications?
-                </label>
-              </div>
-              <button className="form-submit" type="submit" disabled={savingConfig} style={{ marginTop: '0.5rem' }}>
-                {savingConfig ? "Saving..." : "Save Resend Configuration"}
-              </button>
-            </form>
-          </div>
-
-          {/* Manual Broadcast Form */}
-          <div className="glass-form" style={{ padding: '2rem' }}>
-            <h4 style={{ color: 'var(--gold)', marginBottom: '1.2rem', fontSize: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
-              Send Custom Newsletter Broadcast
-            </h4>
-            <form onSubmit={handleManualBroadcast} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>EMAIL SUBJECT</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="e.g. Capture Crew Newsletter - Edition #5" 
-                  required
-                  value={broadcastForm.subject} 
-                  onChange={e => setBroadcastForm({ ...broadcastForm, subject: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>NEWSLETTER HEADER/TITLE</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="e.g. Major updates from the Shutter Club!" 
-                  required
-                  value={broadcastForm.title} 
-                  onChange={e => setBroadcastForm({ ...broadcastForm, title: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>BANNER IMAGE URL (Optional)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="https://..." 
-                  value={broadcastForm.imageUrl} 
-                  onChange={e => setBroadcastForm({ ...broadcastForm, imageUrl: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>WEBSITE BUTTON LINK (Optional)</label>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="e.g. https://cgec-capture-crew.vercel.app/gallery" 
-                  value={broadcastForm.link} 
-                  onChange={e => setBroadcastForm({ ...broadcastForm, link: e.target.value })}
-                />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>HTML/TEXT BODY DESCRIPTION</label>
-                <textarea 
-                  className="form-input" 
-                  style={{ minHeight: '120px' }} 
-                  placeholder="Write your newsletter contents here..." 
-                  required
-                  value={broadcastForm.description} 
-                  onChange={e => setBroadcastForm({ ...broadcastForm, description: e.target.value })}
-                />
-              </div>
-              <button 
-                className="form-submit" 
-                type="submit" 
-                disabled={sendingBroadcast || !config.enabled} 
-                style={{ background: 'var(--gold)', color: 'var(--ink)' }}
-              >
-                {sendingBroadcast ? "Broadcasting..." : "Broadcast Newsletter to All"}
-              </button>
-            </form>
-          </div>
-
-        </div>
-
-        {/* Right Side: Setup Instructions */}
-        <div className="instruction-box">
-          <h4>Resend API Setup Instructions</h4>
-          <p style={{ fontSize: '0.8rem', color: 'var(--muted)', lineHeight: '1.6' }}>
-            Follow these steps to link your Resend email account:
-          </p>
-          <ul style={{ listStyleType: 'disc', paddingLeft: '1.2rem' }}>
-            <li style={{ marginBottom: '0.5rem', color: 'var(--muted)' }}>Create an account on <a href="https://resend.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>resend.com</a>.</li>
-            <li style={{ marginBottom: '0.5rem', color: 'var(--muted)' }}>Go to the **API Keys** section and generate a new API Key with "Sending" permissions.</li>
-            <li style={{ marginBottom: '0.5rem', color: 'var(--muted)' }}>Paste the generated key in the form on the left.</li>
-            <li style={{ marginBottom: '0.5rem', color: 'var(--muted)' }}>
-              **Testing (Sandbox Mode)**: By default, you can only send emails to the email address used to create your Resend account, using the sender `onboarding@resend.dev`.
-            </li>
-            <li style={{ marginBottom: '0.5rem', color: 'var(--muted)' }}>
-              **Production (Custom Domain)**: Go to **Domains** on Resend, verify your domain (e.g. `yourdomain.com`), and then you can send emails to any subscriber from `newsletter@yourdomain.com`.
-            </li>
-          </ul>
-
-          <div style={{ marginTop: '2rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-            <h5 style={{ color: 'var(--gold)', fontSize: '0.9rem', marginBottom: '0.8rem' }}>Subscribers Status</h5>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)' }}>
-              <span>Total Subscribers:</span>
-              <strong style={{ color: '#fff' }}>{subscribers.length}</strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.5rem' }}>
-              <span>Active Receivers:</span>
-              <strong style={{ color: '#00ff96' }}>{subscribers.filter(s => s.active).length}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Subscribers List Section */}
-      <div style={{ marginTop: '3.5rem' }}>
-        <h4 style={{ color: 'var(--gold)', marginBottom: '1.2rem', fontSize: '1.2rem' }}>
-          Subscribers Database <span className="subscriber-count-badge">{filteredSubs.length}</span>
-        </h4>
-        
-        <div style={{ marginBottom: '1.5rem', maxWidth: '400px' }}>
-          <input 
-            className="form-input" 
-            placeholder="Search subscribers by name or email..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)} 
-          />
-        </div>
-
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '3rem', opacity: 0.5 }}>Loading subscribers...</div>
-        ) : filteredSubs.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '3rem', border: '1px dashed var(--border)', borderRadius: '16px', color: 'var(--muted)' }}>
-            No subscribers found.
-          </div>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border)', color: 'var(--gold)' }}>
-                  <th style={{ padding: '1rem' }}>Name</th>
-                  <th style={{ padding: '1rem' }}>Email Address</th>
-                  <th style={{ padding: '1rem' }}>Subscription Date</th>
-                  <th style={{ padding: '1rem', textAlign: 'center' }}>Status</th>
-                  <th style={{ padding: '1rem', textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredSubs.map(sub => (
-                  <tr key={sub.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }}>
-                    <td style={{ padding: '1rem', fontWeight: 'bold' }}>{sub.name || 'Anonymous'}</td>
-                    <td style={{ padding: '1rem' }}>{sub.email}</td>
-                    <td style={{ padding: '1rem', color: 'var(--muted)' }}>
-                      {sub.subscribedAt ? new Date(sub.subscribedAt).toLocaleDateString(undefined, { dateStyle: 'medium' }) : 'N/A'}
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'center' }}>
-                      <span style={{ 
-                        background: sub.active ? 'rgba(0, 255, 150, 0.1)' : 'rgba(255, 77, 77, 0.1)', 
-                        color: sub.active ? '#00ff96' : '#ff4d4d',
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: '10px',
-                        fontSize: '0.7rem',
-                        textTransform: 'uppercase',
-                        fontWeight: 'bold'
-                      }}>
-                        {sub.active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '1rem', textAlign: 'right' }}>
-                      <button 
-                        style={{ 
-                          background: '#ff4444', 
-                          border: 'none', 
-                          color: '#fff', 
-                          padding: '0.3rem 0.6rem', 
-                          borderRadius: '4px', 
-                          cursor: 'pointer',
-                          fontSize: '0.7rem' 
-                        }}
-                        onClick={() => handleDeleteSub(sub.id, sub.email)}
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}

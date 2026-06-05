@@ -17,11 +17,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { apiKey, from, to, bcc, subject, html } = req.body;
+  const { to, bcc, subject, html } = req.body;
 
-  if (!apiKey || !from || !to || !subject || !html) {
-    return res.status(400).json({ error: 'Missing required fields: apiKey, from, to, subject, html' });
+  if (!to || !subject || !html) {
+    return res.status(400).json({ error: 'Missing required fields: to, subject, html' });
   }
+
+  const apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
+  const from = 'Capture Crew <newsletter@capturecrew.site>';
 
   try {
     const emailPayload = {
