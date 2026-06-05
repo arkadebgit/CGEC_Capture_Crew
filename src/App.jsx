@@ -591,11 +591,16 @@ export default function App() {
         </div>
       `;
 
-      // 4. Send individually to each active subscriber
+      // 4. Send in batch chunks of 100
+      const batchSize = 100;
       let sentCount = 0;
 
-      for (const subscriber of subscribersList) {
-        if (!subscriber.email) continue;
+      for (let i = 0; i < subscribersList.length; i += batchSize) {
+        const chunk = subscribersList.slice(i, i + batchSize).map(subscriber => ({
+          to: subscriber.email,
+          subject,
+          html: htmlContent
+        }));
 
         try {
           const response = await fetch('/api/send-email', {
@@ -604,28 +609,28 @@ export default function App() {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              to: subscriber.email,
-              subject,
-              html: htmlContent
+              batch: chunk
             })
           });
 
-          if (response.ok) {
-            sentCount++;
-            setBroadcastProgress(prev => ({
-              ...prev,
-              current: sentCount
-            }));
-          } else {
+          if (!response.ok) {
             const errData = await response.json();
-            console.error("Failed to send email to:", subscriber.email, errData.error);
+            throw new Error(errData.error || "Failed to send batch chunk");
           }
+
+          sentCount += chunk.length;
+          setBroadcastProgress(prev => ({
+            ...prev,
+            current: sentCount
+          }));
         } catch (err) {
-          console.error("Failed to send email to:", subscriber.email, err);
+          console.error("Batch chunk send error:", err);
         }
 
-        // Add 200ms delay to respect Resend API free tier rate limits (2 emails/second)
-        await new Promise(resolve => setTimeout(resolve, 200));
+        // If there are more chunks, wait 1 second to respect rate limits
+        if (i + batchSize < subscribersList.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
 
       setTimeout(() => {
