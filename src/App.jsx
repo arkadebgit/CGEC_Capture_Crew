@@ -5465,6 +5465,50 @@ function NewsletterSection() {
         active: true
       });
 
+      // Send welcome email for first-time subscribing
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            to: emailLower,
+            subject: "Welcome to CGEC Capture Crew's Shutter Club!",
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
+                <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+                  <h1 style="color: #C9A96E; font-size: 24px; margin: 0;">CGEC Capture Crew</h1>
+                  <p style="color: #888; font-size: 12px; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px;">Shutter Club Welcome</p>
+                </div>
+                <h2 style="color: #fff; font-size: 20px; font-weight: normal; margin-bottom: 1.5rem;">Welcome to the Shutter Club, ${name.trim()}! 📸</h2>
+                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem;">
+                  Thank you for subscribing to our newsletter! We're thrilled to have you in our community of photography enthusiasts.
+                </p>
+                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem;">
+                  Here is what you will receive as a subscriber:
+                </p>
+                <ul style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem; padding-left: 1.5rem;">
+                  <li>Notifications of new Weekly and Monthly Featured Captures</li>
+                  <li>Announcements of upcoming campus fests and events coverage</li>
+                  <li>Exclusive updates on Capture Crew challenges and internal events</li>
+                  <li>Real-time notifications about live showcase activations</li>
+                </ul>
+                <div style="text-align: center; margin-bottom: 2rem;">
+                  <a href="https://cgec-capture-crew.vercel.app" style="background-color: #C9A96E; color: #111; text-decoration: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Explore our Website</a>
+                </div>
+                <div style="text-align: center; border-top: 1px solid #222; padding-top: 1.5rem; margin-top: 2rem; font-size: 11px; color: #666;">
+                  <p>You received this email because you subscribed to the CGEC Capture Crew updates.</p>
+                  <p>&copy; ${new Date().getFullYear()} CGEC Capture Crew. Cooch Behar Government Engineering College.</p>
+                </div>
+              </div>
+            `
+          })
+        });
+      } catch (welcomeErr) {
+        console.error("Failed to send welcome email:", welcomeErr);
+      }
+
       setStatus({ type: "success", message: "Welcome to the Shutter Club! You have successfully subscribed." });
       setName("");
       setEmail("");
