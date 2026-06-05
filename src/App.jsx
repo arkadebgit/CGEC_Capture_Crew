@@ -2401,14 +2401,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       setNewCert({ name: "", serialNo: "", date: "", event: "", link: "" });
       fetchCerts();
       alert("Certificate Issued!");
-      
-      sendResendNotification({
-        subject: `New Certificate Issued - ${certData.name}`,
-        title: `Certificate Issued: ${certData.name}`,
-        description: `A new certificate for "${certData.event}" has been issued to ${certData.name} (Serial No: ${certData.serialNo}). You can verify it on our verification portal.`,
-        imageUrl: null,
-        link: 'https://www.capturecrew.site/verify'
-      });
     } catch (err) {
       alert("Failed to Issue: " + err.message);
     }
