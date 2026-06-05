@@ -1,3 +1,42 @@
+import https from 'https';
+
+function sendResendRequest(path, apiKey, payload) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify(payload);
+    const options = {
+      hostname: 'api.resend.com',
+      path: path,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Length': Buffer.byteLength(body)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let resBody = '';
+      res.on('data', (chunk) => {
+        resBody += chunk;
+      });
+      res.on('end', () => {
+        resolve({
+          ok: res.statusCode >= 200 && res.statusCode < 300,
+          status: res.statusCode,
+          body: resBody
+        });
+      });
+    });
+
+    req.on('error', (e) => {
+      reject(e);
+    });
+
+    req.write(body);
+    req.end();
+  });
+}
+
 export default async function handler(req, res) {
   // Add CORS headers for local development testing
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -17,12 +56,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { to, bcc, subject, html } = req.body;
-
-  if (!to || !subject || !html) {
-    return res.status(400).json({ error: 'Missing required fields: to, subject, html' });
-  }
-
   const apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
   const from = 'Capture Crew <newsletter@capturecrew.site>';
 
@@ -38,22 +71,13 @@ export default async function handler(req, res) {
         html: item.html
       }));
 
-      const response = await fetch('https://api.resend.com/emails/batch', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(emailPayloads)
-      });
+      const result = await sendResendRequest('/emails/batch', apiKey, emailPayloads);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        return res.status(response.status).json({ error: data.message || 'Resend Batch API error' });
+      if (!result.ok) {
+        return res.status(result.status).json({ error: result.body || 'Resend Batch API error' });
       }
 
-      return res.status(200).json(data);
+      return res.status(200).json(JSON.parse(result.body));
     } catch (error) {
       return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
@@ -77,22 +101,13 @@ export default async function handler(req, res) {
       emailPayload.bcc = bcc;
     }
 
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify(emailPayload)
-    });
+    const result = await sendResendRequest('/emails', apiKey, emailPayload);
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({ error: data.message || 'Resend API error' });
+    if (!result.ok) {
+      return res.status(result.status).json({ error: result.body || 'Resend API error' });
     }
 
-    return res.status(200).json(data);
+    return res.status(200).json(JSON.parse(result.body));
   } catch (error) {
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
