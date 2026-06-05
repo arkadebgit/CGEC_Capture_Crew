@@ -10,4 +10,4 @@ Allow: /android-chrome-192x192.png
 Allow: /android-chrome-512x512.png
 Allow: /site.webmanifest
 
-Sitemap: https://cgec-capture-crew.vercel.app/sitemap.xml
+Sitemap: https://www.capturecrew.site/sitemap.xml
