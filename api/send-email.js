@@ -26,6 +26,45 @@ export default async function handler(req, res) {
   const apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
   const from = 'Capture Crew <newsletter@capturecrew.site>';
 
+  // Check if this is a batch request
+  const { batch } = req.body;
+
+  if (batch && Array.isArray(batch)) {
+    try {
+      const emailPayloads = batch.map(item => ({
+        from,
+        to: item.to,
+        subject: item.subject,
+        html: item.html
+      }));
+
+      const response = await fetch('https://api.resend.com/emails/batch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify(emailPayloads)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return res.status(response.status).json({ error: data.message || 'Resend Batch API error' });
+      }
+
+      return res.status(200).json(data);
+    } catch (error) {
+      return res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+  }
+
+  const { to, bcc, subject, html } = req.body;
+
+  if (!to || !subject || !html) {
+    return res.status(400).json({ error: 'Missing required fields: to, subject, html (or batch array)' });
+  }
+
   try {
     const emailPayload = {
       from,
