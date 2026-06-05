@@ -501,6 +501,19 @@ export default function App() {
     
     return () => clearInterval(timer);
   }, [activeCovers.length, currentHeroIndex]);
+
+  // Global Hash Scrolling Effect
+  useEffect(() => {
+    if (location.hash) {
+      const id = decodeURIComponent(location.hash.replace('#', ''));
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 500);
+    }
+  }, [location.pathname, location.hash]);
   
   // Certificate State
   const [certId, setCertId] = useState("");
@@ -2056,6 +2069,38 @@ function LoginModal({ onClose, user, isUnauthorized }) {
 }
 
 function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, liveEventConfig, sendResendNotification }) {
+  const triggerEventEmailIfNeeded = async (eventId, updatedPhotos) => {
+    const eventObj = liveEventsList.find(e => e.id === eventId);
+    if (!eventObj) return;
+
+    if (eventObj.emailSent) {
+      console.log(`Email already sent for event: ${eventId}`);
+      return;
+    }
+
+    if (!updatedPhotos || updatedPhotos.length === 0) {
+      console.log(`No photos for event ${eventId}, skipping email.`);
+      return;
+    }
+
+    sendResendNotification({
+      subject: `New Event Announcement: ${eventObj.name}`,
+      title: `Campus Event: ${eventObj.name}`,
+      description: `${eventObj.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${eventObj.subtitle || ''}`,
+      imageUrl: updatedPhotos[0] || ((eventObj.iconUrl && eventObj.iconUrl.trim().startsWith('http')) ? eventObj.iconUrl.trim() : null),
+      link: `https://www.capturecrew.site/events/${encodeURIComponent(eventObj.id || eventObj.name)}`
+    });
+
+    try {
+      await updateDoc(doc(db, "events", eventId), {
+        emailSent: true
+      });
+      console.log(`Marked event ${eventId} as emailSent.`);
+    } catch (err) {
+      console.error("Failed to mark event as emailSent:", err);
+    }
+  };
+
   const [tab, setTab] = useState(adminData?.role === 'core_member' ? 'profile' : 'week');
   const [notifySubscribers, setNotifySubscribers] = useState(true);
   const [liveForm, setLiveForm] = useState({
@@ -2381,7 +2426,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         title: `Featured Capture of the ${type === 'week' ? 'Week' : type === 'month' ? 'Month' : 'Frame'}`,
         description: `A new photograph under the category "${newPhoto.category}" by ${newPhoto.photographer} (${newPhoto.dept} · ${newPhoto.year}) has been published to CGEC Capture Crew! Check it out in the gallery.`,
         imageUrl: newPhoto.url,
-        link: 'https://www.capturecrew.site/gallery',
+        link: `https://www.capturecrew.site/${encodeURIComponent(newPhoto.category)}`,
         photographer: newPhoto.photographer
       });
 
@@ -2492,7 +2537,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           title: `🔴 Live Showcase Active: ${liveForm.eventName}`,
           description: `We are running a live showcase for the fest "${liveForm.eventName}" (${liveForm.subtitle}). See real-time photography captures directly on our home page!`,
           imageUrl: photosArray.length > 0 ? photosArray[0] : null,
-          link: 'https://www.capturecrew.site'
+          link: 'https://www.capturecrew.site/#live-showcase'
         });
       }
     } catch (err) {
@@ -2861,17 +2906,24 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           calendarYear: eventFormData.calendarYear || siteConfig.activeYear || "2026",
                           iconUrl: eventFormData.iconUrl ? eventFormData.iconUrl.trim() : ""
                         };
+                        const existingEvent = liveEventsList.find(e => e.id === eventFormData.id);
+                        const photos = eventFormData.photos || (existingEvent && existingEvent.photos) || [];
+                        const emailSent = eventFormData.emailSent || (existingEvent && existingEvent.emailSent);
+
+                        if (photos.length > 0 && !emailSent) {
+                          cleanedData.emailSent = true;
+                          sendResendNotification({
+                            subject: `New Event Announcement: ${cleanedData.name}`,
+                            title: `Campus Event: ${cleanedData.name}`,
+                            description: `${cleanedData.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${cleanedData.subtitle || ''}`,
+                            imageUrl: photos[0] || ((cleanedData.iconUrl && cleanedData.iconUrl.trim().startsWith('http')) ? cleanedData.iconUrl.trim() : null),
+                            link: `https://www.capturecrew.site/events/${encodeURIComponent(cleanedData.id || cleanedData.name)}`
+                          });
+                        }
+
                         await setDoc(doc(db, "events", eventFormData.id), cleanedData, { merge: true });
                         setEditingEvent(null);
                         alert("Event Saved!");
-                        
-                        sendResendNotification({
-                          subject: `New Event Announcement: ${cleanedData.name}`,
-                          title: `Campus Event: ${cleanedData.name}`,
-                          description: `${cleanedData.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${cleanedData.subtitle || ''}`,
-                          imageUrl: (cleanedData.iconUrl && cleanedData.iconUrl.trim().startsWith('http')) ? cleanedData.iconUrl.trim() : null,
-                          link: 'https://www.capturecrew.site/events'
-                        });
                       } catch (err) { alert("Error: " + err.message); }
                     }}>SAVE EVENT </button>
                     <button className="form-submit" style={{ flex: 1, background: 'rgba(255,255,255,0.05)', color: '#fff' }} onClick={() => setEditingEvent(null)}>CANCEL</button>
@@ -2893,6 +2945,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           });
                           setLocalEventPhotos(updated);
                           setNewEventPhoto("");
+                          await triggerEventEmailIfNeeded(editingEvent, updated);
                         } catch (err) { alert(err.message); }
                       }}>Add Single +</button>
                     </div>
@@ -2924,6 +2977,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                           setLocalEventPhotos(updated);
                           setBulkInput("");
                           alert(`${urls.length} photos added successfully to ${editingEvent}!`);
+                          await triggerEventEmailIfNeeded(editingEvent, updated);
                         } catch (err) { alert("Dump Error: " + err.message); }
                       }}>DUMP BULK PHOTOS </button>
                     </div>
@@ -2937,6 +2991,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                             const updatedData = localEventPhotos;
                             await updateDoc(doc(db, "events", editingEvent), { photos: updatedData });
                             alert("Photo order saved!");
+                            await triggerEventEmailIfNeeded(editingEvent, updatedData);
                           } catch (err) { alert(err.message); }
                         }}>SAVE PHOTO ORDER</button>
                       </div>
@@ -3682,21 +3737,28 @@ function AdminCCEvents({ ccEvents, siteConfig, sendResendNotification }) {
     if (!formData.title) return alert("Title required");
     try {
       const id = editing === 'new' ? formData.title.toLowerCase().replace(/ /g, '-') : editing;
+      const existing = ccEvents.find(e => e.id === id);
+      const emailSent = formData.emailSent || (existing && existing.emailSent);
+
       const dataToSave = {
         ...formData,
         calendarYear: formData.calendarYear || siteConfig?.activeYear || "2026"
       };
+
+      if (!emailSent) {
+        dataToSave.emailSent = true;
+        sendResendNotification({
+          subject: `New Competition Announcement: ${dataToSave.title}`,
+          title: `Capture Crew Challenge: ${dataToSave.title}`,
+          description: `${dataToSave.desc || 'Check out our new internal photography challenge!'}\n\nSubtitle: ${dataToSave.subtitle || ''}`,
+          imageUrl: dataToSave.bannerUrl || null,
+          link: `https://www.capturecrew.site/events/cc-events#${encodeURIComponent(id)}`
+        });
+      }
+
       await setDoc(doc(db, "cc_events", id), dataToSave, { merge: true });
       setEditing(null);
       alert("CC Event Saved!");
-      
-      sendResendNotification({
-        subject: `New Competition Announcement: ${dataToSave.title}`,
-        title: `Capture Crew Challenge: ${dataToSave.title}`,
-        description: `${dataToSave.desc || 'Check out our new internal photography challenge!'}\n\nSubtitle: ${dataToSave.subtitle || ''}`,
-        imageUrl: dataToSave.bannerUrl || null,
-        link: 'https://www.capturecrew.site/events'
-      });
     } catch (err) { alert(err.message); }
   };
 
@@ -4146,6 +4208,7 @@ function LiveShowcase({ config, setLightboxItem }) {
   if (totalCards === 0) {
     return (
       <div 
+        id="live-showcase"
         className="live-showcase-container" 
         style={{ 
           height: '100vh', 
@@ -4169,6 +4232,7 @@ function LiveShowcase({ config, setLightboxItem }) {
 
   return (
     <div 
+      id="live-showcase"
       ref={containerRef} 
       className="live-showcase-container" 
       style={{ 
@@ -4268,8 +4332,18 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
 // ✦✦✦ CC EVENTS PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+    if (window.location.hash) {
+      const id = decodeURIComponent(window.location.hash.replace('#', ''));
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [ccEvents]);
 
   // Filter events into upcoming and past
   const upcomingEvents = ccEvents.filter(e => e.upcoming === true);
@@ -4314,6 +4388,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
               {upcomingEvents.map(event => (
                 <div 
                   key={event.id} 
+                  id={event.id}
                   className="glass-form fade-in visible" 
                   style={{ 
                     padding: isMobile ? '1.5rem' : '2.5rem', 
@@ -4380,7 +4455,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
           {pastEvents.length > 0 ? (
             <div className="cc-events-container" style={{ padding: 0 }}>
               {pastEvents.map(event => (
-                <div key={event.id} className="cc-event-block" style={{ marginBottom: '6rem', background: 'rgba(255,255,255,0.01)', padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                <div key={event.id} id={event.id} className="cc-event-block" style={{ marginBottom: '6rem', background: 'rgba(255,255,255,0.01)', padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.03)' }}>
                   <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div className="section-label" style={{ margin: '0 0 0.8rem' }}>✧ Competition Results</div>
                     <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.2rem', margin: '0' }}>{event.title} <em>Winners</em></h3>
