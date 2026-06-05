@@ -1836,10 +1836,9 @@ export default function App() {
             </div>
           </div>
           
-          <div className="footer-bottom">
-            <div className="footer-copy">© {selectedYear} {siteConfig.siteName} · All Rights Reserved</div>
-            <div className="footer-credit">
-              Crafted with ❤️ by <a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb</a>
+          <div className="footer-bottom" style={{ justifyContent: 'center', textAlign: 'center' }}>
+            <div className="footer-copy" style={{ textAlign: 'center' }}>
+              © 2026 Capture Crew | Crafted with ❤️ by <span className="footer-credit"><a href="https://www.instagram.com/destructive_antagonist/" target="_blank" rel="noopener noreferrer">Arkadeb Thokdar</a></span>
             </div>
           </div>
         </div>
@@ -5527,7 +5526,7 @@ function NewsletterSection() {
         console.error("Failed to send welcome email:", welcomeErr);
       }
 
-      setStatus({ type: "success", message: "Welcome to the Shutter Club! You have successfully subscribed." });
+      setStatus({ type: "success", message: "✓ Welcome to Capture Crew Club! You have successfully subscribed." });
       setName("");
       setEmail("");
     } catch (err) {
