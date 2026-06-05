@@ -5045,11 +5045,11 @@ function RecruitmentPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', textAlign: 'left' }}>
               <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                 <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Full Name</label>
-                <input className="form-input" placeholder="e.g. John Doe" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                <input className="form-input" placeholder="e.g. FirstName LastName" required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               </div>
               <div className="form-group">
                 <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>Email Address</label>
-                <input className="form-input" type="email" placeholder="john@example.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                <input className="form-input" type="email" placeholder="name@gmail.com" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
               </div>
               <div className="form-group">
                 <label className="week-credit-role" style={{ display: 'block', marginBottom: '0.6rem', color: 'var(--gold)', fontSize: '0.7rem' }}>WhatsApp No.</label>
