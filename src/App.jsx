@@ -591,13 +591,12 @@ export default function App() {
         </div>
       `;
 
-      // 4. Send in chunks of 100
-      const batchSize = 100;
+      // 4. Send individually to each active subscriber
       let sentCount = 0;
 
-      for (let i = 0; i < subscribersList.length; i += batchSize) {
-        const batch = subscribersList.slice(i, i + batchSize).map(s => s.email);
-        
+      for (const subscriber of subscribersList) {
+        if (!subscriber.email) continue;
+
         try {
           const response = await fetch('/api/send-email', {
             method: 'POST',
@@ -605,26 +604,28 @@ export default function App() {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              to: 'newsletter@capturecrew.site',
-              bcc: batch,
+              to: subscriber.email,
               subject,
               html: htmlContent
             })
           });
 
-          if (!response.ok) {
+          if (response.ok) {
+            sentCount++;
+            setBroadcastProgress(prev => ({
+              ...prev,
+              current: sentCount
+            }));
+          } else {
             const errData = await response.json();
-            throw new Error(errData.error || "Failed to send batch");
+            console.error("Failed to send email to:", subscriber.email, errData.error);
           }
-
-          sentCount += batch.length;
-          setBroadcastProgress(prev => ({
-            ...prev,
-            current: sentCount
-          }));
         } catch (err) {
-          console.error("Batch send error:", err);
+          console.error("Failed to send email to:", subscriber.email, err);
         }
+
+        // Add 200ms delay to respect Resend API free tier rate limits (2 emails/second)
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
 
       setTimeout(() => {
