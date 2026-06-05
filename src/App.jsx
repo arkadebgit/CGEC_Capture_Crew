@@ -5514,7 +5514,7 @@ function NewsletterSection() {
       setEmail("");
     } catch (err) {
       console.error(err);
-      setStatus({ type: "error", message: "Subscription failed. Please try again later." });
+      setStatus({ type: "error", message: `Subscription failed: ${err.message || err.toString()}` });
     } finally {
       setLoading(false);
     }
