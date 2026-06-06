@@ -1105,6 +1105,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             ["verify", "Verify"],
             ["join", "Join"],
             ["contributors", "Contributors"],
+            ["privacy-policy", "Privacy Policy"],
             ["admin", "Admin Console"]
           ].map(([id, label]) => {
             let route = id === "home" ? "/" : `/${id}`;
@@ -1728,7 +1729,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <Route path="/about" element={<AboutUsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsConditionsPage />} />
-        <Route path="/contact" element={<ContactPage />} />
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
 
         <Route path="/verify" element={
@@ -1867,7 +1867,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                 ["contributors", "Contributors"],
                 ["privacy-policy", "Privacy Policy"],
                 ["terms", "Terms of Service"],
-                ["contact", "Contact"],
                 ["admin", "Admin Console"]
 
               ].map(([id, label]) => {
@@ -5327,30 +5326,6 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
               </div>
             )}
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ContactPage() {
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    document.title = "Contact - Capture Crew";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) meta.content = "Contact Capture Crew for inquiries, collaborations, and support.";
-  }, []);
-
-  return (
-    <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
-      <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-        <div className="verify-box fade-in visible">
-          <div className="section-label">\u2727 Get in Touch</div>
-          <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem' }}>Contact <em style={{ color: 'var(--gold)', fontStyle: 'normal' }}>Us</em></h1>
-          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '2rem', color: '#ccc' }}>
-            Have a question, need support, or want to collaborate with Capture Crew? Reach out to us via email and our team will get back to you.
-          </p>
-          <a href="mailto:newsletter@capturecrew.site" className="hero-cta" style={{ display: 'inline-block', textDecoration: 'none' }}>Email Capture Crew</a>
         </div>
       </div>
     </section>
