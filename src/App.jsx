@@ -535,7 +535,10 @@ export default function App() {
     waLink: "https://chat.whatsapp.com/BSV9q40j6EN2B5sQz47eYK?mode=gi_t",
     fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
     activeYear: "2026",
-    availableYears: ["2026"]
+    availableYears: ["2026"],
+    emailSenderName: "Capture Crew Team",
+    emailSenderAddress: "team@capturecrew.site",
+    emailReplyTo: "team@capturecrew.site"
   });
 
   // Live Data State
@@ -583,38 +586,80 @@ export default function App() {
         subject
       });
 
-      // 3. Create HTML template
-      const htmlContent = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
-          <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
-            <img src="https://res.cloudinary.com/dwp7fe7bo/image/upload/v1780682580/554399431_17944411011051405_1793754745012835189_n_qmgbm8.jpg" alt="Capture Crew Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 1.5px solid #C9A96E; display: inline-block;" />
-            <h1 style="color: #C9A96E; font-size: 24px; margin: 0;">Capture Crew</h1>
-            <p style="color: #888; font-size: 11px; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px;">Capturing Moments · Creating Memories</p>
-          </div>
-          <h2 style="color: #fff; font-size: 20px; font-weight: normal; margin-bottom: 1.5rem;">${title}</h2>
-          ${photographer ? `<p style="color: #C9A96E; font-style: italic; font-size: 14px; margin-top: -10px; margin-bottom: 20px;">By ${photographer}</p>` : ''}
-          ${imageUrl ? `<div style="margin-bottom: 2rem; border-radius: 12px; overflow: hidden; border: 1px solid #333;"><img src="${imageUrl}" alt="${title}" style="width: 100%; display: block; object-fit: cover;" /></div>` : ''}
-          <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem;">${description}</p>
-          <div style="text-align: center; margin-bottom: 2rem;">
-            <a href="${link || 'https://www.capturecrew.site'}" style="background-color: #C9A96E; color: #111; text-decoration: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">View on Website</a>
-          </div>
-          <div style="text-align: center; border-top: 1px solid #222; padding-top: 1.5rem; margin-top: 2rem; font-size: 11px; color: #666;">
-            <p>You received this email because you subscribed to the CGEC Capture Crew updates.</p>
-            <p>&copy; ${new Date().getFullYear()} CGEC Capture Crew. Cooch Behar Government Engineering College.</p>
-          </div>
-        </div>
-      `;
+      // 3. Extract sender configurations
+      const senderName = siteConfig?.emailSenderName || "Capture Crew Team";
+      const senderAddress = siteConfig?.emailSenderAddress || "team@capturecrew.site";
+      const replyToAddress = siteConfig?.emailReplyTo || "team@capturecrew.site";
+      const fromField = `"${senderName}" <${senderAddress}>`;
 
       // 4. Send in batch chunks of 100
       const batchSize = 100;
       let sentCount = 0;
 
       for (let i = 0; i < subscribersList.length; i += batchSize) {
-        const chunk = subscribersList.slice(i, i + batchSize).map(subscriber => ({
-          to: subscriber.email,
-          subject,
-          html: htmlContent
-        }));
+        const chunk = subscribersList.slice(i, i + batchSize).map(subscriber => {
+          const subName = subscriber.name || "friend";
+          const subEmail = subscriber.email;
+          const unsubscribeUrl = `https://www.capturecrew.site/unsubscribe?email=${encodeURIComponent(subEmail)}`;
+
+          const htmlContent = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <p>Hi ${subName},</p>
+  <p>We wanted to share this week's Capture Crew update with you.</p>
+  <p style="font-size: 18px; font-weight: bold; margin-top: 24px; color: #111;">${title}</p>
+  ${photographer ? `<p style="font-style: italic; color: #666; margin-top: -10px; margin-bottom: 20px; font-size: 14px;">By ${photographer}</p>` : ''}
+  ${imageUrl ? `<div style="margin: 24px 0; border-radius: 8px; overflow: hidden; border: 1px solid #e1e1e1;"><img src="${imageUrl}" alt="${title}" style="width: 100%; display: block; height: auto;" /></div>` : ''}
+  <p style="white-space: pre-line;">${description}</p>
+  <p style="margin-top: 30px;">You can view the full details and showcase on the <a href="${link || 'https://www.capturecrew.site'}" style="color: #c9a96e; text-decoration: underline; font-weight: bold;">Capture Crew website</a>.</p>
+  <p style="margin-top: 30px;">Feel free to reply directly to this email to share your thoughts, ask questions, or just say hello! We read every message and love hearing from our members.</p>
+  <p style="margin-top: 24px;">Warmly,</p>
+  <p style="margin: 0; font-weight: bold;">Capture Crew Team</p>
+  <p style="margin: 0; font-size: 13px; color: #666;">Cooch Behar Government Engineering College</p>
+  <hr style="border: none; border-top: 1px solid #eeeeee; margin: 40px 0 20px 0;" />
+  <p style="font-size: 12px; color: #888888; text-align: center; line-height: 1.4;">
+    You are receiving this update because you are a member of the CGEC Capture Crew club newsletter.
+    <br />
+    To ensure delivery, please add ${replyToAddress} to your contact list.
+    <br />
+    If you'd rather not receive these club updates, you can <a href="${unsubscribeUrl}" style="color: #888888; text-decoration: underline;">unsubscribe here</a>.
+  </p>
+</div>
+          `;
+
+          const textContent = `Hi ${subName},
+
+We wanted to share this week's Capture Crew update with you.
+
+${title}
+${photographer ? `By ${photographer}` : ''}
+
+${description}
+
+You can view the full details and showcase on the Capture Crew website: ${link || 'https://www.capturecrew.site'}
+
+Feel free to reply directly to this email to share your thoughts, ask questions, or just say hello! We read every message and love hearing from our members.
+
+Warmly,
+Capture Crew Team
+Cooch Behar Government Engineering College
+
+--
+You are receiving this update because you are a member of the CGEC Capture Crew club newsletter.
+To ensure delivery, please add ${replyToAddress} to your contact list.
+If you'd rather not receive these club updates, you can unsubscribe here: ${unsubscribeUrl}`;
+
+          return {
+            to: subEmail,
+            subject,
+            html: htmlContent,
+            text: textContent,
+            reply_to: replyToAddress,
+            headers: {
+              'List-Unsubscribe': `<https://www.capturecrew.site/api/unsubscribe?email=${encodeURIComponent(subEmail)}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+            }
+          };
+        });
 
         try {
           const response = await fetch('/api/send-email', {
@@ -623,6 +668,7 @@ export default function App() {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
+              from: fromField,
               batch: chunk
             })
           });
@@ -1668,6 +1714,7 @@ export default function App() {
         <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsConditionsPage />} />
+        <Route path="/unsubscribe" element={<UnsubscribePage />} />
 
         <Route path="/verify" element={
           <section id="verify" className="verify-section">
@@ -3371,6 +3418,25 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <div>
                       <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Facebook Link</label>
                       <input className="form-input" value={siteForm.fbLink} onChange={e => setSiteForm({...siteForm, fbLink: e.target.value})} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* EMAIL SETTINGS */}
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>
+                  <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', fontSize: '0.9rem' }}>Email Delivery Settings</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Sender Name</label>
+                      <input className="form-input" value={siteForm.emailSenderName || ""} placeholder="e.g. Capture Crew Team" onChange={e => setSiteForm({...siteForm, emailSenderName: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Sender Email Address</label>
+                      <input className="form-input" value={siteForm.emailSenderAddress || ""} placeholder="e.g. team@capturecrew.site" onChange={e => setSiteForm({...siteForm, emailSenderAddress: e.target.value})} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Reply-To Email Address</label>
+                      <input className="form-input" value={siteForm.emailReplyTo || ""} placeholder="e.g. team@capturecrew.site" onChange={e => setSiteForm({...siteForm, emailReplyTo: e.target.value})} />
                     </div>
                   </div>
                 </div>
@@ -5236,6 +5302,116 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
   );
 }
 
+function UnsubscribePage() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState({ type: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const params = new URLSearchParams(location.search);
+    const emailParam = params.get("email");
+    if (emailParam) {
+      setEmail(emailParam.trim());
+    }
+  }, [location]);
+
+  const handleUnsubscribe = async (e) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setStatus({ type: "error", message: "Please enter a valid email address." });
+      return;
+    }
+
+    setLoading(true);
+    setStatus({ type: "", message: "" });
+
+    try {
+      const emailLower = email.trim().toLowerCase();
+      
+      const q = query(collection(db, "subscribers"), where("email", "==", emailLower));
+      const querySnap = await getDocs(q);
+
+      if (querySnap.empty) {
+        setStatus({ type: "error", message: "We couldn't find a subscription for that email address." });
+        setLoading(false);
+        return;
+      }
+
+      const batchPromises = querySnap.docs.map(document => {
+        const docRef = doc(db, "subscribers", document.id);
+        return updateDoc(docRef, { active: false, unsubscribedAt: new Date().toISOString() });
+      });
+
+      await Promise.all(batchPromises);
+
+      setStatus({ 
+        type: "success", 
+        message: "You have been successfully unsubscribed from Capture Crew updates. We're sorry to see you go!" 
+      });
+      setEmail("");
+    } catch (err) {
+      console.error("Unsubscribe error:", err);
+      setStatus({ type: "error", message: `Failed to unsubscribe: ${err.message || err.toString()}` });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
+      <div className="container" style={{ maxWidth: '600px' }}>
+        <div className="verify-box fade-in visible">
+          <div className="section-label">✧ Subscription</div>
+          <h2 className="section-title" style={{ marginBottom: '1.5rem' }}>Unsubscribe from <em>Updates</em></h2>
+          <p className="section-sub" style={{ margin: "0 auto 2.5rem", textAlign: "center" }}>
+            We're sorry to see you go. Enter your email below to confirm your unsubscription from the Shutter Club.
+          </p>
+
+          <form className="verify-form" onSubmit={handleUnsubscribe} style={{ flexDirection: 'column', gap: '1.5rem' }}>
+            <input 
+              type="email" 
+              placeholder="Enter your email address" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="form-input"
+              required
+              disabled={loading}
+            />
+            <button 
+              type="submit" 
+              className="form-submit" 
+              style={{ width: '100%', marginTop: '0', background: 'var(--gold)', color: 'var(--ink)' }}
+              disabled={loading}
+            >
+              {loading ? "Processing..." : "Confirm Unsubscribe"}
+            </button>
+          </form>
+
+          {status.message && (
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              {status.type === "success" ? (
+                <div className="result-badge" style={{ display: 'block', padding: '1rem', background: 'rgba(0,255,150,0.05)', color: '#00ff96', borderRadius: '12px', border: '1px solid rgba(0,255,150,0.2)' }}>
+                  ✓ {status.message}
+                </div>
+              ) : (
+                <div style={{ padding: '1rem', background: 'rgba(255,77,77,0.05)', color: '#ff4d4d', borderRadius: '12px', border: '1px solid rgba(255,77,77,0.2)', fontSize: '0.9rem' }}>
+                  {status.message}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ marginTop: '2.5rem', fontSize: '0.85rem' }}>
+            <Link to="/" style={{ color: 'var(--gold)', textDecoration: 'none' }}>← Back to Homepage</Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function PrivacyPolicyPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -5617,62 +5793,73 @@ function NewsletterSection() {
       });
 
       try {
+        const senderName = siteConfig?.emailSenderName || "Capture Crew Team";
+        const senderAddress = siteConfig?.emailSenderAddress || "team@capturecrew.site";
+        const replyToAddress = siteConfig?.emailReplyTo || "team@capturecrew.site";
+        const fromField = `"${senderName}" <${senderAddress}>`;
+        const subName = name.trim();
+        const unsubscribeUrl = `https://www.capturecrew.site/unsubscribe?email=${encodeURIComponent(emailLower)}`;
+
+        const welcomeHtml = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <p>Hi ${subName},</p>
+  <p>Thanks for joining the CGEC Capture Crew! We're excited to have you in our community of photographers, storytellers, and visual creators.</p>
+  <p>Here is what you'll get as a member of our Shutter Club:</p>
+  <ul style="padding-left: 20px; line-height: 1.8;">
+    <li>Notifications when we publish new featured weekly or monthly captures.</li>
+    <li>Early announcements of fests, photography contests, and event coverages.</li>
+    <li>Behind-the-scenes stories and tutorials from our creative journeys.</li>
+  </ul>
+  <p><strong>Two quick things to help get us connected:</strong></p>
+  <ol style="padding-left: 20px; line-height: 1.8;">
+    <li>Please add <strong>${replyToAddress}</strong> to your contacts list so our updates don't get lost in spam or promotional folders.</li>
+    <li><strong>Hit reply to this email</strong> and let us know: what kind of camera do you shoot with (even a phone!), and what's your favorite subject to photograph? We read every response and would love to hear from you!</li>
+  </ol>
+  <p style="margin-top: 30px;">You can browse our current galleries and member profiles on the <a href="https://www.capturecrew.site" style="color: #c9a96e; text-decoration: underline; font-weight: bold;">Capture Crew website</a>.</p>
+  <p style="margin-top: 30px;">Warmly,</p>
+  <p style="margin: 0; font-weight: bold;">Capture Crew Team</p>
+  <p style="margin: 0; font-size: 13px; color: #666;">Cooch Behar Government Engineering College</p>
+  <hr style="border: none; border-top: 1px solid #eeeeee; margin: 40px 0 20px 0;" />
+  <p style="font-size: 12px; color: #888888; text-align: center;">
+    If you did not sign up for this, you can <a href="${unsubscribeUrl}" style="color: #888888; text-decoration: underline;">unsubscribe here</a>.
+  </p>
+</div>
+        `;
+
+        const welcomeText = `Hi ${subName},
+
+Thanks for joining the CGEC Capture Crew! We're excited to have you in our community of photographers, storytellers, and visual creators.
+
+Here is what you'll get as a member of our Shutter Club:
+- Notifications when we publish new featured weekly or monthly captures.
+- Early announcements of fests, photography contests, and event coverages.
+- Behind-the-scenes stories and tutorials from our creative journeys.
+
+Two quick things to help get us connected:
+1. Please add ${replyToAddress} to your contacts list so our updates don't get lost in spam or promotional folders.
+2. Hit reply to this email and let us know: what kind of camera do you shoot with (even a phone!), and what's your favorite subject to photograph? We read every response and would love to hear from you!
+
+You can browse our current galleries and member profiles on our website: https://www.capturecrew.site
+
+Warmly,
+Capture Crew Team
+Cooch Behar Government Engineering College
+
+--
+If you did not sign up for this, you can unsubscribe here: ${unsubscribeUrl}`;
+
         await fetch('/api/send-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
+            from: fromField,
             to: emailLower,
             subject: "Welcome to Capture Crew! 📸",
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
-                <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
-                  <img src="https://res.cloudinary.com/dwp7fe7bo/image/upload/v1780682580/554399431_17944411011051405_1793754745012835189_n_qmgbm8.jpg" alt="Capture Crew Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 1.5px solid #C9A96E; display: inline-block;" />
-                  <h1 style="color: #C9A96E; font-size: 24px; margin: 0;">Capture Crew</h1>
-                  <p style="color: #888; font-size: 11px; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px;">Capturing Moments · Creating Memories</p>
-                </div>
-                
-                <h2 style="color: #fff; font-size: 20px; font-weight: normal; margin-bottom: 1.5rem;">Welcome to Capture Crew, ${name.trim()}! 📸</h2>
-                
-                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
-                  Thank you for subscribing to <strong>Capture Crew</strong>, the Photography Club of CGEC.
-                </p>
-                
-                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
-                  <strong>Exploring the World through the CGEC Lens</strong>, we're excited to have you as part of our community of photographers, storytellers, and memory-makers.
-                </p>
-
-                <h3 style="color: #C9A96E; font-size: 16px; margin-top: 2rem; margin-bottom: 1rem;">Here's what you'll receive as a subscriber:</h3>
-                <ul style="color: #ccc; font-size: 15px; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.5rem; list-style-type: none;">
-                  <li style="margin-bottom: 0.8rem;">📸 Notifications of new featured captures and gallery updates</li>
-                  <li style="margin-bottom: 0.8rem;">🎉 Announcements of upcoming campus events, fests, and coverage</li>
-                  <li style="margin-bottom: 0.8rem;">🏆 Updates on Capture Crew activities, challenges, and special projects</li>
-                  <li style="margin-bottom: 0.8rem;">🌟 Behind-the-scenes stories from our creative journeys</li>
-                  <li style="margin-bottom: 0.8rem;">📢 Real-time updates when new showcases and collections go live</li>
-                </ul>
-
-                <div style="text-align: center; margin-bottom: 2.5rem;">
-                  <a href="https://www.capturecrew.site" style="background-color: #C9A96E; color: #111; text-decoration: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Explore our Website</a>
-                </div>
-
-                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem;">
-                  Thank you for joining us as we continue <strong>Capturing Moments · Creating Memories</strong> through the lens of CGEC.
-                </p>
-
-                <div style="border-top: 1px solid #222; padding-top: 1.5rem; margin-top: 2.5rem; font-size: 13px; color: #ccc; line-height: 1.6;">
-                  <p style="margin: 0; font-weight: bold;">Warm regards,</p>
-                  <p style="margin: 5px 0 0 0; color: #C9A96E; font-weight: bold;">Capture Crew</p>
-                  <p style="margin: 2px 0 0 0; font-size: 12px; color: #888;">Photography Club of CGEC</p>
-                  <p style="margin: 2px 0 0 0; font-size: 11px; color: #666; font-style: italic;">Exploring the World through the CGEC Lens</p>
-                </div>
-
-                <div style="text-align: center; border-top: 1px solid #111; padding-top: 1rem; margin-top: 2rem; font-size: 11px; color: #555;">
-                  <p style="margin: 0 0 5px 0;">You received this email because you subscribed to Capture Crew updates.</p>
-                  <p style="margin: 0;">&copy; 2026 Capture Crew. Photography Club of CGEC.</p>
-                </div>
-              </div>
-            `
+            html: welcomeHtml,
+            text: welcomeText,
+            reply_to: replyToAddress
           })
         });
       } catch (welcomeErr) {

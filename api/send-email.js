@@ -57,7 +57,7 @@ export default async function handler(req, res) {
   }
 
   const apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
-  let from = 'Capture Crew <newsletter@capturecrew.site>';
+  let from = 'Capture Crew Team <team@capturecrew.site>';
 
   if (req.body.from && /@capturecrew\.site>?$/i.test(req.body.from.trim())) {
     from = req.body.from.trim();
@@ -68,12 +68,18 @@ export default async function handler(req, res) {
 
   if (batch && Array.isArray(batch)) {
     try {
-      const emailPayloads = batch.map(item => ({
-        from,
-        to: item.to,
-        subject: item.subject,
-        html: item.html
-      }));
+      const emailPayloads = batch.map(item => {
+        const payload = {
+          from,
+          to: item.to,
+          subject: item.subject,
+          html: item.html
+        };
+        if (item.text) payload.text = item.text;
+        if (item.reply_to) payload.reply_to = item.reply_to;
+        if (item.headers) payload.headers = item.headers;
+        return payload;
+      });
 
       const result = await sendResendRequest('/emails/batch', apiKey, emailPayloads);
 
@@ -87,7 +93,7 @@ export default async function handler(req, res) {
     }
   }
 
-  const { to, bcc, subject, html } = req.body;
+  const { to, bcc, reply_to, subject, html, text, headers } = req.body;
 
   if (!to || !subject || !html) {
     return res.status(400).json({ error: 'Missing required fields: to, subject, html (or batch array)' });
@@ -100,6 +106,10 @@ export default async function handler(req, res) {
       subject,
       html
     };
+
+    if (text) emailPayload.text = text;
+    if (reply_to) emailPayload.reply_to = reply_to;
+    if (headers) emailPayload.headers = headers;
 
     if (bcc && Array.isArray(bcc) && bcc.length > 0) {
       emailPayload.bcc = bcc;
