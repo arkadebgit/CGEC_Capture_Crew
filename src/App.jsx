@@ -1182,8 +1182,11 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             }).join('<br/>')
           }} />
           <p className="hero-tagline">{siteConfig.heroTagline}</p>
-          <button className="hero-cta" onClick={() => scrollTo("gallery")}>
-            Explore the Gallery ↓
+          <button className="hero-cta" onClick={() => {
+            navigate('/events/archive');
+            setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+          }}>
+            Explore the Events Gallery...
           </button>
         </div>
         <div className="hero-scroll">Scroll</div>
