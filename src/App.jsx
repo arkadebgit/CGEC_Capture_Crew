@@ -536,9 +536,9 @@ export default function App() {
     fbLink: "https://www.facebook.com/profile.php?id=61551537531538&mibextid=V3Yony",
     activeYear: "2026",
     availableYears: ["2026"],
-    emailSenderName: "Capture Crew Team",
-    emailSenderAddress: "team@capturecrew.site",
-    emailReplyTo: "team@capturecrew.site"
+    emailSenderName: "Capture Crew",
+    emailSenderAddress: "newsletter@capturecrew.site",
+    emailReplyTo: "newsletter@capturecrew.site"
   });
 
   // Live Data State
@@ -587,9 +587,9 @@ export default function App() {
       });
 
       // 3. Extract sender configurations
-      const senderName = (siteConfig?.emailSenderName || "Capture Crew Team").replace(/"/g, '');
-      const senderAddress = siteConfig?.emailSenderAddress || "team@capturecrew.site";
-      const replyToAddress = siteConfig?.emailReplyTo || "team@capturecrew.site";
+      const senderName = (siteConfig?.emailSenderName || "Capture Crew").replace(/"/g, '');
+      const senderAddress = siteConfig?.emailSenderAddress || "newsletter@capturecrew.site";
+      const replyToAddress = siteConfig?.emailReplyTo || "newsletter@capturecrew.site";
       const fromField = `"${senderName}" <${senderAddress}>`;
 
       // 4. Send in batch chunks of 100
@@ -5797,9 +5797,9 @@ function NewsletterSection({ siteConfig }) {
       });
 
       try {
-        const senderName = (siteConfig?.emailSenderName || "Capture Crew Team").replace(/"/g, '');
-        const senderAddress = siteConfig?.emailSenderAddress || "team@capturecrew.site";
-        const replyToAddress = siteConfig?.emailReplyTo || "team@capturecrew.site";
+        const senderName = (siteConfig?.emailSenderName || "Capture Crew").replace(/"/g, '');
+        const senderAddress = siteConfig?.emailSenderAddress || "newsletter@capturecrew.site";
+        const replyToAddress = siteConfig?.emailReplyTo || "newsletter@capturecrew.site";
         const fromField = `"${senderName}" <${senderAddress}>`;
         const subName = name.trim();
         const unsubscribeUrl = `https://www.capturecrew.site/unsubscribe?email=${encodeURIComponent(emailLower)}`;

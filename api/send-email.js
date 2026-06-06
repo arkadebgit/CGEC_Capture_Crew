@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
   }
 
-  let from = 'Capture Crew Team <team@capturecrew.site>';
+  let from = 'Capture Crew <newsletter@capturecrew.site>';
 
   if (bodyObj.from && /@capturecrew\.site>?$/i.test(bodyObj.from.trim())) {
     from = bodyObj.from.trim();
