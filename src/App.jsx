@@ -2007,6 +2007,10 @@ function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveCo
 function LoginModal({ onClose, user, isUnauthorized }) {
   const [error, setError] = useState("");
 
+  const mailtoUrl = `mailto:admin@capturecrew.site?subject=${encodeURIComponent("Add email to website")}&body=${encodeURIComponent(
+    `Hello Capture Crew Team,\n\nPlease add my email address to the authorized administrators database.\n\nMy Email: ${user?.email || ""}\n\nThanks!`
+  )}`;
+
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
@@ -2038,7 +2042,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
             <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '2rem', lineHeight: '1.6' }}>
               Your email <strong>{user?.email}</strong> is not listed in our authorized administrators database.
               <br /><br />
-              If you are a Core Member, please contact a Lead or email us at <a href="mailto:admin@capturecrew.site" style={{ color: 'var(--gold)', textDecoration: 'none', fontWeight: 'bold' }}>admin@capturecrew.site</a> to have your email added to the system.
+              If you are a Core Member, please contact a Lead or email us at <a href={mailtoUrl} style={{ color: 'var(--gold)', textDecoration: 'none', fontWeight: 'bold' }}>admin@capturecrew.site</a> to have your email added to the system.
             </p>
             <button className="form-submit" onClick={() => signOut(auth)} style={{ width: '100%', background: '#ff4d4d' }}>Sign Out & Try Different Account</button>
           </div>
