@@ -1831,6 +1831,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
           <div className="footer-top">
             <div className="footer-brand">{siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span></div>
             <p className="footer-college">Cooch Behar Government Engineering College</p>
+            <p className="footer-desc" style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8, maxWidth: '400px', lineHeight: '1.6' }}>
+              The official photography club of CGEC. Documenting campus life, preserving memories, and promoting creative expression through the lens.
+            </p>
           </div>
           
           <div className="footer-mid">
