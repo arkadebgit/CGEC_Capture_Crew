@@ -919,6 +919,12 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
 
   // Consolidated Intersection Observer for fade-in animations
   useEffect(() => {
+    if (location.pathname === '/') {
+      document.title = "CGEC Capture Crew \u2013 Photography Club";
+      const meta = document.querySelector('meta[name="description"]');
+      if (meta) meta.content = "Capture Crew is the official photography club of CGEC. Explore event galleries, fest coverage, photography projects, club activities, and member contributions. Secure sign-in is used for membership verification, contributor access, and administrative features.";
+    }
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -1184,7 +1190,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
           }} />
           <p className="hero-tagline">{siteConfig.heroTagline}</p>
           <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.8)', maxWidth: '800px', margin: '1rem auto 2.5rem', lineHeight: '1.7' }}>
-            Capture Crew is the official photography club of CGEC. Our platform showcases campus events, fest coverage, photography projects, and club activities. Visitors can explore galleries and stay updated with club events. Google Sign-In is used to securely authenticate members and administrators for access to protected features such as membership verification, contributor access, and the Admin Console.
+            Capture Crew is the official photography club of CGEC. Our platform allows visitors to explore event galleries, fest coverage, photography projects, and club activities. Google Sign-In is used to securely authenticate members and administrators for contributor access, membership verification, and administrative features.
           </p>
           <button className="hero-cta" onClick={() => {
             navigate('/events/archive');
@@ -1722,6 +1728,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <Route path="/about" element={<AboutUsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsConditionsPage />} />
+        <Route path="/contact" element={<ContactPage />} />
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
 
         <Route path="/verify" element={
@@ -1859,7 +1866,8 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                 ["join", "Join"],
                 ["contributors", "Contributors"],
                 ["privacy-policy", "Privacy Policy"],
-                ["terms", "Terms & Conditions"],
+                ["terms", "Terms of Service"],
+                ["contact", "Contact"],
                 ["admin", "Admin Console"]
 
               ].map(([id, label]) => {
@@ -5325,6 +5333,30 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
   );
 }
 
+function ContactPage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.title = "Contact - Capture Crew";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = "Contact Capture Crew for inquiries, collaborations, and support.";
+  }, []);
+
+  return (
+    <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
+      <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
+        <div className="verify-box fade-in visible">
+          <div className="section-label">\u2727 Get in Touch</div>
+          <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem' }}>Contact <em style={{ color: 'var(--gold)', fontStyle: 'normal' }}>Us</em></h1>
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '2rem', color: '#ccc' }}>
+            Have a question, need support, or want to collaborate with Capture Crew? Reach out to us via email and our team will get back to you.
+          </p>
+          <a href="mailto:newsletter@capturecrew.site" className="hero-cta" style={{ display: 'inline-block', textDecoration: 'none' }}>Email Capture Crew</a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function UnsubscribePage() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -5438,6 +5470,9 @@ function UnsubscribePage() {
 function AboutUsPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = "About Us - Capture Crew";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = "Capture Crew is the official photography club of Cooch Behar Government Engineering College (CGEC). Our platform showcases campus events, fest coverage, photography projects, and memorable moments captured by our members.";
   }, []);
 
   return (
@@ -5464,6 +5499,9 @@ function AboutUsPage() {
 function PrivacyPolicyPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = "Privacy Policy - Capture Crew";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = "Privacy Policy for Capture Crew, the official photography club of CGEC.";
   }, []);
 
   return (
@@ -5689,6 +5727,9 @@ function PrivacyPolicyPage() {
 function TermsConditionsPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = "Terms of Service - Capture Crew";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = "Terms of Service for Capture Crew, the official photography club of CGEC.";
   }, []);
 
   return (
