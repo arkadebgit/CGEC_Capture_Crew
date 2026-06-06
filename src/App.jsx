@@ -5805,29 +5805,53 @@ function NewsletterSection({ siteConfig }) {
         const unsubscribeUrl = `https://www.capturecrew.site/unsubscribe?email=${encodeURIComponent(emailLower)}`;
 
         const welcomeHtml = `
-<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <p>Hi ${subName},</p>
-  <p>Thanks for joining the CGEC Capture Crew! We're excited to have you in our community of photographers, storytellers, and visual creators.</p>
-  <p>Here is what you'll get as a member of our Shutter Club:</p>
-  <ul style="padding-left: 20px; line-height: 1.8;">
-    <li>Notifications when we publish new featured weekly or monthly captures.</li>
-    <li>Early announcements of fests, photography contests, and event coverages.</li>
-    <li>Behind-the-scenes stories and tutorials from our creative journeys.</li>
-  </ul>
-  <p><strong>Two quick things to help get us connected:</strong></p>
-  <ol style="padding-left: 20px; line-height: 1.8;">
-    <li>Please add <strong>${replyToAddress}</strong> to your contacts list so our updates don't get lost in spam or promotional folders.</li>
-    <li><strong>Hit reply to this email</strong> and let us know: what kind of camera do you shoot with (even a phone!), and what's your favorite subject to photograph? We read every response and would love to hear from you!</li>
-  </ol>
-  <p style="margin-top: 30px;">You can browse our current galleries and member profiles on the <a href="https://www.capturecrew.site" style="color: #c9a96e; text-decoration: underline; font-weight: bold;">Capture Crew website</a>.</p>
-  <p style="margin-top: 30px;">Warmly,</p>
-  <p style="margin: 0; font-weight: bold;">Capture Crew Team</p>
-  <p style="margin: 0; font-size: 13px; color: #666;">Cooch Behar Government Engineering College</p>
-  <hr style="border: none; border-top: 1px solid #eeeeee; margin: 40px 0 20px 0;" />
-  <p style="font-size: 12px; color: #888888; text-align: center;">
-    If you did not sign up for this, you can <a href="${unsubscribeUrl}" style="color: #888888; text-decoration: underline;">unsubscribe here</a>.
-  </p>
-</div>
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
+                <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+                  <img src="https://res.cloudinary.com/dwp7fe7bo/image/upload/v1780682580/554399431_17944411011051405_1793754745012835189_n_qmgbm8.jpg" alt="Capture Crew Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 1.5px solid #C9A96E; display: inline-block;" />
+                  <h1 style="color: #C9A96E; font-size: 24px; margin: 0;">Capture Crew</h1>
+                  <p style="color: #888; font-size: 11px; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px;">Capturing Moments · Creating Memories</p>
+                </div>
+                
+                <h2 style="color: #fff; font-size: 20px; font-weight: normal; margin-bottom: 1.5rem;">Welcome to Capture Crew, ${subName}! 📸</h2>
+                
+                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
+                  Thank you for subscribing to <strong>Capture Crew</strong>, the Photography Club of CGEC.
+                </p>
+                
+                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
+                  <strong>Exploring the World through the CGEC Lens</strong>, we're excited to have you as part of our community of photographers, storytellers, and memory-makers.
+                </p>
+
+                <h3 style="color: #C9A96E; font-size: 16px; margin-top: 2rem; margin-bottom: 1rem;">Here's what you'll receive as a subscriber:</h3>
+                <ul style="color: #ccc; font-size: 15px; line-height: 1.8; margin-bottom: 2rem; padding-left: 1.5rem; list-style-type: none;">
+                  <li style="margin-bottom: 0.8rem;">📸 Notifications of new featured captures and gallery updates</li>
+                  <li style="margin-bottom: 0.8rem;">🎉 Announcements of upcoming campus events, fests, and coverage</li>
+                  <li style="margin-bottom: 0.8rem;">🏆 Updates on Capture Crew activities, challenges, and special projects</li>
+                  <li style="margin-bottom: 0.8rem;">🌟 Behind-the-scenes stories from our creative journeys</li>
+                  <li style="margin-bottom: 0.8rem;">📢 Real-time updates when new showcases and collections go live</li>
+                </ul>
+
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                  <a href="https://www.capturecrew.site" style="background-color: #C9A96E; color: #111; text-decoration: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Explore our Website</a>
+                </div>
+
+                <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem;">
+                  Thank you for joining us as we continue <strong>Capturing Moments · Creating Memories</strong> through the lens of CGEC.
+                </p>
+
+                <div style="border-top: 1px solid #222; padding-top: 1.5rem; margin-top: 2.5rem; font-size: 13px; color: #ccc; line-height: 1.6;">
+                  <p style="margin: 0; font-weight: bold;">Warm regards,</p>
+                  <p style="margin: 5px 0 0 0; color: #C9A96E; font-weight: bold;">Capture Crew</p>
+                  <p style="margin: 2px 0 0 0; font-size: 12px; color: #888;">Photography Club of CGEC</p>
+                  <p style="margin: 2px 0 0 0; font-size: 11px; color: #666; font-style: italic;">Exploring the World through the CGEC Lens</p>
+                </div>
+
+                <div style="text-align: center; border-top: 1px solid #111; padding-top: 1rem; margin-top: 2rem; font-size: 11px; color: #555;">
+                  <p style="margin: 0 0 5px 0;">You received this email because you subscribed to Capture Crew updates.</p>
+                  <p style="margin: 0;">&copy; 2026 Capture Crew. Photography Club of CGEC.</p>
+                  <p style="margin: 5px 0 0 0;">If you did not sign up for this, you can <a href="${unsubscribeUrl}" style="color: #888888; text-decoration: underline;">unsubscribe here</a>.</p>
+                </div>
+              </div>
         `;
 
         const welcomeText = `Hi ${subName},
