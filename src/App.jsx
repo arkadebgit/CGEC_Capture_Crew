@@ -5900,7 +5900,7 @@ If you did not sign up for this, you can unsubscribe here: ${unsubscribeUrl}`;
         throw welcomeErr;
       }
 
-      setStatus({ type: "success", message: "✓ Welcome to Capture Crew Club! You have successfully subscribed." });
+      setStatus({ type: "success", message: "Welcome to Capture Crew Club! You have successfully subscribed." });
       setName("");
       setEmail("");
     } catch (err) {
