@@ -5451,7 +5451,7 @@ function AboutUsPage() {
   return (
     <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
       <div className="container" style={{ maxWidth: '900px' }}>
-        <div className="admin-modal glass-form fade-in visible legal-content" style={{ padding: '4rem', borderRadius: '24px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+        <div className="admin-modal glass-form fade-in visible legal-content" style={{ padding: '4rem', borderRadius: '24px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)', textAlign: 'center' }}>
           <div className="section-label">✧ About Us</div>
           <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem' }}>About <em style={{ color: 'var(--gold)', fontStyle: 'normal' }}>Capture Crew</em></h1>
           <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '1.5rem', color: '#ccc' }}>
