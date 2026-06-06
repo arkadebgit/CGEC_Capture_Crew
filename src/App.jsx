@@ -1830,7 +1830,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <div className="container">
           <div className="footer-top">
             <div className="footer-brand">{siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span></div>
-            <p className="footer-college" style={{ maxWidth: '600px', margin: '1rem auto 0', lineHeight: '1.6', textTransform: 'none' }}>
+            <p className="footer-college" style={{ maxWidth: '600px', margin: '0 auto', lineHeight: '1.6', textTransform: 'none' }}>
               Capture Crew is the official photography club of CGEC. Our platform showcases campus events, fest coverage, creative photography projects, and memorable moments captured by our members. Users can explore galleries, stay updated with club activities, and connect with the Capture Crew community.
             </p>
           </div>
