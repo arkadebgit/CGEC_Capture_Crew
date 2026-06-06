@@ -1183,6 +1183,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             }).join('<br/>')
           }} />
           <p className="hero-tagline">{siteConfig.heroTagline}</p>
+          <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.8)', maxWidth: '800px', margin: '1rem auto 2.5rem', lineHeight: '1.7' }}>
+            Capture Crew is the official photography club of CGEC. Our platform showcases campus events, fest coverage, photography projects, and club activities. Visitors can explore galleries and stay updated with club events. Google Sign-In is used to securely authenticate members and administrators for access to protected features such as membership verification, contributor access, and the Admin Console.
+          </p>
           <button className="hero-cta" onClick={() => {
             navigate('/events/archive');
             setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
