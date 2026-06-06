@@ -1355,7 +1355,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
       })()}
             </>
           )}
-          <NewsletterSection />
+          <NewsletterSection siteConfig={siteConfig} />
           </>
         } />
 
@@ -5742,7 +5742,7 @@ function TermsConditionsPage() {
 }
 
 // ✦✦✦ NEWSLETTER SECTION COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
-function NewsletterSection() {
+function NewsletterSection({ siteConfig }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState({ type: "", message: "" });
