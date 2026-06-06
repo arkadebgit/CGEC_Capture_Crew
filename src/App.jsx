@@ -1831,7 +1831,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
           <div className="footer-top">
             <div className="footer-brand">{siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span></div>
             <p className="footer-college" style={{ maxWidth: '600px', margin: '0 auto', lineHeight: '1.6', textTransform: 'none' }}>
-              Capture Crew is the official photography club of CGEC. Our platform showcases campus events, fest coverage, creative photography projects, and memorable moments captured by our members. Users can explore galleries, stay updated with club activities, and connect with the Capture Crew community.
+              Capture Crew is the official photography club of Cooch Behar Government Engineering College (CGEC). Our platform showcases campus events, fest coverage, photography projects, and memorable moments captured by our members.<br /><br />Visitors can explore galleries, discover event highlights, and stay updated with club activities. Google Sign-In is used to securely authenticate members and administrators, enabling access to protected features such as the Admin Console, contributor management, membership verification, and other club-related services.
             </p>
           </div>
           
