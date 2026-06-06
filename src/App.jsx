@@ -1828,11 +1828,19 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
 
       <footer className="footer">
         <div className="container">
-          <div className="footer-top">
-            <div className="footer-brand">{siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span></div>
-            <p className="footer-college" style={{ maxWidth: '600px', margin: '0 auto', lineHeight: '1.6', textTransform: 'none' }}>
-              Capture Crew is the official photography club of Cooch Behar Government Engineering College (CGEC). Our platform showcases campus events, fest coverage, photography projects, and memorable moments captured by our members.<br /><br />Visitors can explore galleries, discover event highlights, and stay updated with club activities. Google Sign-In is used to securely authenticate members and administrators, enabling access to protected features such as the Admin Console, contributor management, membership verification, and other club-related services.
-            </p>
+          <div className="footer-top" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.75rem', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--gold)', marginBottom: '1rem', fontWeight: 'bold' }}>
+              Capturing Moments · Creating Memories
+            </div>
+            <div className="footer-brand" style={{ marginBottom: '0.2rem' }}>
+              {siteConfig.siteName?.split(' ')[0]} <span>{siteConfig.siteName?.split(' ')[1]}</span>
+            </div>
+            <div style={{ fontSize: '0.9rem', color: 'var(--white)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem', fontWeight: '500' }}>
+              Photography Club of CGEC
+            </div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--muted)', fontStyle: 'italic', letterSpacing: '0.05em' }}>
+              Exploring the World through the CGEC lens
+            </div>
           </div>
           
           <div className="footer-mid">
@@ -5436,10 +5444,10 @@ function AboutUsPage() {
           <div className="section-label">✧ About Us</div>
           <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem' }}>About <em style={{ color: 'var(--gold)', fontStyle: 'normal' }}>Capture Crew</em></h1>
           <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '1.5rem', color: '#ccc' }}>
-            Capture Crew is the official photography club of Cooch Behar Government Engineering College (CGEC). This platform serves as a digital gallery and community hub where students can explore event photography, fest coverage, featured captures, and club activities.
+            Capture Crew is the official photography club of Cooch Behar Government Engineering College (CGEC). Our platform showcases campus events, fest coverage, photography projects, and memorable moments captured by our members.
           </p>
           <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#ccc' }}>
-            Users may sign in using Google to access personalized features, participate in club initiatives, and stay connected with updates from Capture Crew. The platform is dedicated to documenting campus life, preserving memories, and promoting creative expression through photography.
+            Visitors can explore galleries, discover event highlights, and stay updated with club activities. Google Sign-In is used to securely authenticate members and administrators, enabling access to protected features such as the Admin Console, contributor management, membership verification, and other club-related services.
           </p>
           <div style={{ marginTop: '2.5rem', fontSize: '0.85rem' }}>
             <Link to="/" style={{ color: 'var(--gold)', textDecoration: 'none' }}>← Back to Homepage</Link>
