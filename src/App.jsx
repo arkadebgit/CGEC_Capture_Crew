@@ -587,7 +587,7 @@ export default function App() {
       });
 
       // 3. Extract sender configurations
-      const senderName = siteConfig?.emailSenderName || "Capture Crew Team";
+      const senderName = (siteConfig?.emailSenderName || "Capture Crew Team").replace(/"/g, '');
       const senderAddress = siteConfig?.emailSenderAddress || "team@capturecrew.site";
       const replyToAddress = siteConfig?.emailReplyTo || "team@capturecrew.site";
       const fromField = `"${senderName}" <${senderAddress}>`;
@@ -4891,7 +4891,7 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
 
 async function sendApplicationConfirmationEmail(formData) {
   try {
-    await fetch('/api/send-email', {
+    const response = await fetch('/api/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -4956,6 +4956,10 @@ async function sendApplicationConfirmationEmail(formData) {
         `
       })
     });
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Server returned ${response.status}: ${errText}`);
+    }
   } catch (emailErr) {
     console.error("Error sending confirmation email:", emailErr);
   }
@@ -5793,7 +5797,7 @@ function NewsletterSection() {
       });
 
       try {
-        const senderName = siteConfig?.emailSenderName || "Capture Crew Team";
+        const senderName = (siteConfig?.emailSenderName || "Capture Crew Team").replace(/"/g, '');
         const senderAddress = siteConfig?.emailSenderAddress || "team@capturecrew.site";
         const replyToAddress = siteConfig?.emailReplyTo || "team@capturecrew.site";
         const fromField = `"${senderName}" <${senderAddress}>`;
@@ -5848,7 +5852,7 @@ Cooch Behar Government Engineering College
 --
 If you did not sign up for this, you can unsubscribe here: ${unsubscribeUrl}`;
 
-        await fetch('/api/send-email', {
+        const response = await fetch('/api/send-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -5862,8 +5866,14 @@ If you did not sign up for this, you can unsubscribe here: ${unsubscribeUrl}`;
             reply_to: replyToAddress
           })
         });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`Server returned ${response.status}: ${errText}`);
+        }
       } catch (welcomeErr) {
         console.error("Failed to send welcome email:", welcomeErr);
+        throw welcomeErr;
       }
 
       setStatus({ type: "success", message: "✓ Welcome to Capture Crew Club! You have successfully subscribed." });

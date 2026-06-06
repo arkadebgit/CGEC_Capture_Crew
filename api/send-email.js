@@ -56,15 +56,33 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
+  // Robustly parse the request body
+  let bodyObj = req.body;
+  if (typeof bodyObj === 'string') {
+    try {
+      bodyObj = JSON.parse(bodyObj);
+    } catch (e) {
+      console.error("JSON parsing error for body:", e);
+      return res.status(400).json({ error: 'Invalid JSON body' });
+    }
+  }
+  if (!bodyObj) {
+    bodyObj = {};
+  }
+
+  let apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
+  if (apiKey) {
+    apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
+  }
+
   let from = 'Capture Crew Team <team@capturecrew.site>';
 
-  if (req.body.from && /@capturecrew\.site>?$/i.test(req.body.from.trim())) {
-    from = req.body.from.trim();
+  if (bodyObj.from && /@capturecrew\.site>?$/i.test(bodyObj.from.trim())) {
+    from = bodyObj.from.trim();
   }
 
   // Check if this is a batch request
-  const { batch } = req.body;
+  const { batch } = bodyObj;
 
   if (batch && Array.isArray(batch)) {
     try {
@@ -84,16 +102,18 @@ export default async function handler(req, res) {
       const result = await sendResendRequest('/emails/batch', apiKey, emailPayloads);
 
       if (!result.ok) {
+        console.error("Resend Batch API error response:", result.status, result.body);
         return res.status(result.status).json({ error: result.body || 'Resend Batch API error' });
       }
 
       return res.status(200).json(JSON.parse(result.body));
     } catch (error) {
+      console.error("Internal server error during batch send:", error);
       return res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
   }
 
-  const { to, bcc, reply_to, subject, html, text, headers } = req.body;
+  const { to, bcc, reply_to, subject, html, text, headers } = bodyObj;
 
   if (!to || !subject || !html) {
     return res.status(400).json({ error: 'Missing required fields: to, subject, html (or batch array)' });
@@ -118,11 +138,13 @@ export default async function handler(req, res) {
     const result = await sendResendRequest('/emails', apiKey, emailPayload);
 
     if (!result.ok) {
+      console.error("Resend API error response:", result.status, result.body);
       return res.status(result.status).json({ error: result.body || 'Resend API error' });
     }
 
     return res.status(200).json(JSON.parse(result.body));
   } catch (error) {
+    console.error("Internal server error during single send:", error);
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }
