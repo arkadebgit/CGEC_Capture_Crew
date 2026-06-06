@@ -4819,6 +4819,78 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
   );
 }
 
+async function sendApplicationConfirmationEmail(formData) {
+  try {
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Capture Crew <apply@capturecrew.site>',
+        to: formData.email,
+        subject: 'Application Received - Capture Crew Core Team 📸',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
+            <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+              <img src="https://res.cloudinary.com/dwp7fe7bo/image/upload/v1780682580/554399431_17944411011051405_1793754745012835189_n_qmgbm8.jpg" alt="Capture Crew Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 1.5px solid #C9A96E; display: inline-block;" />
+              <h1 style="color: #C9A96E; font-size: 24px; margin: 0;">Capture Crew</h1>
+              <p style="color: #888; font-size: 11px; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px;">Capturing Moments · Creating Memories</p>
+            </div>
+            
+            <h2 style="color: #fff; font-size: 20px; font-weight: normal; margin-bottom: 1.5rem;">Application Received! ✧</h2>
+            
+            <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
+              Hi <strong>${formData.name}</strong>,
+            </p>
+            
+            <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 1.5rem;">
+              Thank you for applying to join the <strong>Capture Crew Core Team</strong>. We have successfully received your application details, and our team is already reviewing your profile.
+            </p>
+
+            <div style="background-color: rgba(201, 169, 110, 0.05); border: 1px solid rgba(201, 169, 110, 0.2); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+              <h3 style="color: #C9A96E; font-size: 16px; margin-top: 0; margin-bottom: 1rem;">Summary of your application:</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #ccc;">
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; width: 120px; color: #888;">Position(s):</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.positions.join(', ')}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Department:</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.dept}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Academic Year:</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.year}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Portfolio:</td>
+                  <td style="padding: 6px 0; color: #fff;"><a href="${formData.portfolio}" target="_blank" style="color: #C9A96E; text-decoration: none;">View Portfolio Link</a></td>
+                </tr>
+              </table>
+            </div>
+
+            <p style="color: #ccc; font-size: 15px; line-height: 1.6; margin-bottom: 2rem;">
+              The Capture Crew Team will reach out to you soon via email or WhatsApp regarding the next steps of the recruitment process.
+            </p>
+
+            <div style="text-align: center; margin-bottom: 2rem;">
+              <a href="https://www.capturecrew.site" style="background-color: #C9A96E; color: #111; text-decoration: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Visit Capture Crew</a>
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid #222; padding-top: 1.5rem; margin-top: 2.5rem; font-size: 11px; color: #666;">
+              <p>This is an automated confirmation email for your application submission.</p>
+              <p>&copy; ${new Date().getFullYear()} CGEC Capture Crew. Cooch Behar Government Engineering College.</p>
+            </div>
+          </div>
+        `
+      })
+    });
+  } catch (emailErr) {
+    console.error("Error sending confirmation email:", emailErr);
+  }
+}
+
 function RecruitmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -4840,6 +4912,7 @@ function RecruitmentModal({ onClose }) {
         timestamp: serverTimestamp(),
         seen: false
       });
+      sendApplicationConfirmationEmail(formData);
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
@@ -4986,6 +5059,7 @@ function RecruitmentPage() {
         timestamp: serverTimestamp(),
         seen: false
       });
+      sendApplicationConfirmationEmail(formData);
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);

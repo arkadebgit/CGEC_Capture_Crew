@@ -57,7 +57,11 @@ export default async function handler(req, res) {
   }
 
   const apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
-  const from = 'Capture Crew <newsletter@capturecrew.site>';
+  let from = 'Capture Crew <newsletter@capturecrew.site>';
+
+  if (req.body.from && /@capturecrew\.site>?$/i.test(req.body.from.trim())) {
+    from = req.body.from.trim();
+  }
 
   // Check if this is a batch request
   const { batch } = req.body;
