@@ -1091,6 +1091,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
           {[
             ["home", "Home"],
+            ["about", "About Us"],
             ["gallery", "Gallery"],
             ["events", "Events"],
             ["events/archive", "Events Gallery"],
@@ -1715,6 +1716,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <Route path="/join" element={<RecruitmentPage />} />
         <Route path="/apply" element={<RecruitmentPage />} />
         <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} />} />
+        <Route path="/about" element={<AboutUsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsConditionsPage />} />
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
@@ -1835,6 +1837,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             <div className="footer-links">
               {[
                 ["home", "Home"],
+                ["about", "About Us"],
                 ["gallery", "Gallery"],
                 ["events", "Events"],
                 ["events/archive", "Events Gallery"],
@@ -5410,6 +5413,32 @@ function UnsubscribePage() {
             </div>
           )}
 
+          <div style={{ marginTop: '2.5rem', fontSize: '0.85rem' }}>
+            <Link to="/" style={{ color: 'var(--gold)', textDecoration: 'none' }}>← Back to Homepage</Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AboutUsPage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  return (
+    <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
+      <div className="container" style={{ maxWidth: '900px' }}>
+        <div className="admin-modal glass-form fade-in visible legal-content" style={{ padding: '4rem', borderRadius: '24px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)' }}>
+          <div className="section-label">✧ About Us</div>
+          <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem' }}>About <em style={{ color: 'var(--gold)', fontStyle: 'normal' }}>Capture Crew</em></h1>
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '1.5rem', color: '#ccc' }}>
+            Capture Crew is the official photography club of Cooch Behar Government Engineering College (CGEC). This platform serves as a digital gallery and community hub where students can explore event photography, fest coverage, featured captures, and club activities.
+          </p>
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#ccc' }}>
+            Users may sign in using Google to access personalized features, participate in club initiatives, and stay connected with updates from Capture Crew. The platform is dedicated to documenting campus life, preserving memories, and promoting creative expression through photography.
+          </p>
           <div style={{ marginTop: '2.5rem', fontSize: '0.85rem' }}>
             <Link to="/" style={{ color: 'var(--gold)', textDecoration: 'none' }}>← Back to Homepage</Link>
           </div>
