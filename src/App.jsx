@@ -6046,4 +6046,178 @@ If you did not sign up for this, you can unsubscribe here: ${unsubscribeUrl}`;
   );
 }
 
+function ContactUsPage() {
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [status, setStatus] = useState({ type: "", message: "" });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.title = "Contact Us - Capture Crew";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.content = "Contact Capture Crew — Photography Club of CGEC.";
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: "info", message: "Sending message..." });
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: "contact@capturecrew.site",
+          reply_to: formData.email,
+          subject: `Contact Us: ${formData.subject}`,
+          html: `
+            <h2>New Contact Us Message</h2>
+            <p><strong>Name:</strong> ${formData.name}</p>
+            <p><strong>Email:</strong> ${formData.email}</p>
+            <p><strong>Subject:</strong> ${formData.subject}</p>
+            <hr />
+            <p><strong>Message:</strong></p>
+            <p>${formData.message.replace(/\\n/g, '<br/>')}</p>
+          `
+        }),
+      });
+
+      if (response.ok) {
+        setStatus({ type: "success", message: "Your message has been sent successfully. We'll get back to you soon!" });
+        setFormData({ name: "", email: "", subject: "", message: "" });
+      } else {
+        const errorData = await response.json();
+        setStatus({ type: "error", message: errorData.error || "Failed to send message. Please try again later." });
+      }
+    } catch (error) {
+      console.error("Contact form error:", error);
+      setStatus({ type: "error", message: "An error occurred. Please try again later." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="verify-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
+      <div className="container" style={{ maxWidth: '900px' }}>
+        <div className="admin-modal glass-form fade-in visible legal-content" style={{ padding: '4rem', borderRadius: '24px', border: '1px solid var(--border)', background: 'rgba(255,255,255,0.02)', textAlign: 'left' }}>
+          
+          <div className="section-label" style={{ textAlign: 'center' }}>✧ Get in Touch</div>
+          <h1 style={{ marginBottom: '1.5rem', fontSize: '2.5rem', textAlign: 'center' }}>Contact <em style={{ color: 'var(--gold)', fontStyle: 'normal' }}>Us</em></h1>
+          
+          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', marginBottom: '2.5rem', color: '#ccc', textAlign: 'center' }}>
+            We’d love to hear from you. Whether you have questions, suggestions, collaboration ideas, or need support, feel free to reach out to us.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem', marginBottom: '3rem' }}>
+            <div style={{ background: 'rgba(201, 169, 110, 0.05)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(201, 169, 110, 0.2)' }}>
+              <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--gold)' }}>Contact Info</h2>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, color: '#ccc', lineHeight: '2' }}>
+                <li>📍 <strong>Organization:</strong> Capture Crew — Photography Club of CGEC</li>
+                <li>🌐 <strong>Website:</strong> <a href="https://www.capturecrew.site/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)' }}>https://www.capturecrew.site/</a></li>
+                <li>📧 <strong>Email:</strong> <a href="mailto:contact@capturecrew.site" style={{ color: 'var(--gold)' }}>contact@capturecrew.site</a></li>
+              </ul>
+              
+              <h3 style={{ fontSize: '1.2rem', marginTop: '2rem', marginBottom: '0.5rem', color: '#fff' }}>Response Time</h3>
+              <p style={{ color: '#ccc', fontSize: '0.95rem' }}>We usually respond within <strong>24–48 hours</strong> depending on the volume of messages.</p>
+
+              <h3 style={{ fontSize: '1.2rem', marginTop: '2rem', marginBottom: '0.5rem', color: '#fff' }}>Note</h3>
+              <p style={{ color: '#ccc', fontSize: '0.95rem' }}>For urgent matters related to events, contributions, or technical issues, please mention <strong>“URGENT”</strong> in your subject line.</p>
+            </div>
+            
+            <div>
+              <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--gold)' }}>Send Us a Message</h2>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc', fontSize: '0.9rem' }}>Name <span style={{ color: 'var(--gold)' }}>*</span></label>
+                  <input 
+                    type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter your full name" 
+                    className="form-input" 
+                    style={{ width: '100%', padding: '1rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', borderRadius: '12px', color: '#fff' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc', fontSize: '0.9rem' }}>Email <span style={{ color: 'var(--gold)' }}>*</span></label>
+                  <input 
+                    type="email" 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter your email address" 
+                    className="form-input" 
+                    style={{ width: '100%', padding: '1rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', borderRadius: '12px', color: '#fff' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc', fontSize: '0.9rem' }}>Subject <span style={{ color: 'var(--gold)' }}>*</span></label>
+                  <input 
+                    type="text" 
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    required
+                    placeholder="Enter subject" 
+                    className="form-input" 
+                    style={{ width: '100%', padding: '1rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', borderRadius: '12px', color: '#fff' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', color: '#ccc', fontSize: '0.9rem' }}>Message <span style={{ color: 'var(--gold)' }}>*</span></label>
+                  <textarea 
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    placeholder="Write your message here" 
+                    className="form-input" 
+                    style={{ width: '100%', padding: '1rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--border)', borderRadius: '12px', color: '#fff', minHeight: '150px', resize: 'vertical', fontFamily: 'inherit' }}
+                  />
+                </div>
+                
+                {status.message && (
+                  <div style={{ 
+                    padding: '1rem', 
+                    borderRadius: '8px', 
+                    background: status.type === 'success' ? 'rgba(0, 255, 150, 0.1)' : status.type === 'error' ? 'rgba(255, 77, 77, 0.1)' : 'rgba(255, 255, 255, 0.1)', 
+                    color: status.type === 'success' ? '#00ff96' : status.type === 'error' ? '#ff4d4d' : '#fff',
+                    border: `1px solid ${status.type === 'success' ? 'rgba(0, 255, 150, 0.3)' : status.type === 'error' ? 'rgba(255, 77, 77, 0.3)' : 'rgba(255, 255, 255, 0.3)'}`,
+                    fontSize: '0.9rem'
+                  }}>
+                    {status.message}
+                  </div>
+                )}
+
+                <button type="submit" className="form-submit" disabled={loading} style={{ marginTop: '0.5rem', width: '100%', padding: '1rem', fontSize: '1.1rem' }}>
+                  {loading ? "Sending Message..." : "Send Message"}
+                </button>
+              </form>
+            </div>
+          </div>
+          
+          <div style={{ textAlign: 'center', marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--border)' }}>
+            <p style={{ color: '#ccc', marginBottom: '0.5rem' }}>Thank you for being part of the Capture Crew community.</p>
+            <p style={{ color: 'var(--gold)', fontWeight: 'bold', fontSize: '1.1rem' }}>Every message matters to us.</p>
+            <div style={{ marginTop: '2rem', fontSize: '0.85rem' }}>
+              <Link to="/" style={{ color: 'var(--gold)', textDecoration: 'none' }}>← Back to Homepage</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
