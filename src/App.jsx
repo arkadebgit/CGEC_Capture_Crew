@@ -538,7 +538,8 @@ export default function App() {
     availableYears: ["2026"],
     emailSenderName: "Capture Crew",
     emailSenderAddress: "newsletter@capturecrew.site",
-    emailReplyTo: "newsletter@capturecrew.site"
+    emailReplyTo: "newsletter@capturecrew.site",
+    contributorsNotice: "<p style=\"margin-bottom: 1rem; opacity: 0.9;\">All data displayed here has been collected for the current year only.</p><p style=\"margin-bottom: 1rem; opacity: 0.9;\">To get featured, please upload your pictures in the WhatsApp group using the correct format:<br/><strong style=\"color: var(--white);\">Name, Department, Year</strong><br/>Submissions without the proper format will not be considered.</p><h4 style=\"font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; margin-top: 1.5rem;\">📩 Profile Showcase (Featured Members)</h4><p style=\"margin-bottom: 0.8rem; opacity: 0.9;\">If you have already been featured and want to showcase your <strong style=\"color: var(--white);\">profile photo on the website</strong>, please send your profile image along with your <strong style=\"color: var(--white);\">Name, Department, and Year</strong> to:<br/>📧 <a href=\"mailto:cc@capturecrew.site\" style=\"color: var(--gold); text-decoration: underline; font-weight: bold;\">cc@capturecrew.site</a></p><p style=\"margin-bottom: 1.5rem; opacity: 0.9;\">Only verified entries will be updated.</p><h4 style=\"font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; margin-top: 1.5rem;\">🔄 Weekly Updates</h4><p style=\"margin-bottom: 0; opacity: 0.9;\">Content is reviewed and updated every week. If you have already submitted but your entry is not visible, please share a screenshot as proof and email us at:<br/>📧 <a href=\"mailto:admin@capturecrew.site\" style=\"color: var(--gold); text-decoration: underline; font-weight: bold;\">admin@capturecrew.site</a></p>"
   });
 
   // Live Data State
@@ -1753,7 +1754,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
 
         <Route path="/join" element={<RecruitmentPage />} />
         <Route path="/apply" element={<RecruitmentPage />} />
-        <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} setLightboxItem={setLightboxItem} />} />
+        <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} setLightboxItem={setLightboxItem} siteConfig={siteConfig} />} />
         <Route path="/about" element={<AboutUsPage />} />
         <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -2922,6 +2923,27 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
         {adminData?.role !== 'core_member' && tab === 'members' && (
           <div className="visible">
+            <h3 className="subcategory-title">Manage <em>Contributors Notice</em></h3>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '1rem' }}>Use HTML to format the notice text.</p>
+            <div style={{ marginBottom: '3rem' }}>
+              <textarea 
+                className="form-input" 
+                style={{ width: '100%', minHeight: '150px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem' }} 
+                value={siteForm.contributorsNotice || ""} 
+                onChange={e => setSiteForm({...siteForm, contributorsNotice: e.target.value})} 
+                placeholder="Write the notice here... Use HTML for styling."
+              />
+              <button 
+                className="form-submit" 
+                onClick={async () => {
+                  try {
+                    await setDoc(doc(db, "config", "site"), { contributorsNotice: siteForm.contributorsNotice }, { merge: true });
+                    alert("Notice updated successfully!");
+                  } catch(e) { alert("Error: "+e.message); }
+                }}
+              >Save Notice</button>
+            </div>
+
             <h3 className="subcategory-title">Add New <em>Member</em></h3>
             <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={() => {}} />
             
@@ -4907,7 +4929,7 @@ function AdminApplications() {
 }
 
 function MemberForm({ DEPTS, YEARS, onAdded }) {
-  const [data, setData] = useState({ name: "", dept: DEPTS[0], year: YEARS[0] });
+  const [data, setData] = useState({ name: "", dept: DEPTS[0], year: YEARS[0], img: "" });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -4920,7 +4942,7 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
         role: "Member",
         createdAt: serverTimestamp()
       });
-      setData({ name: "", dept: DEPTS[0], year: YEARS[0] });
+      setData({ name: "", dept: DEPTS[0], year: YEARS[0], img: "" });
       onAdded();
       alert("Member Added Successfully!");
     } catch (err) {
@@ -4939,8 +4961,9 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
       <select className="form-input" value={data.year} onChange={e => setData({...data, year: e.target.value})}>
         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
       </select>
+      <input className="form-input" placeholder="Profile Link (Cloudinary URL - Optional)" value={data.img || ""} onChange={e => setData({...data, img: e.target.value})} style={{ gridColumn: '1 / -1' }} />
       <button className="form-submit" type="submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
-        {loading ? "Adding..." : "Add Member "}
+        {loading ? "Adding..." : "Add Member"}
       </button>
     </form>
   );
@@ -5315,7 +5338,7 @@ function RecruitmentPage() {
   );
 }
 
-function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers, isMobile, setLightboxItem }) {
+function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers, isMobile, setLightboxItem, siteConfig }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -5330,39 +5353,7 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
         </div>
 
         <div className="team-subcategory">
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', textAlign: 'left', fontSize: '0.85rem', lineHeight: '1.6' }}>
-            <h3 style={{ fontSize: '1.2rem', color: 'var(--gold)', marginBottom: '1rem' }}>📌 Club Contributors Notice (2026)</h3>
-            
-            <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
-              All data displayed here has been collected for the current year only.
-            </p>
-            
-            <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
-              To get featured, please upload your pictures in the WhatsApp group using the correct format:<br/>
-              <strong style={{ color: 'var(--white)' }}>Name, Department, Year</strong><br/>
-              Submissions without the proper format will not be considered.
-            </p>
-
-            <p style={{ marginBottom: '1.5rem', fontStyle: 'italic', opacity: 0.7, fontSize: '0.8rem', paddingLeft: '1rem', borderLeft: '2px solid var(--gold)' }}>
-              📌 *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.*
-            </p>
-
-            <h4 style={{ fontSize: '1rem', color: 'var(--gold)', marginBottom: '0.5rem', marginTop: '1.5rem' }}>📩 Profile Showcase (Featured Members)</h4>
-            <p style={{ marginBottom: '0.8rem', opacity: 0.9 }}>
-              If you have already been featured and want to showcase your <strong style={{ color: 'var(--white)' }}>profile photo on the website</strong>, please send your profile image along with your <strong style={{ color: 'var(--white)' }}>Name, Department, and Year</strong> to:<br/>
-              📧 <a href="mailto:cc@capturecrew.site" style={{ color: 'var(--gold)', textDecoration: 'underline', fontWeight: 'bold' }}>cc@capturecrew.site</a>
-            </p>
-            <p style={{ marginBottom: '1.5rem', opacity: 0.9 }}>
-              Only verified entries will be updated.
-            </p>
-
-            <h4 style={{ fontSize: '1rem', color: 'var(--gold)', marginBottom: '0.5rem', marginTop: '1.5rem' }}>🔄 Weekly Updates</h4>
-            <p style={{ marginBottom: '0', opacity: 0.9 }}>
-              Content is reviewed and updated every week. If you have already submitted but your entry is not visible, please share a screenshot as proof and email us at:<br/>
-              📧 <a href="mailto:admin@capturecrew.site" style={{ color: 'var(--gold)', textDecoration: 'underline', fontWeight: 'bold' }}>admin@capturecrew.site</a>
-            </p>
-          </div>
-          <div className="team-grid">
+          <div className="team-grid" style={{ marginBottom: '4rem' }}>
             {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
               <div key={m.name || m.id} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
                 <div 
@@ -5393,6 +5384,11 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
                 <div className="team-dept" style={{ fontSize: '0.65rem' }}>{shuffledMembers.length} Contributors</div>
               </div>
             )}
+          </div>
+
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '2rem', textAlign: 'left', fontSize: '0.85rem', lineHeight: '1.6' }}>
+            <h3 style={{ fontSize: '1.2rem', color: 'var(--gold)', marginBottom: '1rem' }}>📌 Club Contributors Notice</h3>
+            <div dangerouslySetInnerHTML={{ __html: siteConfig?.contributorsNotice || "" }}></div>
           </div>
         </div>
       </div>
