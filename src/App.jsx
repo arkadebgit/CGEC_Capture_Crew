@@ -1755,6 +1755,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <Route path="/apply" element={<RecruitmentPage />} />
         <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} />} />
         <Route path="/about" element={<AboutUsPage />} />
+        <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsConditionsPage />} />
         <Route path="/unsubscribe" element={<UnsubscribePage />} />
@@ -1886,6 +1887,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
               {[
                 ["home", "Home"],
                 ["about", "About Us"],
+                ["contact", "Contact Us"],
                 ["gallery", "Gallery"],
                 ["events", "Events"],
                 ["events/archive", "Events Gallery"],
