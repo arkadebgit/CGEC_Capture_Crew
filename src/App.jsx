@@ -2923,27 +2923,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
         {adminData?.role !== 'core_member' && tab === 'members' && (
           <div className="visible">
-            <h3 className="subcategory-title">Manage <em>Contributors Notice</em></h3>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7, marginBottom: '1rem' }}>Use HTML to format the notice text.</p>
-            <div style={{ marginBottom: '3rem' }}>
-              <textarea 
-                className="form-input" 
-                style={{ width: '100%', minHeight: '150px', marginBottom: '1rem', fontFamily: 'monospace', fontSize: '0.8rem' }} 
-                value={siteForm.contributorsNotice || ""} 
-                onChange={e => setSiteForm({...siteForm, contributorsNotice: e.target.value})} 
-                placeholder="Write the notice here... Use HTML for styling."
-              />
-              <button 
-                className="form-submit" 
-                onClick={async () => {
-                  try {
-                    await setDoc(doc(db, "config", "site"), { contributorsNotice: siteForm.contributorsNotice }, { merge: true });
-                    alert("Notice updated successfully!");
-                  } catch(e) { alert("Error: "+e.message); }
-                }}
-              >Save Notice</button>
-            </div>
-
             <h3 className="subcategory-title">Add New <em>Member</em></h3>
             <MemberForm DEPTS={DEPTS} YEARS={YEARS} onAdded={() => {}} />
             
@@ -2968,6 +2947,15 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       <td style={{ padding: '1rem' }}>{m.dept}</td>
                       <td style={{ padding: '1rem', color: 'var(--gold)' }}>{m.year}</td>
                       <td style={{ padding: '1rem' }}>
+                        <button onClick={async () => {
+                          const newUrl = window.prompt("Enter Profile Link (Cloudinary URL). Leave blank to use default camera emoji.", m.img || "");
+                          if (newUrl !== null) {
+                            try {
+                              await updateDoc(doc(db, "members", m.id), { img: newUrl.trim() });
+                              alert("Profile link updated!");
+                            } catch (err) { alert("Failed: " + err.message); }
+                          }
+                        }} style={{ background: 'var(--gold)', border: 'none', color: 'var(--ink)', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem', marginRight: '0.5rem' }}>Edit Link</button>
                         <button onClick={async () => {
                           if (window.confirm("Remove this member?")) {
                             try {
