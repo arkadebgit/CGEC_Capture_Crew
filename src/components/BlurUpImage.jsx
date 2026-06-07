@@ -4,7 +4,7 @@ import React, { useState } from "react";
  * SmoothImage component replaces standard img elements to provide:
  * 1. Native lazy loading.
  * 2. Cloudinary f_auto,q_auto optimized full image.
- * 3. Prevention of layout shifts by reserving aspect ratio space dynamically.
+ * 3. Prevention of layout shifts by reserving aspect ratio space statically.
  * 4. Smooth fade-in & scale transitions.
  */
 export default function BlurUpImage({
@@ -17,7 +17,6 @@ export default function BlurUpImage({
   ...props
 }) {
   const [fullLoaded, setFullLoaded] = useState(false);
-  const [measuredAspect, setMeasuredAspect] = useState(null);
 
   // Parse Cloudinary URLs to inject transformations
   const getOptimizedUrl = (url) => {
@@ -35,19 +34,12 @@ export default function BlurUpImage({
 
   const optimizedUrl = getOptimizedUrl(src);
 
-  // Determine aspect ratio for reserving space (priority: actual measured > passed metadata > fallback)
-  const currentAspect = measuredAspect || aspectRatio || 1.5;
+  // Use the provided aspectRatio or a default to prevent layout shift before image loads
+  const currentAspect = aspectRatio || 1.5;
 
   const containerStyle = {
     ...style,
     aspectRatio: currentAspect,
-  };
-
-  const handleFullLoad = (e) => {
-    setFullLoaded(true);
-    if (e.target.naturalWidth && e.target.naturalHeight) {
-      setMeasuredAspect(e.target.naturalWidth / e.target.naturalHeight);
-    }
   };
 
   return (
@@ -62,7 +54,7 @@ export default function BlurUpImage({
         alt={alt}
         loading="lazy"
         className={`blur-up-full ${fullLoaded ? "loaded" : ""}`}
-        onLoad={handleFullLoad}
+        onLoad={() => setFullLoaded(true)}
         referrerPolicy="no-referrer"
       />
     </div>
