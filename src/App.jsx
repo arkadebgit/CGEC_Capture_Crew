@@ -555,7 +555,7 @@ export default function App() {
   const [shuffledCore, setShuffledCore] = useState([]);
   const [shuffledMembers, setShuffledMembers] = useState([]);
   const [dynamicMembers, setDynamicMembers] = useState([]);
-  const [teamMembers, setTeamMembers] = useState({ founders: [], incharge: [], coordinators: [], core: [] });
+  const [teamMembers, setTeamMembers] = useState({ founders: [], incharge: [], ex_incharge: [], coordinators: [], core: [] });
   const [liveEvents, setLiveEvents] = useState({});
   const [liveEventsList, setLiveEventsList] = useState([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
@@ -745,6 +745,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
       const grouped = {
         founders: fetched.filter(m => m.category === 'founders').sort((a,b) => (a.order || 0) - (b.order || 0)),
         incharge: fetched.filter(m => m.category === 'incharge').sort((a,b) => (a.order || 0) - (b.order || 0)),
+        ex_incharge: fetched.filter(m => m.category === 'ex_incharge').sort((a,b) => (a.order || 0) - (b.order || 0)),
         coordinators: fetched.filter(m => m.category === 'coordinators').sort((a,b) => (a.order || 0) - (b.order || 0)),
         core: fetched.filter(m => m.category === 'core').sort((a,b) => (a.order || 0) - (b.order || 0)),
       };
@@ -1607,6 +1608,35 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                 <div className="team-grid incharge-grid">
                   {teamMembers.incharge.map(m => (
                     <div key={m.id || m.name} className="team-card incharge-card fade-in">
+                      <div 
+                        className={`team-avatar highlight-silver ${m.img ? 'clickable' : ''}`}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                      >
+                        <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                      </div>
+                      <div className="team-name">{m.name}</div>
+                      <div className="team-role">{m.role}</div>
+                      <div className="team-dept">{m.dept} {m.year ? `· ${m.year}` : ""}</div>
+                      {m.insta && (
+                        <div className="team-socials">
+                          <a href={m.insta} target="_blank" rel="noopener noreferrer" className="team-social-icon" title="Instagram">
+                            <InstagramIcon />
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* EX-INCHARGE */}
+            {teamMembers.ex_incharge?.length > 0 && (
+              <div className="team-subcategory">
+                <h3 className="subcategory-title"><em>Ex-Incharges</em></h3>
+                <div className="team-grid incharge-grid">
+                  {teamMembers.ex_incharge.map(m => (
+                    <div key={m.id || m.name} className="team-card incharge-card fade-in" style={{ opacity: 0.8 }}>
                       <div 
                         className={`team-avatar highlight-silver ${m.img ? 'clickable' : ''}`}
                         onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
@@ -4089,6 +4119,7 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
   const categories = [
     { id: 'founders', label: 'Founders' },
     { id: 'incharge', label: 'Incharges' },
+    { id: 'ex_incharge', label: 'Ex-Incharges' },
     { id: 'coordinators', label: 'Coordinators' },
     { id: 'core', label: 'Core Team' }
   ];
