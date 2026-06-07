@@ -1753,7 +1753,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
 
         <Route path="/join" element={<RecruitmentPage />} />
         <Route path="/apply" element={<RecruitmentPage />} />
-        <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} />} />
+        <Route path="/contributors" element={<ContributorsPage shuffledMembers={shuffledMembers} expandedMembers={expandedMembers} setExpandedMembers={setExpandedMembers} isMobile={isMobile} setLightboxItem={setLightboxItem} />} />
         <Route path="/about" element={<AboutUsPage />} />
         <Route path="/contact" element={<ContactUsPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -5315,7 +5315,7 @@ function RecruitmentPage() {
   );
 }
 
-function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers, isMobile }) {
+function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers, isMobile, setLightboxItem }) {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -5331,13 +5331,22 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
 
         <div className="team-subcategory">
           <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '2rem', fontStyle: 'italic', opacity: 0.8 }}>
-            *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.
+            *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.<br />
+            If you get featured and want to showcase your profile photo in the website then send your profile photo with name, dept, year in the email cc@capturecrew.site
           </p>
           <div className="team-grid">
             {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
               <div key={m.name || m.id} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
-                <div className="team-avatar" style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem' }}>
-                  📸
+                <div 
+                  className="team-avatar" 
+                  style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem', cursor: m.img ? 'pointer' : 'default', overflow: 'hidden' }}
+                  onClick={() => {
+                    if (m.img && setLightboxItem) {
+                      setLightboxItem({ url: m.img, title: m.name, photographer: m.name });
+                    }
+                  }}
+                >
+                  {m.img ? <img src={getOptimizedUrl(m.img)} alt={m.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '📸'}
                 </div>
                 <div className="team-name" style={{ fontSize: '0.95rem' }}>{m.name}</div>
                 <div className="team-role" style={{ fontSize: '0.65rem', color: 'var(--gold)', marginBottom: '0.3rem' }}>{m.role || 'Member'}</div>
