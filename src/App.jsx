@@ -1582,7 +1582,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div key={m.id || m.name} className="team-card fade-in">
                       <div 
                         className={`team-avatar ${m.img ? 'clickable' : ''}`}
-                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name }) : undefined}
                       >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
@@ -1611,7 +1611,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div key={m.id || m.name} className="team-card incharge-card fade-in">
                       <div 
                         className={`team-avatar highlight-silver ${m.img ? 'clickable' : ''}`}
-                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name }) : undefined}
                       >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
@@ -1640,7 +1640,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div key={m.id || m.name} className="team-card incharge-card fade-in" style={{ opacity: 0.8 }}>
                       <div 
                         className={`team-avatar highlight-silver ${m.img ? 'clickable' : ''}`}
-                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name }) : undefined}
                       >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
@@ -1669,7 +1669,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div key={m.id || m.name} className="team-card fade-in">
                       <div 
                         className={`team-avatar ${m.img ? 'clickable' : ''}`}
-                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name }) : undefined}
                       >
                         <img src={m.img} alt={m.name} loading="lazy" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                       </div>
@@ -1698,7 +1698,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div key={m.id || m.name} className="team-card fade-in">
                       <div 
                         className={`team-avatar ${m.img ? 'clickable' : ''}`}
-                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name, photographer: m.role, dept: m.dept, year: m.year || '' }) : undefined}
+                        onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name }) : undefined}
                       >
                         {m.img ? (
                           <img src={m.img} alt={m.name} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
@@ -1980,7 +1980,14 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
               }}
             />
             <div className="lightbox-title">{lightboxItem.title}</div>
-            <div className="lightbox-credit">by {lightboxItem.photographer} · {lightboxItem.dept} ({lightboxItem.year})</div>
+            {(lightboxItem.photographer || lightboxItem.dept || lightboxItem.year) && (
+              <div className="lightbox-credit">
+                {lightboxItem.photographer ? `by ${lightboxItem.photographer}` : ""}
+                {lightboxItem.photographer && lightboxItem.dept ? " · " : ""}
+                {lightboxItem.dept ? lightboxItem.dept : ""}
+                {lightboxItem.year ? ` (${lightboxItem.year})` : ""}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -5327,9 +5334,27 @@ function RecruitmentPage() {
 }
 
 function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers, isMobile, setLightboxItem, siteConfig }) {
+  const [displayMembers, setDisplayMembers] = useState([]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const shuffle = (array) => {
+      const s = [...array];
+      for (let i = s.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [s[i], s[j]] = [s[j], s[i]];
+      }
+      return s;
+    };
+    if (shuffledMembers && shuffledMembers.length > 0) {
+      setDisplayMembers(shuffle(shuffledMembers));
+    } else {
+      setDisplayMembers([]);
+    }
+  }, [shuffledMembers]);
 
   return (
     <section className="team-section" style={{ minHeight: '80vh', padding: '8rem 0' }}>
@@ -5342,14 +5367,14 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
 
         <div className="team-subcategory">
           <div className="team-grid" style={{ marginBottom: '4rem' }}>
-            {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
+            {displayMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
               <div key={m.name || m.id} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
                 <div 
                   className="team-avatar" 
                   style={{ width: '50px', height: '50px', fontSize: '1rem', background: 'rgba(255,255,255,0.05)', marginBottom: '0.8rem', cursor: m.img ? 'pointer' : 'default', overflow: 'hidden' }}
                   onClick={() => {
                     if (m.img && setLightboxItem) {
-                      setLightboxItem({ url: m.img, title: m.name, photographer: m.name });
+                      setLightboxItem({ url: m.img, title: m.name });
                     }
                   }}
                 >
@@ -5743,7 +5768,7 @@ function PrivacyPolicyPage() {
           <h2>Contact Us</h2>
           <p>If you have any questions about this Privacy Policy, You can contact us:</p>
           <ul>
-            <li>By email: <a href="mailto:capturedcrew2@gmail.com">capturedcrew2@gmail.com</a></li>
+            <li>By email: <a href="mailto:contact@capturecrew.site">contact@capturecrew.site</a></li>
           </ul>
         </div>
       </div>
@@ -5846,7 +5871,7 @@ function TermsConditionsPage() {
           <h2>Contact Us</h2>
           <p>If you have any questions about these Terms and Conditions, You can contact us:</p>
           <ul>
-            <li>By email: <a href="mailto:capturedcrew2@gmail.com">capturedcrew2@gmail.com</a></li>
+            <li>By email: <a href="mailto:contact@capturecrew.site">contact@capturecrew.site</a></li>
           </ul>
         </div>
       </div>
