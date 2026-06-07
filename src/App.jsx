@@ -5330,10 +5330,38 @@ function ContributorsPage({ shuffledMembers, expandedMembers, setExpandedMembers
         </div>
 
         <div className="team-subcategory">
-          <p className="section-sub" style={{ fontSize: '0.8rem', marginBottom: '2rem', fontStyle: 'italic', opacity: 0.8 }}>
-            *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.<br />
-            If you get featured and want to showcase your profile photo in the website then send your profile photo with name, dept, year in the email cc@capturecrew.site
-          </p>
+          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '2rem', marginBottom: '3rem', textAlign: 'left', fontSize: '0.85rem', lineHeight: '1.6' }}>
+            <h3 style={{ fontSize: '1.2rem', color: 'var(--gold)', marginBottom: '1rem' }}>📌 Club Contributors Notice (2026)</h3>
+            
+            <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+              All data displayed here has been collected for the current year only.
+            </p>
+            
+            <p style={{ marginBottom: '1rem', opacity: 0.9 }}>
+              To get featured, please upload your pictures in the WhatsApp group using the correct format:<br/>
+              <strong style={{ color: 'var(--white)' }}>Name, Department, Year</strong><br/>
+              Submissions without the proper format will not be considered.
+            </p>
+
+            <p style={{ marginBottom: '1.5rem', fontStyle: 'italic', opacity: 0.7, fontSize: '0.8rem', paddingLeft: '1rem', borderLeft: '2px solid var(--gold)' }}>
+              📌 *Data collected from this year only. To get featured here, upload pictures with the mentioned format (Name, Dept, Year); otherwise, they will not be selected. Updates every week.*
+            </p>
+
+            <h4 style={{ fontSize: '1rem', color: 'var(--gold)', marginBottom: '0.5rem', marginTop: '1.5rem' }}>📩 Profile Showcase (Featured Members)</h4>
+            <p style={{ marginBottom: '0.8rem', opacity: 0.9 }}>
+              If you have already been featured and want to showcase your <strong style={{ color: 'var(--white)' }}>profile photo on the website</strong>, please send your profile image along with your <strong style={{ color: 'var(--white)' }}>Name, Department, and Year</strong> to:<br/>
+              📧 <a href="mailto:cc@capturecrew.site" style={{ color: 'var(--gold)', textDecoration: 'underline', fontWeight: 'bold' }}>cc@capturecrew.site</a>
+            </p>
+            <p style={{ marginBottom: '1.5rem', opacity: 0.9 }}>
+              Only verified entries will be updated.
+            </p>
+
+            <h4 style={{ fontSize: '1rem', color: 'var(--gold)', marginBottom: '0.5rem', marginTop: '1.5rem' }}>🔄 Weekly Updates</h4>
+            <p style={{ marginBottom: '0', opacity: 0.9 }}>
+              Content is reviewed and updated every week. If you have already submitted but your entry is not visible, please share a screenshot as proof and email us at:<br/>
+              📧 <a href="mailto:admin@capturecrew.site" style={{ color: 'var(--gold)', textDecoration: 'underline', fontWeight: 'bold' }}>admin@capturecrew.site</a>
+            </p>
+          </div>
           <div className="team-grid">
             {shuffledMembers.slice(0, expandedMembers ? undefined : (isMobile ? 6 : 8)).map(m => (
               <div key={m.name || m.id} className="team-card fade-in" style={{ padding: '1.5rem 1rem', minHeight: '180px' }}>
