@@ -4714,18 +4714,20 @@ const EventScrollPath = ({ eventName, containerRef }) => {
         d="M 100,0 C 900,300 100,700 900,1000" 
         fill="transparent" 
         stroke="var(--gold)" 
-        strokeWidth="2"
-        strokeDasharray="15 15"
+        strokeWidth="1"
+        strokeOpacity="0.5"
+        strokeDasharray="4 8"
       />
       <text 
-        fontSize="60" 
+        fontSize="36" 
         fontFamily="var(--font-display)" 
         fill="var(--gold)" 
-        opacity="0.9"
-        letterSpacing="8"
+        opacity="0.85"
+        letterSpacing="12"
+        style={{ textTransform: 'uppercase', textShadow: '0 5px 15px rgba(0,0,0,0.5)' }}
       >
         <textPath href={`#${pathId}`} startOffset={`${scrollProgress * 100}%`}>
-          {eventName} • {eventName} • {eventName} • {eventName}
+          {eventName} ✦ {eventName} ✦ {eventName} ✦ {eventName} ✦ {eventName}
         </textPath>
       </text>
     </svg>
