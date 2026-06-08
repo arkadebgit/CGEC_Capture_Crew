@@ -4582,7 +4582,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
               ))}
             </div>
           ) : (
-            <div className="glass-form" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
+            <div className="glass-form" style={{ padding: isMobile ? '1.5rem' : '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
               <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>📢</div>
               <p style={{ margin: 0, fontSize: '0.95rem' }}>No upcoming events at the moment. Keep practicing, the next challenge is just around the corner!</p>
             </div>
@@ -4599,7 +4599,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
           {pastEvents.length > 0 ? (
             <div className="cc-events-container" style={{ padding: 0 }}>
               {pastEvents.map(event => (
-                <div key={event.id} id={event.id} className="cc-event-block" style={{ marginBottom: '6rem', background: 'rgba(255,255,255,0.01)', padding: '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                <div key={event.id} id={event.id} className="cc-event-block" style={{ marginBottom: '6rem', background: 'rgba(255,255,255,0.01)', padding: isMobile ? '1.5rem' : '3rem', borderRadius: '32px', border: '1px solid rgba(255,255,255,0.03)' }}>
                   <div className="cc-event-header" style={{ textAlign: 'center', marginBottom: '3rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <div className="section-label" style={{ margin: '0 0 0.8rem' }}>✧ Competition Results</div>
                     <h3 className="subcategory-title" style={{ border: 'none', padding: 0, fontSize: '2.2rem', margin: '0' }}>{event.title} <em>Winners</em></h3>
@@ -4617,7 +4617,7 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
               ))}
             </div>
           ) : (
-            <div className="glass-form" style={{ padding: '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
+            <div className="glass-form" style={{ padding: isMobile ? '1.5rem' : '3rem', textAlign: 'center', color: 'var(--muted)', borderRadius: '24px' }}>
               <p style={{ margin: 0 }}>No past event winners posted yet. Check back soon!</p>
             </div>
           )}

@@ -587,6 +587,7 @@ section { padding: 7rem 0; }
     background: #0A0A0B;
     padding-top: 8rem; padding-bottom: 5rem;
     min-height: 80vh;
+    overflow-x: hidden;
   }
   .event-page-header { margin-bottom: 4rem; position: relative; }
   .back-btn {
