@@ -1231,7 +1231,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             navigate('/events/archive');
             setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
           }}>
-            Explore the Events Gallery...
+            Explore the Events Gallery
           </button>
         </div>
         <div className="hero-scroll">Scroll</div>
