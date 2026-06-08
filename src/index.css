@@ -811,6 +811,17 @@ section { padding: 7rem 0; }
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  margin: 0 auto;
+}
+
+.contact-page-card {
+  text-align: left;
+}
+
+@media(max-width: 768px) {
+  .contact-page-card {
+    text-align: center !important;
+  }
 }
 .admin-modal::-webkit-scrollbar { width: 6px; }
 .admin-modal::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
