@@ -4704,9 +4704,9 @@ const EventScrollPath = ({ eventName, containerRef }) => {
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: 0,
+        zIndex: 10,
         pointerEvents: 'none',
-        opacity: 0.15
+        opacity: 1
       }}
     >
       <path 
@@ -4721,7 +4721,7 @@ const EventScrollPath = ({ eventName, containerRef }) => {
         fontSize="60" 
         fontFamily="var(--font-display)" 
         fill="var(--gold)" 
-        opacity="0.6"
+        opacity="0.9"
         letterSpacing="8"
       >
         <textPath href={`#${pathId}`} startOffset={`${scrollProgress * 100}%`}>
