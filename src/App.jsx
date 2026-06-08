@@ -4669,103 +4669,6 @@ function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
 
 // ✦✦✦ EVENT PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 
-const EventScrollPath = ({ eventName, containerRef }) => {
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      const totalScrollable = rect.height + windowHeight;
-      const currentScroll = windowHeight - rect.top;
-      
-      let progress = currentScroll / totalScrollable;
-      progress = Math.max(0, Math.min(1, progress));
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [containerRef]);
-
-  const pathId = `scroll-path-${eventName.replace(/[^a-zA-Z0-9]/g, '-')}`;
-
-  return (
-    <svg 
-      className="event-scroll-svg"
-      viewBox="0 0 1000 1000" 
-      preserveAspectRatio="none"
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        zIndex: 10,
-        pointerEvents: 'none',
-        opacity: 1
-      }}
-    >
-      <path 
-        id={pathId}
-        d="M 100,0 C 900,300 100,700 900,1000" 
-        fill="transparent" 
-        stroke="var(--gold)" 
-        strokeWidth="1"
-        strokeOpacity="0.5"
-        strokeDasharray="4 8"
-      />
-      <text 
-        fontSize="36" 
-        fontFamily="var(--font-display)" 
-        fill="var(--gold)" 
-        opacity="0.85"
-        letterSpacing="12"
-        style={{ textTransform: 'uppercase', textShadow: '0 5px 15px rgba(0,0,0,0.5)' }}
-      >
-        <textPath href={`#${pathId}`} startOffset={`${scrollProgress * 100}%`}>
-          {eventName} ✦ {eventName} ✦ {eventName} ✦ {eventName} ✦ {eventName}
-        </textPath>
-      </text>
-    </svg>
-  );
-};
-
-const ArchiveGroup = ({ ev, idx, liveEvents, setLightboxItem, onClose, isMobile }) => {
-  const groupRef = useRef(null);
-  
-  return (
-    <div ref={groupRef} className="archive-group" style={{ marginBottom: '5rem', position: 'relative' }}>
-      {!isMobile && <EventScrollPath eventName={ev.name} containerRef={groupRef} />}
-      <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
-          <div className="section-label" style={{ margin: 0 }}>Chapter {(idx + 1).toString().padStart(2, '0')}</div>
-          <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>{ev.name} <em>{ev.date}</em></h2>
-        </div>
-        <EventSection 
-          title={ev.name} 
-          subtitle={ev.date} 
-          photos={
-            liveEvents[ev.id] && (
-              Array.isArray(liveEvents[ev.id]) ? liveEvents[ev.id].length > 0 : (
-                (liveEvents[ev.id].general && liveEvents[ev.id].general.length > 0) ||
-                (liveEvents[ev.id].prize && liveEvents[ev.id].prize.length > 0) ||
-                (liveEvents[ev.id].winners && liveEvents[ev.id].winners.length > 0)
-              )
-            ) ? flattenPhotos(liveEvents[ev.id]) : flattenPhotos(STATIC_EVENT_PHOTOS[ev.id])
-          } 
-          setLightboxItem={setLightboxItem} 
-          onClose={onClose} 
-          eventYear={ev.calendarYear || "2026"}
-          isMobile={isMobile}
-        />
-      </div>
-    </div>
-  );
-};
 
 function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, archiveConfig, liveEventsList, isMobile }) {
   useEffect(() => {
@@ -4867,15 +4770,29 @@ function EventPage({ event, liveEvents, onClose, setLightboxItem, isGlobal, arch
         {isGlobal ? (
           <div className="archive-timeline">
             {groupedEvents.map((ev, idx) => (
-              <ArchiveGroup 
-                key={ev.id} 
-                ev={ev} 
-                idx={idx} 
-                liveEvents={liveEvents} 
-                setLightboxItem={setLightboxItem} 
-                onClose={onClose} 
-                isMobile={isMobile} 
-              />
+              <div key={ev.id} className="archive-group" style={{ marginBottom: '5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                  <div className="section-label" style={{ margin: 0 }}>Chapter {(idx + 1).toString().padStart(2, '0')}</div>
+                  <h2 className="subcategory-title" style={{ margin: 0, border: 'none', padding: 0 }}>{ev.name} <em>{ev.date}</em></h2>
+                </div>
+                <EventSection 
+                  title={ev.name} 
+                  subtitle={ev.date} 
+                  photos={
+                    liveEvents[ev.id] && (
+                      Array.isArray(liveEvents[ev.id]) ? liveEvents[ev.id].length > 0 : (
+                        (liveEvents[ev.id].general && liveEvents[ev.id].general.length > 0) ||
+                        (liveEvents[ev.id].prize && liveEvents[ev.id].prize.length > 0) ||
+                        (liveEvents[ev.id].winners && liveEvents[ev.id].winners.length > 0)
+                      )
+                    ) ? flattenPhotos(liveEvents[ev.id]) : flattenPhotos(STATIC_EVENT_PHOTOS[ev.id])
+                  } 
+                  setLightboxItem={setLightboxItem} 
+                  onClose={onClose} 
+                  eventYear={ev.calendarYear || "2026"}
+                  isMobile={isMobile}
+                />
+              </div>
             ))}
             {groupedEvents.length === 0 && (
               <div className="no-results">The archive is currently empty.</div>
