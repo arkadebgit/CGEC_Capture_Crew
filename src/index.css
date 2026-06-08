@@ -241,6 +241,7 @@ body {
 .hero-eyebrow {
   font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
   color: var(--gold); margin-bottom: 1.5rem; font-weight: 400;
+  opacity: 0; animation: fadeInUpBlur 1s var(--ease) forwards; animation-delay: 0.2s;
 }
 .hero-title {
   font-family: var(--font-display);
@@ -248,6 +249,7 @@ body {
   font-weight: 300; line-height: 1.0;
   color: var(--white); margin-bottom: 1rem;
   letter-spacing: -0.01em;
+  opacity: 0; animation: fadeInUpBlur 1s var(--ease) forwards; animation-delay: 0.4s;
 }
 .hero-title em { font-style: italic; color: var(--gold2); }
 .hero-tagline {
@@ -256,6 +258,7 @@ body {
   font-weight: 300; font-style: italic;
   color: var(--muted); margin-bottom: 3rem;
   letter-spacing: 0.04em;
+  opacity: 0; animation: fadeInUpBlur 1s var(--ease) forwards; animation-delay: 0.6s;
 }
 .hero-cta {
   display: inline-flex; align-items: center; gap: 0.8rem;
@@ -265,6 +268,7 @@ body {
   cursor: pointer; transition: all 0.3s var(--ease);
   background: transparent; font-family: var(--font-body);
   font-weight: 400;
+  opacity: 0; animation: fadeInUpBlur 1s var(--ease) forwards; animation-delay: 0.8s;
 }
 .hero-cta:hover { background: var(--gold); color: var(--ink); }
 .hero-dots {
@@ -1039,11 +1043,16 @@ section { padding: 7rem 0; }
 .footer-credit a:hover { color: var(--gold); border-bottom-color: var(--gold); }
 
 /* ANIMATIONS */
-.fade-in {
-  opacity: 0; transform: translateY(20px);
-  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+@keyframes fadeInUpBlur {
+  from { opacity: 0; transform: translateY(30px); filter: blur(8px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-.fade-in.visible { opacity: 1; transform: none; }
+
+.fade-in {
+  opacity: 0; transform: translateY(30px); filter: blur(8px);
+  transition: opacity 1s var(--ease), transform 1s var(--ease), filter 1s var(--ease);
+}
+.fade-in.visible { opacity: 1; transform: none; filter: blur(0); }
 /* EVENT PAGE MULTI-MARQUEE */
 .multi-marquee-container {
   display: flex;
