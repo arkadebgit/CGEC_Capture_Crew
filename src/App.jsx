@@ -4475,17 +4475,23 @@ function WinnerCard({ rank, data, color, isFeatured, setLightboxItem }) {
 
 // ✦✦✦ CC EVENTS PAGE COMPONENT ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦
 function CCEventsPage({ ccEvents, onClose, setLightboxItem, isMobile }) {
+  const hasScrolled = useRef(false);
+
   useEffect(() => {
+    if (hasScrolled.current) return;
+
     if (window.location.hash) {
       const id = decodeURIComponent(window.location.hash.replace('#', ''));
       setTimeout(() => {
         const el = document.getElementById(id);
         if (el) {
           el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          hasScrolled.current = true;
         }
       }, 500);
     } else {
       window.scrollTo(0, 0);
+      hasScrolled.current = true;
     }
   }, [ccEvents]);
 
