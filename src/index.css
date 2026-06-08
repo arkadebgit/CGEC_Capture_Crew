@@ -72,6 +72,67 @@ body {
 }
 .nav-links li:hover, .nav-links li.active { color: var(--gold); }
 
+.has-dropdown {
+  position: relative;
+  padding-bottom: 15px; /* Increase hover area */
+  margin-bottom: -15px; /* Offset padding */
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(24, 24, 28, 0.95);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.5rem;
+  min-width: 180px;
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+/* Triangle pointer for dropdown */
+.dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: rgba(24, 24, 28, 0.95);
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.has-dropdown:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.dropdown-menu li {
+  padding: 0.8rem 1rem !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em !important;
+  color: var(--white) !important;
+  border-radius: 8px;
+  transition: all 0.2s !important;
+  text-align: center;
+  font-family: var(--font-body) !important;
+  font-weight: 400 !important;
+  text-transform: uppercase !important;
+}
+.dropdown-menu li:hover {
+  background: rgba(201, 169, 110, 0.1);
+  color: var(--gold) !important;
+  transform: translateY(0) !important;
+}
 .nav-toggle {
   display: none; flex-direction: column; gap: 5px;
   background: transparent; border: none; cursor: pointer; z-index: 150;
@@ -130,6 +191,7 @@ body {
     transition: all 0.4s var(--ease);
   }
   .nav-links li:hover, .nav-links li.active { color: var(--gold); transform: translateY(-3px); }
+  .dropdown-menu { display: none !important; }
 }
 
 @media(min-width: 1025px) and (max-width: 1280px) {

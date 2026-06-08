@@ -1098,25 +1098,35 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
 
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
           {[
-            ["home", "Home"],
-            ["about", "About Us"],
-            ["gallery", "Gallery"],
-            ["events", "Events"],
-            ["events/archive", "Events Gallery"],
-            ["team", "Team"],
-            ["verify", "Verify"],
-            ["join", "Join"],
-            ["contributors", "Contributors"],
-            ["privacy-policy", "Privacy Policy"],
-            ["admin", "Admin Console"]
-          ].map(([id, label]) => {
-            let route = id === "home" ? "/" : `/${id}`;
+            { id: "home", label: "Home" },
+            { id: "about", label: "About Us" },
+            { id: "gallery", label: "Gallery", dropdown: [
+              { label: "Weekly Captures", route: "/Weekly Captures" },
+              { label: "Monthly Captures", route: "/Monthly Captures" },
+              { label: "The Extra Frame", route: "/The Extra Frame" }
+            ] },
+            { id: "events", label: "Events", dropdown: liveEventsList.map(ev => ({
+              label: ev.name, route: `/events/${encodeURIComponent(ev.name)}`
+            })) },
+            { id: "events/archive", label: "Events Gallery" },
+            { id: "team", label: "Team" },
+            { id: "verify", label: "Verify" },
+            { id: "join", label: "Join" },
+            { id: "contributors", label: "Contributors" },
+            { id: "privacy-policy", label: "Privacy Policy" },
+            { id: "admin", label: "Admin Console" }
+          ].map((item) => {
+            const id = item.id;
+            const label = item.label;
+            let route = item.route || (id === "home" ? "/" : `/${id}`);
             return (
-              <li key={id} className={activeSection === id ? "active" : ""}>
+              <li key={id} className={`nav-item ${activeSection === id ? "active" : ""} ${item.dropdown ? "has-dropdown" : ""}`}>
                 <Link 
                   to={route} 
                   onClick={(e) => {
                     if (selectedEvent) setSelectedEvent(null);
+                    // Don't close mobile menu immediately if it has dropdown, to allow clicking, unless handled by CSS.
+                    // Actually, clicking the main link should navigate and close it.
                     setMobileMenuOpen(false);
                     setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
                   }}
@@ -1124,6 +1134,25 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                 >
                   {label}
                 </Link>
+                {item.dropdown && (
+                  <ul className="dropdown-menu">
+                    {item.dropdown.map(d => (
+                      <li key={d.label}>
+                        <Link 
+                          to={d.route}
+                          onClick={(e) => {
+                            if (selectedEvent) setSelectedEvent(null);
+                            setMobileMenuOpen(false);
+                            setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
+                          }}
+                          style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
+                        >
+                          {d.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             );
           })}
