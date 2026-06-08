@@ -1249,7 +1249,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                   <div className="fade-in" style={{ marginBottom: "4rem" }}>
                     <div className="section-label"></div>
                     <h2 className="section-title">Capture of the <em>Week</em></h2>
-                    <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
                   </div>
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap">
@@ -1278,7 +1277,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                   <div className="fade-in" style={{ marginBottom: "4rem" }}>
                     <div className="section-label"></div>
                     <h2 className="section-title">Capture of the <em>Week</em></h2>
-                    <p className="section-sub">Hand-picked by the core team — one photograph that stopped us in our tracks.</p>
                   </div>
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap">
@@ -1313,9 +1311,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div className="month-image-wrap">
                       <BlurUpImage src={monthCapture.url || "/placeholder.jpg"} alt={monthCapture.title} className="month-img" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(monthCapture)} />
                       <div className="month-frame" />
-                      <div className="month-award">
-                        <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
-                      </div>
                     </div>
                     <div className="month-info">
                       <div className="month-of"></div>
@@ -1346,9 +1341,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     <div className="month-image-wrap">
                       <BlurUpImage src="/placeholder.jpg" alt="Placeholder" className="month-img" style={{ cursor: 'default' }} />
                       <div className="month-frame" />
-                      <div className="month-award">
-                        <div className="month-award-text">BEST<br/>OF<br/>MONTH</div>
-                      </div>
                     </div>
                     <div className="month-info">
                       <div className="month-of"></div>
