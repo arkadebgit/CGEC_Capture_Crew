@@ -1277,7 +1277,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap">
                       <BlurUpImage src={weekCapture.url || "/placeholder.jpg"} alt={weekCapture.title} className="week-img" style={{ cursor: 'pointer' }} onClick={() => setLightboxItem(weekCapture)} />
-                      <div className="week-badge">This Week's Pick</div>
                     </div>
                     <div className="week-info">
                       <div className="week-date"></div>
@@ -1305,7 +1304,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap">
                       <BlurUpImage src="/placeholder.jpg" alt="Placeholder" className="week-img" style={{ cursor: 'default' }} />
-                      <div className="week-badge">This Week's Pick</div>
                     </div>
                     <div className="week-info">
                       <div className="week-date"></div>
@@ -1391,7 +1389,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                   <div className="week-inner fade-in">
                     <div className="week-image-wrap" style={{ borderRadius: '24px', overflow: 'hidden' }}>
                       <BlurUpImage src={extraFrameCapture.url} alt={extraFrameCapture.title} className="week-img" style={{ borderRadius: '0', cursor: 'pointer' }} onClick={() => setLightboxItem(extraFrameCapture)} />
-                      <div className="week-badge" style={{ background: "var(--gold)", color: "var(--ink)", padding: '0.5rem 1.2rem', fontSize: '0.7rem' }}>Special Moments</div>
                     </div>
                     <div className="week-info" style={{ padding: '0' }}>
                       <div className="week-date"></div>
