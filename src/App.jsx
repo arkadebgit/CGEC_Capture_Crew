@@ -2784,11 +2784,10 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         {adminData?.role !== 'core_member' && (tab === 'week' || tab === 'month' || tab === 'extra') && (
           <div className="visible">
             <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
-            <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., Cloudinary links starting with https://res.cloudinary.com/... or https://i.postimg.cc/...). Cloudinary is recommended for stability.</p>
-            <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
+            <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem', marginTop: '1rem' }}>
               <div style={{ gridColumn: '1 / -1' }}>
                 <SingleImageUploader 
-                  label="Upload Featured Photo"
+                  label="Choose image from gallery"
                   currentUrl={featuredData.url}
                   onUploadComplete={(url) => setFeaturedData({...featuredData, url})}
                 />
