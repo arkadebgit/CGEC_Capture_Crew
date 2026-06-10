@@ -1258,7 +1258,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             Explore the Events Gallery
           </button>
         </div>
-        <div className="hero-scroll">Scroll</div>
+
       </section>
 
       {(() => {
