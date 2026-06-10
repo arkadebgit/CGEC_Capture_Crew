@@ -1,6 +1,11 @@
 {
+  "functions": {
+    "api/metadata.js": {
+      "includeFiles": "dist/index.html"
+    }
+  },
   "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/([^.]*)", "destination": "/api/metadata" }
   ]
 }

@@ -7,6 +7,8 @@ import placeholderImg from "./assets/placeholder.png";
 import BlurUpImage from "./components/BlurUpImage";
 import BulkImageUploader from "./components/BulkImageUploader";
 import SingleImageUploader from "./components/SingleImageUploader";
+import SEOMetadata from "./components/SEOMetadata";
+
 
 // ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
 
@@ -1089,6 +1091,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
 
   return (
     <div className="app-container">
+      <SEOMetadata />
       {/* NAV */}
       <nav className={`nav ${navScrolled ? "scrolled" : ""}`}>
         <div className="nav-brand" onClick={() => scrollTo("home")}>
