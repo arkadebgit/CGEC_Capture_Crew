@@ -470,7 +470,7 @@ export default function App() {
     galleryFilter = slugMap[pathParts[1]] || "All";
   }
   
-  const activeSection = location.pathname === "/" ? "home" : (location.pathname === "/events/archive" ? "events/archive" : (isLegacyGallery || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]));
+  const activeSection = location.pathname === "/" ? "home" : (location.pathname === "/events-gallery" ? "events-gallery" : (isLegacyGallery || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]));
 
   const setGalleryFilterRoute = (cat) => {
     navigate(cat === "All" ? "/gallery" : `/gallery/${generateSlug(cat)}`);
@@ -1129,7 +1129,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             { id: "events", label: "Events", dropdown: liveEventsList.map(ev => ({
               label: ev.name, route: `/events/${ev.slug || generateSlug(ev.name)}`, comingSoon: ev.comingSoon
             })) },
-            { id: "events/archive", label: "Events Gallery" },
+            { id: "events-gallery", label: "Events Gallery" },
             { id: "team", label: "Team" },
             { id: "verify", label: "Verify" },
             { id: "join", label: "Join" },
@@ -1252,7 +1252,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
           </p>
 
           <button className="hero-cta" onClick={() => {
-            navigate('/events/archive');
+            navigate('/events-gallery');
             setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 100);
           }}>
             Explore the Events Gallery
@@ -1596,7 +1596,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             {/* Global Gallery Card */}
             <div 
               className="event-card global-gallery-card fade-in" 
-              onClick={() => navigate('/events/archive')}
+              onClick={() => navigate('/events-gallery')}
               style={{ cursor: 'pointer' }}
             >
               <div className="global-card-content">
@@ -1885,6 +1885,19 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         </div>
       </section>
         } />
+        <Route path="/events-gallery" element={
+          <EventPage 
+            isGlobal={true}
+            event={{ id: 'global', name: 'Event Archive', desc: 'A universal journey through all our club milestones and collective memories.' }}
+            onClose={() => navigate('/events')}
+            setLightboxItem={setLightboxItem}
+            liveEvents={liveEvents}
+            archiveConfig={archiveConfig}
+            liveEventsList={filteredEventsList}
+            isMobile={isMobile}
+          />
+        } />
+        <Route path="/events/archive" element={<Navigate to="/events-gallery" replace />} />
         <Route path="/events/:eventId" element={
           <EventRouteWrapper 
             liveEventsList={filteredEventsList}
@@ -1946,7 +1959,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                 ["contact", "Contact Us"],
                 ["gallery", "Gallery"],
                 ["events", "Events"],
-                ["events/archive", "Events Gallery"],
+                ["events-gallery", "Events Gallery"],
                 ["team", "Team"],
                 ["verify", "Verify"],
                 ["join", "Join"],
