@@ -3068,22 +3068,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 {editingEvent !== 'new' && (
                   <div style={{ marginTop: '3rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                     <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem' }}>Manage Event Photos</h4>
-                    <div style={{ marginBottom: '2rem' }}>
-                      <SingleImageUploader 
-                        label="Choose image from gallery"
-                        onUploadComplete={async (url) => {
-                          try {
-                            const currentPhotos = liveEvents[editingEvent] || [];
-                            const updated = [url, ...currentPhotos];
-                            await updateDoc(doc(db, "events", editingEvent), {
-                              photos: updated
-                            });
-                            setLocalEventPhotos(updated);
-                            await triggerEventEmailIfNeeded(editingEvent, updated);
-                          } catch (err) { alert(err.message); }
-                        }}
-                      />
-                    </div>
 
                     <BulkImageUploader 
                       hideMetadata={true}
@@ -4973,7 +4957,13 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
       <select className="form-input" value={data.year} onChange={e => setData({...data, year: e.target.value})}>
         {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
       </select>
-      <input className="form-input" placeholder="Profile Link (Cloudinary URL - Optional)" value={data.img || ""} onChange={e => setData({...data, img: e.target.value})} style={{ gridColumn: '1 / -1' }} />
+      <div style={{ gridColumn: '1 / -1' }}>
+        <SingleImageUploader 
+          label="Choose image from gallery"
+          currentUrl={data.img}
+          onUploadComplete={(url) => setData({...data, img: url})}
+        />
+      </div>
       <button className="form-submit" type="submit" disabled={loading} style={{ gridColumn: '1 / -1' }}>
         {loading ? "Adding..." : "Add Member"}
       </button>

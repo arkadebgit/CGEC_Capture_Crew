@@ -134,18 +134,18 @@ export default function BulkImageUploader({
       }
     };
 
-    // Process concurrently (e.g. 3 at a time)
+    // Process concurrently
     const concurrency = 3;
     const queue = [...files.filter(f => f.status !== 'success')];
-    const executing = [];
+    const executing = new Set();
 
-    while (queue.length > 0) {
-      const fileObj = queue.shift();
-      const p = processFile(fileObj);
-      executing.push(p);
-      if (executing.length >= concurrency) {
+    for (const fileObj of queue) {
+      const p = processFile(fileObj).finally(() => {
+        executing.delete(p);
+      });
+      executing.add(p);
+      if (executing.size >= concurrency) {
         await Promise.race(executing);
-        executing.splice(executing.findIndex(e => e === p), 1);
       }
     }
     await Promise.all(executing);
@@ -173,7 +173,7 @@ export default function BulkImageUploader({
   return (
     <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', marginBottom: '2rem' }}>
       <h5 style={{ fontSize: '1rem', color: 'var(--gold)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        📸 Advanced Image Uploader
+        Bulk Image Uploader
       </h5>
       
       {error && (
