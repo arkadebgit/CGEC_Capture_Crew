@@ -11,6 +11,22 @@ function formatSlug(slug) {
 }
 
 /**
+ * Universal slug generator for SEO-friendly URLs.
+ */
+function generateSlug(text) {
+  if (!text) return "";
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")           // Replace spaces with hyphens
+    .replace(/[^\w\-]+/g, "")       // Remove all non-word chars except hyphens
+    .replace(/\-\-+/g, "-")         // Replace multiple hyphens with a single one
+    .replace(/^-+/, "")             // Trim hyphens from start
+    .replace(/-+$/, "");            // Trim hyphens from end
+}
+
+/**
  * Generates SEO metadata based on the requested URL path.
  */
 export async function generateMetadataForPath(path) {
@@ -48,8 +64,9 @@ export async function generateMetadataForPath(path) {
             const fields = doc.fields || {};
             const eventId = fields.id?.stringValue || "";
             const eventName = fields.name?.stringValue || "";
+            const eventSlug = fields.slug?.stringValue || generateSlug(eventName);
             
-            if (eventId === decodedParam || eventName === decodedParam) {
+            if (eventSlug === decodedParam || eventId === decodedParam || generateSlug(eventId) === decodedParam || generateSlug(eventName) === decodedParam) {
               matchedEvent = fields;
               break;
             }

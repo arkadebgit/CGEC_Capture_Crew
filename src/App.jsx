@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Routes, Route, Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Routes, Route, Link, useLocation, useNavigate, useParams, Navigate } from "react-router-dom";
 import { db, auth } from "./firebase";
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc, getDoc, orderBy, onSnapshot, serverTimestamp, writeBatch } from "firebase/firestore";
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -8,6 +8,8 @@ import BlurUpImage from "./components/BlurUpImage";
 import BulkImageUploader from "./components/BulkImageUploader";
 import SingleImageUploader from "./components/SingleImageUploader";
 import SEOMetadata from "./components/SEOMetadata";
+import { generateSlug } from "./utils/slug";
+
 
 
 // ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
@@ -451,17 +453,27 @@ export default function App() {
   const [navScrolled, setNavScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const topLevelCategories = ["Weekly Captures", "Monthly Captures", "The Extra Frame"];
-  const decodedPath = decodeURIComponent(location.pathname.substring(1));
-  const isGalleryCategory = topLevelCategories.includes(decodedPath);
-  const pathParts = location.pathname.split('/').filter(Boolean);
+  const decodedPath = decodeURIComponent(location.pathname);
+  const pathParts = decodedPath.split('/').filter(Boolean);
+  const isLegacyGallery = ["/Weekly Captures", "/Monthly Captures", "/The Extra Frame"].includes(decodedPath);
   const isGallerySub = pathParts[0] === 'gallery' && pathParts[1];
   
-  const activeSection = location.pathname === "/" ? "home" : (location.pathname === "/events/archive" ? "events/archive" : (isGalleryCategory || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]));
-  const galleryFilter = isGalleryCategory ? decodedPath : (isGallerySub ? decodeURIComponent(pathParts[1]) : "All");
+  let galleryFilter = "All";
+  if (isLegacyGallery) {
+    galleryFilter = decodedPath.substring(1);
+  } else if (isGallerySub) {
+    const slugMap = {
+      'weekly-captures': 'Weekly Captures',
+      'monthly-captures': 'Monthly Captures',
+      'the-extra-frame': 'The Extra Frame'
+    };
+    galleryFilter = slugMap[pathParts[1]] || "All";
+  }
+  
+  const activeSection = location.pathname === "/" ? "home" : (location.pathname === "/events/archive" ? "events/archive" : (isLegacyGallery || isGallerySub ? "gallery" : location.pathname.substring(1).split('/')[0]));
 
   const setGalleryFilterRoute = (cat) => {
-    navigate(cat === "All" ? "/gallery" : `/${cat}`);
+    navigate(cat === "All" ? "/gallery" : `/gallery/${generateSlug(cat)}`);
   };
   const [lightboxItem, setLightboxItem] = useState(null);
 
@@ -1110,12 +1122,12 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             { id: "home", label: "Home" },
             { id: "about", label: "About Us" },
             { id: "gallery", label: "Gallery", dropdown: [
-              { label: "Weekly Captures", route: "/Weekly Captures" },
-              { label: "Monthly Captures", route: "/Monthly Captures" },
-              { label: "The Extra Frame", route: "/The Extra Frame" }
+              { label: "Weekly Captures", route: "/gallery/weekly-captures" },
+              { label: "Monthly Captures", route: "/gallery/monthly-captures" },
+              { label: "The Extra Frame", route: "/gallery/the-extra-frame" }
             ] },
             { id: "events", label: "Events", dropdown: liveEventsList.map(ev => ({
-              label: ev.name, route: `/events/${encodeURIComponent(ev.name)}`, comingSoon: ev.comingSoon
+              label: ev.name, route: `/events/${ev.slug || generateSlug(ev.name)}`, comingSoon: ev.comingSoon
             })) },
             { id: "events/archive", label: "Events Gallery" },
             { id: "team", label: "Team" },
@@ -1411,7 +1423,12 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
           </>
         } />
 
-        {["/gallery", "/Weekly Captures", "/Monthly Captures", "/The Extra Frame", "/gallery/:category"].map(path => (
+        {/* Legacy redirect routes for backward compatibility */}
+        <Route path="/Weekly Captures" element={<Navigate to="/gallery/weekly-captures" replace />} />
+        <Route path="/Monthly Captures" element={<Navigate to="/gallery/monthly-captures" replace />} />
+        <Route path="/The Extra Frame" element={<Navigate to="/gallery/the-extra-frame" replace />} />
+
+        {["/gallery", "/gallery/weekly-captures", "/gallery/monthly-captures", "/gallery/the-extra-frame", "/gallery/:category"].map(path => (
           <Route key={path} path={path} element={
           <section id="gallery" className="gallery-section">
         <div className="container">
@@ -1554,7 +1571,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                     key={ev.id}
                     className="event-card fade-in"
                     style={{ "--c": ev.color }}
-                    onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${encodeURIComponent(ev.name)}`)}
+                    onClick={() => ev.comingSoon ? alert("Coming Soon!") : navigate(`/events/${ev.slug || generateSlug(ev.name)}`)}
                   >
                     {logoUrl ? (
                       <img src={logoUrl} alt={ev.name} className="event-card-icon" referrerPolicy="no-referrer" />
@@ -2097,9 +2114,17 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
   }
 
   const decoded = decodeURIComponent(eventId);
-  const event = liveEventsList.find(e => e.name === decoded || e.id === decoded);
+  let event = liveEventsList.find(e => e.slug === eventId || generateSlug(e.name) === eventId || generateSlug(e.id) === eventId);
   
-  if (!event) return <div style={{ color: 'white', padding: '5rem', textAlign: 'center' }}>Event not found</div>;
+  if (!event) {
+    // Check if it's an old encoded style link or id
+    event = liveEventsList.find(e => e.name === decoded || e.id === decoded);
+    if (event) {
+      // It's an old link, redirect to the clean slug
+      return <Navigate to={`/events/${event.slug || generateSlug(event.name)}`} replace />;
+    }
+    return <div style={{ color: 'white', padding: '5rem', textAlign: 'center' }}>Event not found</div>;
+  }
 
   return (
     <EventPage 
@@ -2241,7 +2266,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
       title: `Campus Event: ${eventObj.name}`,
       description: `${eventObj.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${eventObj.subtitle || ''}`,
       imageUrl: updatedPhotos[0] || ((eventObj.iconUrl && eventObj.iconUrl.trim().startsWith('http')) ? eventObj.iconUrl.trim() : null),
-      link: `https://www.capturecrew.site/events/${encodeURIComponent(eventObj.id || eventObj.name)}`
+      link: `https://www.capturecrew.site/events/${eventObj.slug || generateSlug(eventObj.name || eventObj.id)}`
     });
 
     try {
@@ -2579,7 +2604,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         title: `Featured Capture of the ${type === 'week' ? 'Week' : type === 'month' ? 'Month' : 'Frame'}`,
         description: `A new photograph under the category "${newPhoto.category}" by ${newPhoto.photographer} (${newPhoto.dept} · ${newPhoto.year}) has been published to CGEC Capture Crew! Check it out in the gallery.`,
         imageUrl: newPhoto.url,
-        link: `https://www.capturecrew.site/${encodeURIComponent(newPhoto.category)}`,
+        link: `https://www.capturecrew.site/gallery/${generateSlug(newPhoto.category)}`,
         photographer: newPhoto.photographer
       });
 
@@ -3048,7 +3073,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                         const cleanedData = {
                           ...eventFormData,
                           calendarYear: eventFormData.calendarYear || siteConfig.activeYear || "2026",
-                          iconUrl: eventFormData.iconUrl ? eventFormData.iconUrl.trim() : ""
+                          iconUrl: eventFormData.iconUrl ? eventFormData.iconUrl.trim() : "",
+                          slug: generateSlug(eventFormData.name)
                         };
                         const existingEvent = liveEventsList.find(e => e.id === eventFormData.id);
                         const photos = eventFormData.photos || (existingEvent && existingEvent.photos) || [];
@@ -3061,7 +3087,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                             title: `Campus Event: ${cleanedData.name}`,
                             description: `${cleanedData.desc || 'Check out our new event on the website!'}\n\nSubtitle: ${cleanedData.subtitle || ''}`,
                             imageUrl: photos[0] || ((cleanedData.iconUrl && cleanedData.iconUrl.trim().startsWith('http')) ? cleanedData.iconUrl.trim() : null),
-                            link: `https://www.capturecrew.site/events/${encodeURIComponent(cleanedData.id || cleanedData.name)}`
+                            link: `https://www.capturecrew.site/events/${cleanedData.slug || generateSlug(cleanedData.name || cleanedData.id)}`
                           });
                         }
 
