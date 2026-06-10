@@ -2780,38 +2780,6 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           {/* TIER 1: Everyone has access to Profile */}
           <button className={`filter-btn ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>Profile Settings</button>
         </div>
-        <div className="admin-guide-box visible" style={{ 
-          background: 'rgba(201,169,110,0.05)', 
-          border: '1px dashed var(--gold)', 
-          borderRadius: '16px', 
-          padding: '1.5rem', 
-          marginBottom: '2rem',
-          fontSize: '0.85rem'
-        }}>
-          <h4 style={{ color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            🛠️ Admin Deployment Guide
-          </h4>
-          <p style={{ opacity: 0.8, marginBottom: '1rem' }}>
-            For the best performance and consistency, follow this workflow before uploading any content:
-          </p>
-          <ol style={{ paddingLeft: '1.2rem', marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem', opacity: 0.9 }}>
-            <li>
-              <strong>Compress:</strong> Use <a href="https://imagecompressr.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>ImageCompressr</a> only if your image is more than 10 MB. Recommended settings: <b>Size: 2 MB</b>, <b>Quality: 60%</b>.
-            </li>
-            <li>
-              <strong>Bypass Limits:</strong> If you hit the 100+ images limit or see a subscription prompt, simply <b>Clear Browser Cache</b> to reset the tool.
-            </li>
-            <li>
-              <strong>Upload:</strong> Host the images on <a href="https://cloudinary.com/" target="_blank" rel="noreferrer" style={{ color: 'var(--gold)', textDecoration: 'underline' }}>Cloudinary</a> to get delivery URLs / direct links.
-            </li>
-            <li>
-              <strong>Link:</strong> Copy the <strong>Direct Link</strong> (ending in .jpg/.png or standard Cloudinary format) and paste it into the forms below.
-            </li>
-          </ol>
-          <div style={{ fontSize: '0.75rem', opacity: 0.6, fontStyle: 'italic' }}>
-            *Note: Only Direct Links will work. If the link doesn't end with an image extension, the site might show a broken image.
-          </div>
-        </div>
 
         {adminData?.role !== 'core_member' && (tab === 'week' || tab === 'month' || tab === 'extra') && (
           <div className="visible">
@@ -2919,7 +2887,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 <input className="form-input" placeholder="Serial No (CC-XXXX)" value={newCert.serialNo} onChange={e => setNewCert({...newCert, serialNo: e.target.value})} required />
                 <input className="form-input" placeholder="Issue Date" value={newCert.date} onChange={e => setNewCert({...newCert, date: e.target.value})} required />
                 <input className="form-input" placeholder="Event Name" value={newCert.event} onChange={e => setNewCert({...newCert, event: e.target.value})} required />
-                <input className="form-input" placeholder="Certificate Link (Optional)" value={newCert.link || ""} onChange={e => setNewCert({...newCert, link: e.target.value})} />
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <SingleImageUploader 
+                    label="Choose image from gallery"
+                    currentUrl={newCert.link}
+                    onUploadComplete={(url) => setNewCert({...newCert, link: url})}
+                  />
+                </div>
                 <button className="form-submit" type="submit" style={{ gridColumn: '1 / -1' }}>Issue Certificate </button>
               </form>
             )}
@@ -2989,15 +2963,17 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       <td style={{ padding: '1rem' }}>{m.dept}</td>
                       <td style={{ padding: '1rem', color: 'var(--gold)' }}>{m.year}</td>
                       <td style={{ padding: '1rem' }}>
-                        <button onClick={async () => {
-                          const newUrl = window.prompt("Enter Profile Link (Cloudinary URL). Leave blank to use default camera emoji.", m.img || "");
-                          if (newUrl !== null) {
-                            try {
-                              await updateDoc(doc(db, "members", m.id), { img: newUrl.trim() });
-                              alert("Profile link updated!");
-                            } catch (err) { alert("Failed: " + err.message); }
-                          }
-                        }} style={{ background: 'var(--gold)', border: 'none', color: 'var(--ink)', padding: '0.3rem 0.6rem', borderRadius: '4px', cursor: 'pointer', fontSize: '0.7rem', marginRight: '0.5rem' }}>Edit Link</button>
+                        <div style={{ display: 'inline-block', width: '150px', verticalAlign: 'middle', marginRight: '0.5rem' }}>
+                          <SingleImageUploader 
+                            label="Choose image from gallery"
+                            currentUrl={m.img}
+                            onUploadComplete={async (url) => {
+                              try {
+                                await updateDoc(doc(db, "members", m.id), { img: url });
+                              } catch (err) { alert("Failed: " + err.message); }
+                            }}
+                          />
+                        </div>
                         <button onClick={async () => {
                           if (window.confirm("Remove this member?")) {
                             try {
@@ -3092,24 +3068,25 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                 {editingEvent !== 'new' && (
                   <div style={{ marginTop: '3rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                     <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem' }}>Manage Event Photos</h4>
-                    <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
-                      <input className="form-input" style={{ flex: 1 }} placeholder="Paste Direct Image Link (https://...)" value={newEventPhoto} onChange={e => setNewEventPhoto(e.target.value)} />
-                      <button className="admin-nav-btn" onClick={async () => {
-                        if (!newEventPhoto) return;
-                        try {
-                          const currentPhotos = liveEvents[editingEvent] || [];
-                          const updated = [newEventPhoto, ...currentPhotos];
-                          await updateDoc(doc(db, "events", editingEvent), {
-                            photos: updated
-                          });
-                          setLocalEventPhotos(updated);
-                          setNewEventPhoto("");
-                          await triggerEventEmailIfNeeded(editingEvent, updated);
-                        } catch (err) { alert(err.message); }
-                      }}>Add Single +</button>
+                    <div style={{ marginBottom: '2rem' }}>
+                      <SingleImageUploader 
+                        label="Choose image from gallery"
+                        onUploadComplete={async (url) => {
+                          try {
+                            const currentPhotos = liveEvents[editingEvent] || [];
+                            const updated = [url, ...currentPhotos];
+                            await updateDoc(doc(db, "events", editingEvent), {
+                              photos: updated
+                            });
+                            setLocalEventPhotos(updated);
+                            await triggerEventEmailIfNeeded(editingEvent, updated);
+                          } catch (err) { alert(err.message); }
+                        }}
+                      />
                     </div>
 
                     <BulkImageUploader 
+                      hideMetadata={true}
                       defaultCategory="Event Capture"
                       onUploadComplete={async (results) => {
                         try {
@@ -3171,6 +3148,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                             if (window.confirm("Remove this photo?")) {
                               const updated = localEventPhotos.filter((_, i) => i !== idx);
                               setLocalEventPhotos(updated);
+                              updateDoc(doc(db, "events", editingEvent), { photos: updated }).catch(err => alert("Error updating database: " + err.message));
                             }
                           }} style={{ position: 'absolute', top: 5, right: 5, background: '#ff4444', border: 'none', color: '#fff', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>×</button>
                           <div style={{ position: 'absolute', bottom: 5, left: 5, background: 'rgba(0,0,0,0.5)', padding: '2px 5px', borderRadius: '4px', fontSize: '8px', pointerEvents: 'none' }}>#{idx + 1}</div>
@@ -3442,13 +3420,21 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Site Name</label>
                       <input className="form-input" value={siteForm.siteName} onChange={e => setSiteForm({...siteForm, siteName: e.target.value})} />
                     </div>
-                    <div>
-                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Logo URL</label>
-                      <input className="form-input" value={siteForm.logoUrl} onChange={e => setSiteForm({...siteForm, logoUrl: e.target.value})} />
+                    <div style={{ marginBottom: '0.5rem' }}>
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Logo</label>
+                      <SingleImageUploader 
+                        label="Choose image from gallery"
+                        currentUrl={siteForm.logoUrl}
+                        onUploadComplete={(url) => setSiteForm({...siteForm, logoUrl: url})}
+                      />
                     </div>
                     <div>
-                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Favicon URL</label>
-                      <input className="form-input" value={siteForm.faviconUrl} onChange={e => setSiteForm({...siteForm, faviconUrl: e.target.value})} />
+                      <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Favicon</label>
+                      <SingleImageUploader 
+                        label="Choose image from gallery"
+                        currentUrl={siteForm.faviconUrl}
+                        onUploadComplete={(url) => setSiteForm({...siteForm, faviconUrl: url})}
+                      />
                     </div>
                   </div>
                 </div>
@@ -3678,9 +3664,17 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <div>
                       <label style={{ fontSize: '0.7rem', opacity: 0.6 }}>Photo Links (URLs separated by space, comma, semicolon or newline)</label>
+                      <BulkImageUploader 
+                        hideMetadata={true}
+                        onUploadComplete={(results) => {
+                          const newUrls = results.map(r => r.url).join('\n');
+                          const current = liveForm.photosRaw ? liveForm.photosRaw + '\n' : '';
+                          setLiveForm({...liveForm, photosRaw: current + newUrls});
+                        }}
+                      />
                       <textarea 
                         className="form-input" 
-                        style={{ minHeight: '180px', fontFamily: 'monospace', fontSize: '0.75rem', lineHeight: '1.4' }}
+                        style={{ minHeight: '180px', fontFamily: 'monospace', fontSize: '0.75rem', lineHeight: '1.4', marginTop: '1rem' }}
                         placeholder="https://res.cloudinary.com/... https://res.cloudinary.com/...&#10;or comma/semicolon separated..."
                         value={liveForm.photosRaw}
                         onChange={e => setLiveForm({...liveForm, photosRaw: e.target.value})}
@@ -3812,8 +3806,12 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                     <input className="form-input" placeholder="Your Name" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name: e.target.value})} />
                   </div>
                   <div className="form-group">
-                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Profile Picture Link</label>
-                    <input className="form-input" placeholder="https://..." value={profileForm.profilePic} onChange={e => setProfileForm({...profileForm, profilePic: e.target.value})} />
+                    <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Profile Picture</label>
+                    <SingleImageUploader 
+                      label="Choose image from gallery"
+                      currentUrl={profileForm.profilePic}
+                      onUploadComplete={(url) => setProfileForm({...profileForm, profilePic: url})}
+                    />
                   </div>
                   <div className="form-group">
                     <label style={{ fontSize: '0.7rem', color: 'var(--gold)', marginBottom: '0.5rem', display: 'block' }}>Instagram URL</label>
@@ -3961,8 +3959,12 @@ function AdminCCEvents({ ccEvents, siteConfig, sendResendNotification }) {
             <div className="glass-form" style={{ padding: '1.5rem', background: 'rgba(255,255,255,0.01)', border: '1px dashed var(--border)', borderRadius: '12px', marginBottom: '2rem' }}>
               <h4 style={{ color: 'var(--gold)', marginBottom: '1rem' }}>Upcoming Event Details</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)' }}>BANNER IMAGE LINK</label>
-                <input className="form-input" placeholder="Direct link to event banner or poster image" value={formData.bannerUrl || ""} onChange={e => setFormData({...formData, bannerUrl: e.target.value})} />
+                <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)' }}>BANNER IMAGE</label>
+                <SingleImageUploader 
+                  label="Choose image from gallery"
+                  currentUrl={formData.bannerUrl}
+                  onUploadComplete={(url) => setFormData({...formData, bannerUrl: url})}
+                />
               </div>
             </div>
           ) : (
@@ -3990,9 +3992,15 @@ function AdminCCEvents({ ccEvents, siteConfig, sendResendNotification }) {
                         <option key={y} value={y}>{y}</option>
                       ))}
                     </select>
-                    <input className="form-input" placeholder="Image Direct Link" value={formData.winners?.[rank]?.url || ""} onChange={e => {
-                      const w = {...formData.winners}; if(!w[rank]) w[rank] = {}; w[rank].url = e.target.value; setFormData({...formData, winners: w});
-                    }} />
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <SingleImageUploader 
+                        label="Choose image from gallery"
+                        currentUrl={formData.winners?.[rank]?.url}
+                        onUploadComplete={(url) => {
+                          const w = {...formData.winners}; if(!w[rank]) w[rank] = {}; w[rank].url = url; setFormData({...formData, winners: w});
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
@@ -4170,7 +4178,13 @@ function AdminTeamMgmt({ teamMembers, DEPTS, YEARS }) {
               <option value="Alumni">Alumni</option>
             </select>
 
-            <input className="form-input" placeholder="Image Direct Link (Cloudinary/PostImg)" value={formData.img} onChange={e => setFormData({...formData, img: e.target.value})} />
+            <div style={{ gridColumn: '1 / -1' }}>
+              <SingleImageUploader 
+                label="Choose image from gallery"
+                currentUrl={formData.img}
+                onUploadComplete={(url) => setFormData({...formData, img: url})}
+              />
+            </div>
             <input className="form-input" placeholder="Instagram URL (Optional)" value={formData.insta} onChange={e => setFormData({...formData, insta: e.target.value})} />
 
             <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
