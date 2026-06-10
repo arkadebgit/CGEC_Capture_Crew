@@ -1689,7 +1689,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
                 <h3 className="subcategory-title"><em>Ex-Incharges</em></h3>
                 <div className="team-grid incharge-grid">
                   {teamMembers.ex_incharge.map(m => (
-                    <div key={m.id || m.name} className="team-card incharge-card fade-in" style={{ opacity: 0.8 }}>
+                    <div key={m.id || m.name} className="team-card incharge-card fade-in">
                       <div 
                         className={`team-avatar highlight-silver ${m.img ? 'clickable' : ''}`}
                         onClick={m.img ? () => setLightboxItem({ url: m.img, title: m.name }) : undefined}
