@@ -3020,7 +3020,14 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                   <input className="form-input" placeholder="Date/Season" value={eventFormData.date || ""} onChange={e => setEventFormData({...eventFormData, date: e.target.value})} />
                   <input className="form-input" placeholder="Highlight Text" value={eventFormData.highlight || ""} onChange={e => setEventFormData({...eventFormData, highlight: e.target.value})} />
                   <input className="form-input" placeholder="Emoji (Fallback)" value={eventFormData.emoji || ""} onChange={e => setEventFormData({...eventFormData, emoji: e.target.value})} />
-                  <input className="form-input" placeholder="Icon Direct Link (Optional)" value={eventFormData.iconUrl || ""} onChange={e => setEventFormData({...eventFormData, iconUrl: e.target.value})} />
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>Event Icon</label>
+                    <SingleImageUploader 
+                      label="Choose from gallery"
+                      currentUrl={eventFormData.iconUrl}
+                      onUploadComplete={(url) => setEventFormData({...eventFormData, iconUrl: url})}
+                    />
+                  </div>
                   <input className="form-input" type="color" value={eventFormData.color || "#C9A96E"} onChange={e => setEventFormData({...eventFormData, color: e.target.value})} title="Theme Color" />
                   <div>
                     <label style={{ display: 'block', fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.5rem' }}>CALENDAR YEAR</label>
