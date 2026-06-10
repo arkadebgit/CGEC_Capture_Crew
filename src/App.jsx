@@ -2991,7 +2991,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </div>
         )}
 
-        {tab === 'team_mgmt' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+        {tab === 'team_mgmt' && (adminData?.role === 'lead' || adminData?.role === 'incharge' || adminData?.role === 'coordinator' || adminData?.role === 'moderator' || adminData?.canManageAdmins) && (
           <div className="fade-in visible">
             <h3 className="subcategory-title">Manage <em>Core Team & Incharges</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Add, remove, or promote members within the Core Team, Incharge, and Coordinator sections.</p>
@@ -3350,7 +3350,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </div>
         )}
 
-        {tab === 'theme' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+        {tab === 'theme' && (adminData?.role === 'lead' || adminData?.role === 'incharge' || adminData?.role === 'coordinator' || adminData?.role === 'moderator' || adminData?.canManageAdmins) && (
           <div className="visible">
             <h3 className="subcategory-title">Webpage <em>Style Options</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Select a standardized visual style for this academic semester. This updates colors and headings across the entire platform.</p>
@@ -3395,7 +3395,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             </div>
           </div>
         )}
-        {tab === 'site' && (adminData?.role === 'lead' || adminData?.canManageAdmins) && (
+        {tab === 'site' && (adminData?.role === 'lead' || adminData?.role === 'incharge' || adminData?.role === 'coordinator' || adminData?.role === 'moderator' || adminData?.canManageAdmins) && (
           <div className="visible">
             <h3 className="subcategory-title">Site <em>Configuration</em></h3>
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Manage global brand identity, hero texts, and social links.</p>
