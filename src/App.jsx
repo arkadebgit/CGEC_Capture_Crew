@@ -1268,9 +1268,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             date: weekCapture.captureDate || "",
             created: weekCapture.createdAt || "",
             element: (
-              <section id="week" className="week-section" key="week">
+              <section id="week" className="week-section" key="week" style={{ padding: '2rem 0' }}>
                 <div className="container">
-                  <div className="fade-in" style={{ marginBottom: "4rem" }}>
+                  <div className="fade-in" style={{ marginBottom: "1.5rem" }}>
                     <div className="section-label"></div>
                     <h2 className="section-title">Capture of the <em>Week</em></h2>
                   </div>
@@ -1295,9 +1295,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             date: "",
             created: "",
             element: (
-              <section id="week" className="week-section" key="week">
+              <section id="week" className="week-section" key="week" style={{ padding: '2rem 0' }}>
                 <div className="container">
-                  <div className="fade-in" style={{ marginBottom: "4rem" }}>
+                  <div className="fade-in" style={{ marginBottom: "1.5rem" }}>
                     <div className="section-label"></div>
                     <h2 className="section-title">Capture of the <em>Week</em></h2>
                   </div>
@@ -1321,9 +1321,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             date: monthCapture.captureDate || "",
             created: monthCapture.createdAt || "",
             element: (
-              <section id="month" className="month-section" key="month">
+              <section id="month" className="month-section" key="month" style={{ padding: '2rem 0' }}>
                 <div className="container">
-                  <div className="month-header fade-in">
+                  <div className="month-header fade-in" style={{ marginBottom: "1.5rem" }}>
                     <div>
                       <div className="section-label"></div>
                       <h2 className="section-title">Capture of the <em>Month</em></h2>
@@ -1351,9 +1351,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             date: "",
             created: "",
             element: (
-              <section id="month" className="month-section" key="month">
+              <section id="month" className="month-section" key="month" style={{ padding: '2rem 0' }}>
                 <div className="container">
-                  <div className="month-header fade-in">
+                  <div className="month-header fade-in" style={{ marginBottom: "1.5rem" }}>
                     <div>
                       <div className="section-label"></div>
                       <h2 className="section-title">Capture of the <em>Month</em></h2>
@@ -1380,9 +1380,9 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             date: extraFrameCapture.captureDate || "",
             created: extraFrameCapture.createdAt || "",
             element: (
-              <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '8rem 0' }} key="extra">
+              <section id="extra" className="week-section" style={{ background: "var(--surface)", borderTop: "1px solid var(--border)", padding: '2rem 0' }} key="extra">
                 <div className="container">
-                  <div className="fade-in" style={{ marginBottom: "4rem" }}>
+                  <div className="fade-in" style={{ marginBottom: "1.5rem" }}>
                     <div className="section-label"></div>
                     <h2 className="section-title">The <em>Extra Frame</em></h2>
                   </div>
