@@ -5,7 +5,8 @@ import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, s
 import { signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import placeholderImg from "./assets/placeholder.png";
 import BlurUpImage from "./components/BlurUpImage";
-
+import BulkImageUploader from "./components/BulkImageUploader";
+import SingleImageUploader from "./components/SingleImageUploader";
 
 // ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
 
@@ -159,12 +160,17 @@ const STATIC_EVENT_PHOTOS = {
 
 const flattenPhotos = (photos) => {
   if (!photos) return [];
-  if (Array.isArray(photos)) return photos;
-  return [
-    ...(photos.general || []),
-    ...(photos.prize || []),
-    ...(photos.winners || [])
-  ];
+  let flat = [];
+  if (Array.isArray(photos)) {
+    flat = photos;
+  } else {
+    flat = [
+      ...(photos.general || []),
+      ...(photos.prize || []),
+      ...(photos.winners || [])
+    ];
+  }
+  return flat.map(p => typeof p === 'string' ? p : (p.url || p.imageUrl));
 };
 
 const GALLERY_CATEGORIES = ["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"];
@@ -2812,13 +2818,13 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             <h3 className="subcategory-title">Update {tab === 'week' ? 'Weekly' : tab === 'month' ? 'Monthly' : 'Extra Frame'} <em>Featured</em></h3>
             <p className="section-sub" style={{ marginBottom: '1.5rem' }}>Use <strong>Direct Links</strong> (e.g., Cloudinary links starting with https://res.cloudinary.com/... or https://i.postimg.cc/...). Cloudinary is recommended for stability.</p>
             <div className="feedback-form" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.2rem' }}>
-              <input className="form-input" placeholder="Image Direct Link (https://res.cloudinary.com/...)" value={featuredData.url} onChange={e => {
-                let val = e.target.value;
-                if (val.includes('ibb.co') && !val.includes('i.ibb.co')) {
-                  console.warn("Likely not a direct link");
-                }
-                setFeaturedData({...featuredData, url: val})
-              }} style={{ gridColumn: '1 / -1' }} />
+              <div style={{ gridColumn: '1 / -1' }}>
+                <SingleImageUploader 
+                  label="Upload Featured Photo"
+                  currentUrl={featuredData.url}
+                  onUploadComplete={(url) => setFeaturedData({...featuredData, url})}
+                />
+              </div>
               <input className="form-input" placeholder="Caption / Title" value={featuredData.title} onChange={e => setFeaturedData({...featuredData, title: e.target.value})} />
               <input className="form-input" placeholder="Photographer Name" value={featuredData.photographer} onChange={e => setFeaturedData({...featuredData, photographer: e.target.value})} />
               
@@ -3103,37 +3109,37 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
                       }}>Add Single +</button>
                     </div>
 
-                    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)', marginBottom: '2rem' }}>
-                      <h5 style={{ fontSize: '0.8rem', color: 'var(--gold)', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        🚀 Bulk Image Uploader 
-                        <a href="https://bulk-cloudinary-url-generator.vercel.app/" target="_blank" rel="noreferrer" style={{ fontSize: '0.6rem', background: 'var(--gold)', color: 'var(--ink)', padding: '0.2rem 0.5rem', borderRadius: '4px', textDecoration: 'none' }}>Cloudinary Bulk</a>
-                      </h5>
-                      <p style={{ fontSize: '0.7rem', opacity: 0.6, marginBottom: '1rem' }}>Upload your images to Cloudinary, copy the <strong>Direct Links/Delivery URLs</strong>, and paste them all below (separated by spaces or lines).</p>
-                      <textarea 
-                        className="form-input" 
-                        style={{ minHeight: '120px', fontSize: '0.75rem', fontFamily: 'monospace' }} 
-                        placeholder="Paste multiple links here... https://res.cloudinary.com/.../image.jpg"
-                        value={bulkInput}
-                        onChange={e => setBulkInput(e.target.value)}
-                      />
-                      <button className="form-submit" style={{ marginTop: '1rem', width: '100%', fontSize: '0.75rem' }} onClick={async () => {
-                        const urls = bulkInput.split(/\s+/).filter(u => u.startsWith("http"));
-                        if (urls.length === 0) return alert("No valid links found. Make sure they start with http");
+                    <BulkImageUploader 
+                      defaultCategory="Event Capture"
+                      onUploadComplete={async (results) => {
                         try {
-                          const current = liveEvents[editingEvent];
+                          const current = liveEvents[editingEvent] || [];
                           const currentArr = flattenPhotos(current);
-                          const updated = [...urls, ...currentArr];
+                          
+                          // Convert currentArr back to mixed objects or strings if necessary, 
+                          // but since current is an array, we just prepend results.
+                          // However, `liveEvents[editingEvent]` could be an object if it has {general:[]}.
+                          // Let's assume it's an array based on the context of this edit screen.
+                          const updated = [...results, ...currentArr];
 
                           await updateDoc(doc(db, "events", editingEvent), {
                             photos: updated
                           });
-                          setLocalEventPhotos(updated);
-                          setBulkInput("");
-                          alert(`${urls.length} photos added successfully to ${editingEvent}!`);
+                          
+                          // Also save rich metadata to the global gallery collection
+                          const batch = writeBatch(db);
+                          results.forEach(res => {
+                            const ref = doc(collection(db, "gallery"));
+                            batch.set(ref, res);
+                          });
+                          await batch.commit();
+
+                          setLocalEventPhotos(updated.map(p => typeof p === 'string' ? p : p.url));
+                          alert(`${results.length} photos uploaded and optimized successfully to ${editingEvent}!`);
                           await triggerEventEmailIfNeeded(editingEvent, updated);
-                        } catch (err) { alert("Dump Error: " + err.message); }
-                      }}>DUMP BULK PHOTOS </button>
-                    </div>
+                        } catch (err) { alert("Upload Error: " + err.message); }
+                      }}
+                    />
 
                     <h4 style={{ color: 'var(--gold)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       Gallery Preview 
@@ -3326,53 +3332,14 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
             <p className="section-sub" style={{ marginBottom: '2rem' }}>Add or remove background images for the home page. Use direct image links.</p>
             
             <div className="glass-form" style={{ padding: '2rem' }}>
-              <form className="feedback-form" style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', padding: '1.5rem', borderRadius: '16px' }} onSubmit={(e) => {
-                e.preventDefault();
-                const url = e.target.coverUrl.value.trim();
-                if (url) {
-                  setLocalCoverPhotos([...localCoverPhotos, url]);
-                  e.target.coverUrl.value = "";
-                }
-              }}>
-                <input name="coverUrl" className="form-input" style={{ flex: 1 }} placeholder="Image Direct Link (https://...)" required />
-                <button className="form-submit" type="submit" style={{ width: 'auto', padding: '0 2rem' }}>Add Cover </button>
-              </form>
-
-              <div style={{ marginBottom: '2rem' }}>
-                <button 
-                  onClick={() => setShowBulkCover(!showBulkCover)} 
-                  style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--gold)', border: '1px solid var(--gold)', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.7rem', cursor: 'pointer', marginBottom: '1rem' }}
-                >
-                  {showBulkCover ? "Hide Bulk Upload" : "🚀 Bulk Upload Covers"}
-                </button>
-
-                {showBulkCover && (
-                  <div className="fade-in visible" style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--border)' }}>
-                    <p style={{ fontSize: '0.75rem', opacity: 0.7, marginBottom: '1rem' }}>Paste multiple direct links (one per line or separated by spaces).</p>
-                    <textarea 
-                      className="form-input" 
-                      style={{ minHeight: '150px', fontSize: '0.75rem', fontFamily: 'monospace' }} 
-                      placeholder="https://i.ibb.co/image1.jpg&#10;https://i.ibb.co/image2.jpg"
-                      value={bulkCoverInput}
-                      onChange={e => setBulkCoverInput(e.target.value)}
-                    />
-                    <button 
-                      className="form-submit" 
-                      style={{ marginTop: '1rem', width: '100%' }}
-                      onClick={() => {
-                        const urls = bulkCoverInput.split(/\s+/).filter(u => u.startsWith("http"));
-                        if (urls.length === 0) return alert("No valid links found.");
-                        setLocalCoverPhotos([...urls, ...localCoverPhotos]);
-                        setBulkCoverInput("");
-                        setShowBulkCover(false);
-                        alert(`${urls.length} covers added to pending list!`);
-                      }}
-                    >
-                      DUMP BULK COVERS 
-                    </button>
-                  </div>
-                )}
-              </div>
+              <BulkImageUploader 
+                hideMetadata={true}
+                onUploadComplete={(results) => {
+                  const urls = results.map(r => r.url);
+                  setLocalCoverPhotos([...urls, ...localCoverPhotos]);
+                  alert(`${urls.length} covers optimized and uploaded to pending list! Click 'SAVE COVER ORDER' to publish.`);
+                }}
+              />
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                 <h4 style={{ color: 'var(--gold)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
