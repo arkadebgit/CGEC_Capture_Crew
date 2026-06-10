@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     const urlPath = requestUrl.split('?')[0];
 
     // Generate metadata
-    const metadata = generateMetadataForPath(urlPath);
+    const metadata = await generateMetadataForPath(urlPath);
     const domain = `https://${req.headers.host || 'capturecrew.site'}`;
     const fullUrl = `${domain}${metadata.urlPath}`;
 
