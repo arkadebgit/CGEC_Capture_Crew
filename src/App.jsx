@@ -1065,7 +1065,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
   });
 
   const filteredGallery = galleryFilter === "All"
-    ? sortedGallery
+    ? sortedGallery.filter(g => ["Weekly Captures", "Monthly Captures", "The Extra Frame"].includes(g.category))
     : sortedGallery.filter(g => g.category === galleryFilter);
 
   const filteredEventsList = liveEventsList.filter(ev => (ev.calendarYear || "2026") === selectedYear);
