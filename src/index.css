@@ -726,6 +726,13 @@ section { padding: 7rem 0; }
     width: 100%;
     break-inside: avoid;
     margin-bottom: 1.5rem;
+    transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+  }
+  .gallery-grid-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    border-color: var(--gold);
+    z-index: 2;
   }
   @keyframes gridEntry {
     from { opacity: 0; transform: translateY(20px) scale(0.95); }
