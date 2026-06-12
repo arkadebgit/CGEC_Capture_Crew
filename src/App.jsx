@@ -560,7 +560,7 @@ export default function App() {
     emailSenderName: "Capture Crew",
     emailSenderAddress: "newsletter@capturecrew.site",
     emailReplyTo: "newsletter@capturecrew.site",
-    contributorsNotice: "<p style=\"margin-bottom: 1rem; opacity: 0.9;\">All data displayed here has been collected for the current year only.</p><p style=\"margin-bottom: 1rem; opacity: 0.9;\">To get featured, please upload your pictures in the WhatsApp group using the correct format:<br/><strong style=\"color: var(--white);\">Name, Department, Year</strong><br/>Submissions without the proper format will not be considered.</p><h4 style=\"font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; margin-top: 1.5rem;\">📩 Profile Showcase (Featured Members)</h4><p style=\"margin-bottom: 0.8rem; opacity: 0.9;\">If you have already been featured and want to showcase your <strong style=\"color: var(--white);\">profile photo on the website</strong>, please send your profile image along with your <strong style=\"color: var(--white);\">Name, Department, and Year</strong> to:<br/>📧 <a href=\"mailto:cc@capturecrew.site?subject=Profile%20Showcase%20(Featured%20Members)\" style=\"color: var(--gold); text-decoration: underline; font-weight: bold;\">cc@capturecrew.site</a></p><p style=\"margin-bottom: 1.5rem; opacity: 0.9;\">Only verified entries will be updated.</p><h4 style=\"font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; margin-top: 1.5rem;\">🔄 Weekly Updates</h4><p style=\"margin-bottom: 0; opacity: 0.9;\">Content is reviewed and updated every week. If you have already submitted but your entry is not visible, please share a screenshot as proof,profile photo and email us at:<br/>📧 <a href=\"mailto:admin@capturecrew.site?subject=Entry%20Not%20Visible%20%E2%80%93%20Submission%20Proof\" style=\"color: var(--gold); text-decoration: underline; font-weight: bold;\">admin@capturecrew.site</a></p>"
+    contributorsNotice: "<p style=\"margin-bottom: 1rem; opacity: 0.9;\">All data displayed here has been collected for the current year only.</p><p style=\"margin-bottom: 1rem; opacity: 0.9;\">To get featured, please upload your pictures in the WhatsApp group using the correct format:<br/><strong style=\"color: var(--white);\">Name, Department, Year</strong><br/>Submissions without the proper format will not be considered.</p><h4 style=\"font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; margin-top: 1.5rem;\">📩 Profile Showcase (Featured Members)</h4><p style=\"margin-bottom: 0.8rem; opacity: 0.9;\">If you have already been featured and want to showcase your <strong style=\"color: var(--white);\">profile photo on the website</strong>, please send your profile image along with your <strong style=\"color: var(--white);\">Name, Department, and Year</strong> to:<br/>📧 <a href=\"mailto:cc@capturecrew.site?subject=Profile%20Showcase%20(Featured%20Members)\" style=\"color: var(--gold); text-decoration: underline; font-weight: bold;\">cc@capturecrew.site</a></p><p style=\"margin-bottom: 1.5rem; opacity: 0.9;\">Only verified entries will be updated.</p><h4 style=\"font-size: 1rem; color: var(--gold); margin-bottom: 0.5rem; margin-top: 1.5rem;\">🔄 Weekly Updates</h4><p style=\"margin-bottom: 0; opacity: 0.9;\">Content is reviewed and updated every week. If you have already submitted but your entry is not visible, please share a screenshot as proof,profile photo and email us at:<br/>📧 <a href=\"mailto:contact@capturecrew.site?subject=Entry%20Not%20Visible%20%E2%80%93%20Submission%20Proof\" style=\"color: var(--gold); text-decoration: underline; font-weight: bold;\">contact@capturecrew.site</a></p>"
   });
 
   // Live Data State
@@ -2207,7 +2207,7 @@ function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveCo
 function LoginModal({ onClose, user, isUnauthorized }) {
   const [error, setError] = useState("");
 
-  const mailtoUrl = `mailto:admin@capturecrew.site?subject=${encodeURIComponent("Add email to website")}&body=${encodeURIComponent(
+  const mailtoUrl = `mailto:contact@capturecrew.site?subject=${encodeURIComponent("Add email to website")}&body=${encodeURIComponent(
     `Hello Capture Crew Team,\n\nPlease add my email address to the authorized administrators database.\n\nMy Email: ${user?.email || ""}\n\nThanks!`
   )}`;
 
@@ -2242,7 +2242,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
             <p style={{ opacity: 0.8, fontSize: '0.9rem', marginBottom: '2rem', lineHeight: '1.6' }}>
               Your email <strong>{user?.email}</strong> is not listed in our authorized administrators database.
               <br /><br />
-              If you are a Core Member, please contact a Lead or email us at <a href={mailtoUrl} style={{ color: 'var(--gold)', textDecoration: 'none', fontWeight: 'bold' }}>admin@capturecrew.site</a> to have your email added to the system.
+              If you are a Core Member, please contact a Lead or email us at <a href={mailtoUrl} style={{ color: 'var(--gold)', textDecoration: 'none', fontWeight: 'bold' }}>contact@capturecrew.site</a> to have your email added to the system.
             </p>
             <button className="form-submit" onClick={() => signOut(auth)} style={{ width: '100%', background: '#ff4d4d' }}>Sign Out & Try Different Account</button>
           </div>
