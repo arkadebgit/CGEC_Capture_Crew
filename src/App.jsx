@@ -9,7 +9,8 @@ import BulkImageUploader from "./components/BulkImageUploader";
 import SingleImageUploader from "./components/SingleImageUploader";
 import SEOMetadata from "./components/SEOMetadata";
 import { generateSlug } from "./utils/slug";
-
+import MaintenancePage from "./components/MaintenancePage";
+import AdminMaintenance from "./components/AdminMaintenance";
 
 
 // ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
@@ -581,8 +582,8 @@ export default function App() {
   const [liveEventsList, setLiveEventsList] = useState([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [ccEvents, setCcEvents] = useState([]);
-  const [isInitializing, setIsInitializing] = useState(true);
   const [showGlobalGallery, setShowGlobalGallery] = useState(false);
+  const [maintenanceConfig, setMaintenanceConfig] = useState(null);
 
   // Newsletter Broadcast Progress State
   const [broadcastProgress, setBroadcastProgress] = useState(null);
@@ -870,6 +871,15 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
       }
     });
 
+    // 5. Maintenance Config Listener
+    const unsubMaintenance = onSnapshot(doc(db, "maintenanceSettings", "global"), (snap) => {
+      if (snap.exists()) {
+        setMaintenanceConfig(snap.data());
+      } else {
+        setMaintenanceConfig({ enabled: false });
+      }
+    });
+
     return () => {
       unsubMembers();
       unsubTeam();
@@ -881,6 +891,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
       unsubLiveEvent();
       unsubSite();
       unsubGallery();
+      unsubMaintenance();
     };
   }, []);
 
@@ -1099,6 +1110,10 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         </div>
       </div>
     );
+  }
+
+  if (maintenanceConfig?.enabled && !isAdmin && !location.pathname.startsWith('/admin')) {
+    return <MaintenancePage config={maintenanceConfig} siteConfig={siteConfig} />;
   }
 
   return (
@@ -1925,6 +1940,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             navigate={navigate}
             liveEventConfig={liveEventConfig}
             sendResendNotification={sendResendNotification}
+            maintenanceConfig={maintenanceConfig}
           />
         } />
       </Routes>
@@ -2145,7 +2161,7 @@ function EventRouteWrapper({ liveEventsList, liveEvents, setLightboxItem, archiv
   );
 }
 
-function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveConfig, themeId, coverPhotos, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, navigate, liveEventConfig, sendResendNotification }) {
+function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveConfig, themeId, coverPhotos, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, navigate, liveEventConfig, sendResendNotification, maintenanceConfig }) {
   if (!user) return <LoginModal onClose={() => navigate('/')} />;
   
   if (isAuthChecking) {
@@ -2180,6 +2196,7 @@ function AdminRouteWrapper({ user, isAuthChecking, isAdmin, adminData, archiveCo
       gallery={gallery}
       liveEventConfig={liveEventConfig}
       sendResendNotification={sendResendNotification}
+      maintenanceConfig={maintenanceConfig}
     />
   );
 }
@@ -2254,7 +2271,7 @@ function LoginModal({ onClose, user, isUnauthorized }) {
   );
 }
 
-function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, liveEventConfig, sendResendNotification }) {
+function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, onClose, liveEvents, liveEventsList, dynamicMembers, teamMembers, ccEvents, updateTheme, siteConfig, gallery, liveEventConfig, sendResendNotification, maintenanceConfig }) {
   const triggerEventEmailIfNeeded = async (eventId, updatedPhotos) => {
     const eventObj = liveEventsList.find(e => e.id === eventId);
     if (!eventObj) return;
@@ -2794,6 +2811,7 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
               <button className={`filter-btn ${tab === 'covers' ? 'active' : ''}`} onClick={() => setTab('covers')}>Manage Covers</button>
               <button className={`filter-btn ${tab === 'cc_events' ? 'active' : ''}`} onClick={() => setTab('cc_events')}>CC Event Panel</button>
               <button className={`filter-btn ${tab === 'live_event' ? 'active' : ''}`} onClick={() => setTab('live_event')}>🔴 Live Showcase</button>
+              <button className={`filter-btn ${tab === 'maintenance' ? 'active' : ''}`} onClick={() => setTab('maintenance')}>Maintenance Mode</button>
             </>
           )}
 
@@ -3255,6 +3273,16 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
           </div>
         )}
          {adminData?.role !== 'core_member' && tab === 'cc_events' && <AdminCCEvents ccEvents={ccEvents} siteConfig={siteConfig} sendResendNotification={sendResendNotification} />}
+         {adminData?.role !== 'core_member' && tab === 'maintenance' && (
+           <AdminMaintenance 
+             config={maintenanceConfig} 
+             siteConfig={siteConfig}
+             user={user}
+             onSave={async (newConfig) => {
+               await setDoc(doc(db, "maintenanceSettings", "global"), newConfig, { merge: true });
+             }}
+           />
+         )}
         {adminData?.role !== 'core_member' && tab === 'archive' && (
           <div className="visible">
             <h3 className="subcategory-title">Manage <em>Archive Timeline</em></h3>
