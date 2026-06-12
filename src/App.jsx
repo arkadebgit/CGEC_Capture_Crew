@@ -582,6 +582,7 @@ export default function App() {
   const [liveEventsList, setLiveEventsList] = useState([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
   const [ccEvents, setCcEvents] = useState([]);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [showGlobalGallery, setShowGlobalGallery] = useState(false);
   const [maintenanceConfig, setMaintenanceConfig] = useState(null);
 
