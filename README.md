@@ -1,4 +1,4 @@
-# 📸 Capture Crew - Photography Club Portal
+#  Capture Crew - Photography Club Portal
 
 [![Vite](https://img.shields.io/badge/Vite-5.2.0-646CFF?logo=vite&logoColor=white&style=flat-square)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/React-18.2.0-61DAFB?logo=react&logoColor=black&style=flat-square)](https://reactjs.org/)
