@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     bodyObj = {};
   }
 
-  let apiKey = process.env.RESEND_API_KEY || 're_GhJ4i3dm_E6BbLGU97TU775hqkPUQGart';
+  let apiKey = process.env.RESEND_API_KEY || 'xxx';
   if (apiKey) {
     apiKey = apiKey.trim().replace(/^["']|["']$/g, '');
   }
