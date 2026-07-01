@@ -10,7 +10,7 @@ A premium, cinematic showcase platform and administration suite for **Capture Cr
 
 ---
 
-## 🏗️ System Architecture & Data Flow
+##  System Architecture & Data Flow
 
 ```mermaid
 graph TD
@@ -26,7 +26,7 @@ graph TD
 
 ---
 
-## ⚡ Technical & Architectural Highlights
+##  Technical & Architectural Highlights
 
 - **Dynamic SEO & OpenGraph Tag Injection**: Built a custom serverless middleware (`api/metadata.js`) on Vercel Edge. Before serving `index.html` to crawlers (like Facebook, Twitter, WhatsApp), it intercepts requests, fetches details from Firestore REST endpoints, and dynamically writes OpenGraph (`og:*`) and Twitter cards tags directly into the header to support rich social previews.
 - **RFC 8058 Compliant One-Click Unsubscribe**: Fully compliant unsubscription backend handler (`api/unsubscribe.js`) supporting standard list-unsubscribe headers. Features GET redirection and POST execution to mark subscribers as inactive (`active: false`) in Firestore.
@@ -36,9 +36,9 @@ graph TD
 
 ---
 
-## 📂 Portal Layout & Page Breakdown
+##  Portal Layout & Page Breakdown
 
-### 🏠 Public Pages
+###  Public Pages
 
 1. **Home**: High-quality cover photo carousel, highlight showcases for "Capture of the Week" and "Capture of the Month", a live event banner, custom-built page transition animations, and site-wide theme configurations fetched dynamically from Firebase.
 2. **About Us**: Interactive visual timeline detailing the history, core values, mission, and milestones of CGEC's Photography Club.
@@ -53,7 +53,7 @@ graph TD
 
 ---
 
-### 🛡️ Admin Console (`/admin`)
+###  Admin Console (`/admin`)
 
 A secure administrative dashboard protected via Firebase Authentication, cross-checking privileges against an authorized list of administrators. It features:
 
@@ -69,7 +69,7 @@ A secure administrative dashboard protected via Firebase Authentication, cross-c
 
 ---
 
-## 🔌 API Integrations
+##  API Integrations
 
 ### 1. Resend Email API
 Used for sending transactional notifications and marketing newsletters:
@@ -82,7 +82,7 @@ Used in serverless edge environments (`api/metadata-utils.js`) to fetch document
 
 ---
 
-## 🗃️ Firebase Firestore Schema
+##  Firebase Firestore Schema
 
 | Collection Name | Document / Fields Description |
 | :--- | :--- |
@@ -100,7 +100,7 @@ Used in serverless edge environments (`api/metadata-utils.js`) to fetch document
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - Node.js (v18 or higher recommended)
