@@ -5065,7 +5065,8 @@ function MemberForm({ DEPTS, YEARS, onAdded }) {
 
 async function sendApplicationConfirmationEmail(formData) {
   try {
-    const response = await fetch('/api/send-email', {
+    // 1. Applicant Confirmation Email
+    const applicantEmailPromise = fetch('/api/send-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -5130,12 +5131,81 @@ async function sendApplicationConfirmationEmail(formData) {
         `
       })
     });
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Server returned ${response.status}: ${errText}`);
-    }
+
+    // 2. Admin Notification Email to contact@capturecrew.site
+    const adminNotificationPromise = fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'Capture Crew Applications <apply@capturecrew.site>',
+        to: 'contact@capturecrew.site',
+        reply_to: formData.email,
+        subject: `🚨 New Core Team Application: ${formData.name} (${formData.positions.join(', ')})`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #0A0A0B; color: #fff; padding: 2rem; border-radius: 16px; border: 1px solid #222;">
+            <div style="text-align: center; border-bottom: 1px solid #222; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+              <img src="https://res.cloudinary.com/dwp7fe7bo/image/upload/v1780682580/554399431_17944411011051405_1793754745012835189_n_qmgbm8.jpg" alt="Capture Crew Logo" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 1.5px solid #C9A96E; display: inline-block;" />
+              <h1 style="color: #C9A96E; font-size: 24px; margin: 0;">Capture Crew Admin Notification</h1>
+              <p style="color: #888; font-size: 11px; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 2px;">New Core Team Application Submitted</p>
+            </div>
+            
+            <h2 style="color: #fff; font-size: 20px; font-weight: normal; margin-bottom: 1rem;">New Student Application Received 📝</h2>
+            <p style="color: #ccc; font-size: 14px; line-height: 1.6; margin-bottom: 1.5rem;">
+              A student has submitted their details to join the <strong>Capture Crew Core Team</strong>. Here is the complete application breakdown:
+            </p>
+
+            <div style="background-color: rgba(201, 169, 110, 0.05); border: 1px solid rgba(201, 169, 110, 0.2); padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem;">
+              <h3 style="color: #C9A96E; font-size: 16px; margin-top: 0; margin-bottom: 1rem;">Applicant Details:</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #ccc;">
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; width: 140px; color: #888;">Full Name:</td>
+                  <td style="padding: 6px 0; color: #fff; font-weight: bold;">${formData.name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Email:</td>
+                  <td style="padding: 6px 0; color: #fff;"><a href="mailto:${formData.email}" style="color: #C9A96E; text-decoration: none;">${formData.email}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Phone Number:</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.phone || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Position(s):</td>
+                  <td style="padding: 6px 0; color: #C9A96E; font-weight: bold;">${formData.positions.join(', ')}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Department:</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.dept}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Academic Year:</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.year}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; font-weight: bold; color: #888;">Portfolio / Work:</td>
+                  <td style="padding: 6px 0; color: #fff;">${formData.portfolio ? `<a href="${formData.portfolio}" target="_blank" style="color: #C9A96E; text-decoration: underline;">View Portfolio Link</a>` : 'Not provided'}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 2rem;">
+              <a href="https://www.capturecrew.site/admin" style="background-color: #C9A96E; color: #111; text-decoration: none; padding: 12px 30px; font-weight: bold; border-radius: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">Open Admin Console</a>
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid #222; padding-top: 1.5rem; margin-top: 2.5rem; font-size: 11px; color: #666;">
+              <p>Automated notification sent to contact@capturecrew.site</p>
+              <p>&copy; ${new Date().getFullYear()} CGEC Capture Crew.</p>
+            </div>
+          </div>
+        `
+      })
+    });
+
+    await Promise.allSettled([applicantEmailPromise, adminNotificationPromise]);
   } catch (emailErr) {
-    console.error("Error sending confirmation email:", emailErr);
+    console.error("Error sending confirmation / admin notification email:", emailErr);
   }
 }
 
