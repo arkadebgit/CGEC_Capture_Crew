@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 /**
- * SmoothImage component replaces standard img elements to provide:
+ * BlurUpImage component replaces standard img elements to provide:
  * 1. Native lazy loading.
  * 2. Cloudinary f_auto,q_auto optimized full image.
- * 3. Prevention of layout shifts using an invisible micro-thumbnail spacer.
- * 4. Smooth fade-in & scale transitions.
- * 5. Native original aspect ratio without forced cropping.
+ * 3. Skeleton loading screen with dark shimmer animation.
+ * 4. Prevention of layout shifts using micro-thumbnail spacer or fallback aspect ratio.
+ * 5. Smooth fade-in & scale transitions.
+ * 6. Native original aspect ratio without forced cropping.
  */
 export default function BlurUpImage({
   src,
@@ -18,6 +19,11 @@ export default function BlurUpImage({
   ...props
 }) {
   const [fullLoaded, setFullLoaded] = useState(false);
+
+  // Reset loaded state whenever the src changes
+  useEffect(() => {
+    setFullLoaded(false);
+  }, [src]);
 
   // Parse Cloudinary URLs to inject transformations
   const getCloudinaryUrls = (url) => {
@@ -45,16 +51,17 @@ export default function BlurUpImage({
   const containerStyle = {
     ...style,
     // Only apply hardcoded aspect ratio if we can't use the native spacer trick
-    ...(!useSpacer && aspectRatio ? { aspectRatio } : {})
+    ...(!useSpacer && aspectRatio ? { aspectRatio: String(aspectRatio) } : {})
   };
 
   return (
     <div
-      className={`blur-up-container ${className}`}
+      className={`blur-up-container ${fullLoaded ? "is-loaded" : "is-loading"} ${className}`}
       style={containerStyle}
       onClick={onClick}
       {...props}
     >
+      {!fullLoaded && <div className="skeleton-loader" aria-hidden="true" />}
       {useSpacer && (
         <img
           src={thumbUrl}
@@ -70,8 +77,9 @@ export default function BlurUpImage({
         className={`blur-up-full ${fullLoaded ? "loaded" : ""}`}
         onLoad={() => setFullLoaded(true)}
         referrerPolicy="no-referrer"
-        style={useSpacer ? { position: "absolute", top: 0, left: 0 } : {}}
+        style={useSpacer ? { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" } : { width: "100%", height: "auto", display: "block" }}
       />
     </div>
   );
 }
+

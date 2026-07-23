@@ -4916,10 +4916,6 @@ function EventSection({ title, subtitle, photos, setLightboxItem, onClose, event
           >
             <div className="grid-item-inner">
               <BlurUpImage src={p} alt={title} />
-              <div className="grid-item-meta">
-                <span className="file-icon">📷</span>
-                <span className="file-name">IMG_{1000 + photos.indexOf(p)}.JPG</span>
-              </div>
             </div>
           </div>
         ))}
