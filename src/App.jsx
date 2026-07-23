@@ -1126,7 +1126,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
         <ul className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
           {[
             { id: "home", label: "Home" },
-            { id: "about", label: "About Us" },
             { id: "gallery", label: "Gallery", dropdown: [
               { label: "Weekly Captures", route: "/gallery/weekly-captures" },
               { label: "Monthly Captures", route: "/gallery/monthly-captures" },
@@ -1141,6 +1140,7 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             { id: "join", label: "Join" },
             { id: "contributors", label: "Contributors" },
             { id: "privacy-policy", label: "Privacy Policy" },
+            { id: "about", label: "About Us" },
             { id: "admin", label: "Admin Console" }
           ].map((item) => {
             const id = item.id;
