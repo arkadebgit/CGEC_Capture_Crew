@@ -2385,6 +2385,8 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
   const [showBulkCover, setShowBulkCover] = useState(false);
   const [siteForm, setSiteForm] = useState(siteConfig);
   const [isSavingSite, setIsSavingSite] = useState(false);
+  const [manageGalleryCategory, setManageGalleryCategory] = useState("All");
+
 
   useEffect(() => {
     if (tab === 'covers') {
@@ -2872,31 +2874,60 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
 
         {adminData?.role !== 'core_member' && tab === 'gallery' && (
           <div className="visible">
-            <h3 className="subcategory-title">Gallery <em>Archive</em></h3>
-            <div className="gallery-grid">
-              {!gallery || gallery.length === 0 ? (
-                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem 2rem', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '16px' }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📸</div>
-                  <p>The gallery is currently empty. Upload featured captures to see them here.</p>
-                </div>
-              ) : (
-                gallery.map(g => (
-                  <div key={g.id} className="gallery-item" style={{ border: '1px solid var(--border)', background: 'var(--card2)', display: 'flex', flexDirection: 'column' }}>
-                    <img src={g.url} alt="" loading="lazy" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} referrerPolicy="no-referrer" />
-                    <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gold)', marginBottom: '0.2rem' }}>{g.title || "Untitled"}</div>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginBottom: '1rem' }}>{g.photographer || "Unknown"} · {g.category}</div>
-                      <button onClick={async () => {
-                        if (window.confirm("Delete from Gallery?")) {
-                          try { await deleteDoc(doc(db, "gallery", g.id)); alert("Deleted!"); }
-                          catch (err) { alert("Error: " + err.message); }
-                        }
-                      }} style={{ background: 'rgba(255,77,77,0.1)', color: '#ff4d4d', border: '1px solid rgba(255,77,77,0.2)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.7rem', width: '100%', cursor: 'pointer', marginTop: 'auto' }}>Delete Photo 🗑️</button>
-                    </div>
-                  </div>
-                ))
-              )}
+            <h3 className="subcategory-title">Gallery <em>Archive Management</em></h3>
+            <p className="section-sub" style={{ marginBottom: '1.5rem' }}>
+              Manage main featured captures (Weekly Captures, Monthly Captures, and The Extra Frame).
+            </p>
+
+            {/* Sub-category Filter Buttons */}
+            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              {["All", "Weekly Captures", "Monthly Captures", "The Extra Frame"].map(cat => (
+                <button
+                  key={cat}
+                  type="button"
+                  className={`filter-btn ${manageGalleryCategory === cat ? 'active' : ''}`}
+                  onClick={() => setManageGalleryCategory(cat)}
+                  style={{ fontSize: '0.75rem', padding: '0.4rem 1rem' }}
+                >
+                  {cat === "All" ? "All Main Captures" : cat}
+                </button>
+              ))}
             </div>
+
+            {(() => {
+              const mainCategories = ["Weekly Captures", "Monthly Captures", "The Extra Frame"];
+              const mainPhotos = (gallery || []).filter(g => mainCategories.includes(g.category));
+              const displayedPhotos = manageGalleryCategory === "All"
+                ? mainPhotos
+                : mainPhotos.filter(g => g.category === manageGalleryCategory);
+
+              return (
+                <div className="gallery-grid">
+                  {displayedPhotos.length === 0 ? (
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '5rem 2rem', opacity: 0.5, border: '1px dashed var(--border)', borderRadius: '16px' }}>
+                      <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📸</div>
+                      <p>No featured captures found in this category. Upload captures via "Set Week", "Set Month", or "Set Extra Frame".</p>
+                    </div>
+                  ) : (
+                    displayedPhotos.map(g => (
+                      <div key={g.id} className="gallery-item" style={{ border: '1px solid var(--border)', background: 'var(--card2)', display: 'flex', flexDirection: 'column' }}>
+                        <img src={g.url} alt="" loading="lazy" style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '12px 12px 0 0' }} referrerPolicy="no-referrer" />
+                        <div style={{ padding: '1rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--gold)', marginBottom: '0.2rem' }}>{g.title || "Untitled"}</div>
+                          <div style={{ fontSize: '0.65rem', color: 'var(--muted)', marginBottom: '1rem' }}>{g.photographer || "Unknown"} · <span style={{ color: 'var(--gold)' }}>{g.category}</span></div>
+                          <button onClick={async () => {
+                            if (window.confirm(`Delete "${g.title || 'Photo'}" from Gallery?`)) {
+                              try { await deleteDoc(doc(db, "gallery", g.id)); alert("Deleted!"); }
+                              catch (err) { alert("Error: " + err.message); }
+                            }
+                          }} style={{ background: 'rgba(255,77,77,0.1)', color: '#ff4d4d', border: '1px solid rgba(255,77,77,0.2)', borderRadius: '6px', padding: '0.5rem', fontSize: '0.7rem', width: '100%', cursor: 'pointer', marginTop: 'auto' }}>Delete Photo 🗑️</button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
         {adminData?.role !== 'core_member' && tab === 'apps' && (
