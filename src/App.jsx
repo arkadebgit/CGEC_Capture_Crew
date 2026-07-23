@@ -11,6 +11,7 @@ import SEOMetadata from "./components/SEOMetadata";
 import { generateSlug } from "./utils/slug";
 import MaintenancePage from "./components/MaintenancePage";
 import AdminMaintenance from "./components/AdminMaintenance";
+import AdminSessionUpgrade from "./components/AdminSessionUpgrade";
 
 
 // ✦✦✦ PLACEHOLDER DATA ✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦──
@@ -3464,9 +3465,12 @@ function AdminDashboard({ user, adminData, archiveConfig, themeId, coverPhotos, 
         {tab === 'site' && (adminData?.role === 'lead' || adminData?.role === 'incharge' || adminData?.role === 'coordinator' || adminData?.role === 'moderator' || adminData?.canManageAdmins) && (
           <div className="visible">
             <h3 className="subcategory-title">Site <em>Configuration</em></h3>
-            <p className="section-sub" style={{ marginBottom: '2rem' }}>Manage global brand identity, hero texts, and social links.</p>
+            <p className="section-sub" style={{ marginBottom: '2rem' }}>Manage global brand identity, hero texts, social links, and academic session upgrades.</p>
             
+            <AdminSessionUpgrade db={db} />
+
             <div className="glass-form" style={{ padding: '2rem' }}>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
                 {/* IDENTITY */}
                 <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem' }}>

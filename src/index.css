@@ -2160,6 +2160,47 @@ section { padding: 7rem 0; }
   }
 }
 
+/* ACADEMIC SESSION UPGRADE STYLES */
+.session-upgrade-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+}
+
+.stat-card-box {
+  background: rgba(201, 169, 110, 0.05);
+  border: 1px solid rgba(201, 169, 110, 0.2);
+  border-radius: 14px;
+  padding: 1.2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card-box:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+}
+
+.stat-card-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.4rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-card-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+
 
 
 
