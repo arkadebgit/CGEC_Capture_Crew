@@ -432,23 +432,9 @@ const getOptimizedUrl = (url) => {
   return `${url.substring(0, uploadIndex + 7)}/f_auto,q_auto${url.substring(uploadIndex + 7)}`;
 };
 
-const reorderPhotosForMasonry = (items, isMobile) => {
+const reorderPhotosForMasonry = (items) => {
   if (!items || items.length === 0) return [];
-  const cols = isMobile ? 2 : 3;
-  if (cols <= 1) return items;
-
-  const reordered = [];
-  const itemsPerCol = Math.ceil(items.length / cols);
-
-  for (let c = 0; c < cols; c++) {
-    for (let r = 0; r < itemsPerCol; r++) {
-      const idx = r * cols + c;
-      if (idx < items.length) {
-        reordered.push(items[idx]);
-      }
-    }
-  }
-  return reordered;
+  return items;
 };
 
 export default function App() {
@@ -1086,9 +1072,12 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
   };
 
   const sortedGallery = [...filteredGalleryByYear].sort((a, b) => {
-    const dateA = a.captureDate || "";
-    const dateB = b.captureDate || "";
-    return dateB.localeCompare(dateA);
+    const dateA = a.captureDate || a.createdAt || "";
+    const dateB = b.captureDate || b.createdAt || "";
+    if (dateB !== dateA) return dateB.localeCompare(dateA);
+    const createdA = a.createdAt || "";
+    const createdB = b.createdAt || "";
+    return createdB.localeCompare(createdA);
   });
 
   const filteredGallery = galleryFilter === "All"

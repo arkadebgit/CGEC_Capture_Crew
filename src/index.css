@@ -468,12 +468,12 @@ section { padding: 7rem 0; }
   border-color: var(--gold); color: var(--gold); background: rgba(201,169,110,0.06);
 }
 .gallery-masonry {
-  column-count: 3;
-  column-gap: 1.5rem;
-  display: block;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
-@media(max-width: 900px) { .gallery-masonry { column-count: 2; } }
-@media(max-width: 540px) { .gallery-masonry { column-count: 1; } }
+@media(max-width: 900px) { .gallery-masonry { grid-template-columns: repeat(2, 1fr); gap: 1rem; } }
+@media(max-width: 540px) { .gallery-masonry { grid-template-columns: 1fr; gap: 1rem; } }
 
 .gallery-grid {
   display: grid;
@@ -486,10 +486,9 @@ section { padding: 7rem 0; }
   position: relative; overflow: hidden; cursor: pointer;
   background: var(--card); border-radius: 20px;
   transition: transform 0.6s var(--ease), box-shadow 0.6s var(--ease);
-  display: inline-block;
+  display: block;
   width: 100%;
-  break-inside: avoid;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 .gallery-item:hover {
   transform: scale(1.04);
@@ -709,9 +708,9 @@ section { padding: 7rem 0; }
 
   /* GALLERY GRID SYSTEM */
   .gallery-grid-system {
-    column-count: 3;
-    column-gap: 1.5rem;
-    display: block;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
   }
   .gallery-grid-item {
     background: var(--card);
@@ -722,10 +721,9 @@ section { padding: 7rem 0; }
     position: relative;
     animation: gridEntry 0.6s var(--ease) both;
     animation-delay: var(--delay, 0s);
-    display: inline-block;
+    display: block;
     width: 100%;
-    break-inside: avoid;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
     transition: transform 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
   }
   .gallery-grid-item:hover {
@@ -759,8 +757,8 @@ section { padding: 7rem 0; }
 
   /* MOBILE ADAPTATION */
   @media(max-width: 768px) {
-    .gallery-grid-system { column-count: 2; column-gap: 0.8rem; display: block; }
-    .gallery-grid-item { border-radius: 12px; margin-bottom: 0.8rem; }
+    .gallery-grid-system { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+    .gallery-grid-item { border-radius: 12px; margin-bottom: 0; }
     .grid-item-meta { display: none; }
     .explorer-header { border-radius: 12px; margin-bottom: 1.5rem; }
     .explorer-toolbar { padding: 1rem; flex-direction: column; align-items: flex-start; gap: 1rem; }
