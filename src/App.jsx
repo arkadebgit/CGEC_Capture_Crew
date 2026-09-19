@@ -6024,6 +6024,9 @@ function RecruitmentModal({ onClose }) {
               </div>
               <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1.2rem', lineHeight: '1.5' }}>
                 You can paste your video editings/Google Drive link and Instagram page link below. Submitting both is not mandatory, but at least one form of showcase (photos or links) is required.
+                <div style={{ marginTop: '0.5rem', color: 'var(--gold)', fontWeight: '600', background: 'rgba(201, 169, 110, 0.12)', borderLeft: '2px solid var(--gold)', padding: '0.4rem 0.8rem', borderRadius: '4px', display: 'block' }}>
+                  ⚠️ Make sure your Google Drive link access is set to "Anyone with the link".
+                </div>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
@@ -6244,6 +6247,9 @@ function RecruitmentPage() {
                 </div>
                 <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1.2rem', lineHeight: '1.5' }}>
                   You can paste your video editings/Google Drive link and Instagram page link below. Submitting both is not mandatory, but at least one form of showcase (photos or links) is required.
+                  <div style={{ marginTop: '0.5rem', color: 'var(--gold)', fontWeight: '600', background: 'rgba(201, 169, 110, 0.12)', borderLeft: '2px solid var(--gold)', padding: '0.4rem 0.8rem', borderRadius: '4px', display: 'block' }}>
+                    ⚠️ Make sure your Google Drive link access is set to "Anyone with the link".
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem' }}>
