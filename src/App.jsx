@@ -1606,11 +1606,21 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
             <p className="section-sub">From vibrant campus fests to unforgettable college moments — every event, immortalized through our lenses.</p>
           </div>
 
+          {/* Interactive Event Timeline Track */}
+          <EventTimelineTrack 
+            events={filteredEventsList} 
+            staticIcons={STATIC_EVENT_ICONS} 
+            navigate={navigate} 
+            generateSlug={generateSlug} 
+            siteConfig={siteConfig} 
+          />
+
           {/* Capture Crew Events Featured Card */}
           <div 
             className="event-card fade-in" 
             onClick={() => navigate('/events/cc-events')}
             style={{ 
+              marginTop: '4rem',
               marginBottom: '4rem', 
               cursor: 'pointer',
               background: 'linear-gradient(135deg, rgba(201, 169, 110, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%)',
@@ -1690,15 +1700,6 @@ If you'd rather not receive these club updates, you can unsubscribe here: ${unsu
               </a>
             </div>
           </div>
-
-          {/* Interactive Event Timeline Track */}
-          <EventTimelineTrack 
-            events={filteredEventsList} 
-            staticIcons={STATIC_EVENT_ICONS} 
-            navigate={navigate} 
-            generateSlug={generateSlug} 
-            siteConfig={siteConfig} 
-          />
         </div>
       </section>
         } />
